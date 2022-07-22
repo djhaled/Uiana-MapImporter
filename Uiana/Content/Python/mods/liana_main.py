@@ -21,11 +21,6 @@ projectpath = unreal.Paths.project_plugins_dir()
 newpath = projectpath + 'Uiana/Content/Python/assets/umapTYPE.json'
 f = open(newpath)
 JsonMapTypeData = json.load(f)
-try:
-	sys.dont_write_bytecode = True
-	from ..tools.injector import inject_dll
-except:
-	pass
 AllLevelPaths = []
 RepeatedMats = []
 AllTasks = []
@@ -36,58 +31,9 @@ AllMeshes = []
 AllObjects = []
 SELECTIVE_OBJECTS = []
 SELECTIVE_UMAP = [
-	# "Ascent_Art_A",
-	# "Ascent_Art_APathMid",
-	# "Ascent_Art_Atk",
-	# "Ascent_Art_AtkPathA",
-	# "Ascent_Art_AtkPathB",
-	# "Ascent_Art_B",
-	# "Ascent_Art_Def",
-	# "Ascent_Art_DefPathA",
-	# "Ascent_Art_DefPathB",
-	# "Ascent_Art_Env_VFX",
-	# "Ascent_Art_Mid",
-	# "Ascent_Art_Vista",
-	# "Ascent_Art_VistaA",
-	# "Ascent_Art_VistaAtk",
-	# "Ascent_Art_VistaB",
-	# "Ascent_Art_VistaDef",
-	# "Ascent_Gameplay",
-	# "Ascent_Lighting"
-]
-BLACKLIST = [
-	"navmesh",
-	"_breakable",
-	"_collision",
-	"WindStreaks_Plane",
-	"SM_Port_Snowflakes_BoundMesh",
-	"sm_barrierduality",
-	"box_for_volumes",
-	# "lightBlocker2"
+
 ]
 
-COUNT = 0
-
-
-# TODO DELETE THESE
-
-ScalarParameterValues = []
-StaticParameterValues = []
-TextureParameterValues = []
-BasePropertyOverrides = {}
-VectorParameterValues = []
-OtherTypes = []
-MaterialTypes = []
-
-PROPS = {
-	"ScalarParameterValues": ScalarParameterValues,
-	"Static": StaticParameterValues,
-	"TextureParameterValues": TextureParameterValues,
-	"BasePropertyOverrides": BasePropertyOverrides,
-	"Vector": VectorParameterValues,
-}
-object_types = []
-stdout = StringIO()
 
 
 
@@ -135,9 +81,6 @@ def do_import_tasks(Meshes,tasks,bTexture):
 	AllTextures.clear()
 
 
-def search_object(map_object, index):
-	pass
-
 def get_object(map_object, index):
 	master_object = search_object(map_object, index)
 	name = map_object.get_object_name()
@@ -155,14 +98,6 @@ def get_object(map_object, index):
 		AllMeshes.append(map_object)
 		AllTasks.append(task)
 		# master_object =
-
-	try:
-		pass
-		# link(master_object)
-		# scene_unlink(master_object)
-	except:
-		pass
-
 	return master_object
 
 
@@ -241,11 +176,11 @@ def get_map_assets(settings: Settings):
 		logger.info("JSON files are already extracted")
 
 	return umaps
-def SetMaterialVectorValue(Mat,Name,Value):
-		unreal.MaterialEditingLibrary.set_material_instance_vector_parameter_value(Mat,Name,Value)
+def SetMaterialVectorValue(Mat,ParamName,Value):
+		unreal.MaterialEditingLibrary.set_material_instance_vector_parameter_value(Mat,ParamName,Value)
 		unreal.MaterialEditingLibrary.update_material_instance(Mat)
-def SetMaterialScalarValue(Mat,Name,Value):
-		unreal.MaterialEditingLibrary.set_material_instance_scalar_parameter_value(Mat,Name,Value)
+def SetMaterialScalarValue(Mat,ParamName,Value):
+		unreal.MaterialEditingLibrary.set_material_instance_scalar_parameter_value(Mat,ParamName,Value)
 		unreal.MaterialEditingLibrary.update_material_instance(Mat)
 # TODO : MATERIALS
 def cast(object_to_cast=None, object_class=None):
@@ -289,8 +224,8 @@ def set_materials(Set,MapObject,decal):
 						continue
 					RepeatedMats.append(mat_name)
 					Mat = unreal.MaterialInstanceConstant.cast(Mat)
-					##MatBase = import_shaders()
-					##Mat.set_editor_property('parent', MatBase)
+					MatBase = import_shaders()
+				    Test = Mat.set_editor_property('parent', MatBase)
 					set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat )
 
 	if "OverrideMaterials" in object_properties:
@@ -328,70 +263,7 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 	mat_props = mat_data["Properties"]
 	mat_name = mat_data["Name"]
 	SetTextures(mat_props,UEMat)
-	types_base = [
-		"BaseEnv_MAT_V4",
-		"BaseEnv_MAT_V4_Fins",
-		"BaseEnv_MAT_V4_Inst",
-		"BaseEnvUBER_MAT_V3_NonshinyWall",
-		"BaseEnv_MAT_V4_Foliage",
-		"BaseEnv_MAT",
-		"BaseEnv_MAT_V4_ShadowAsTranslucent",
-		"Mat_BendingRope",
-		"FoliageEnv_MAT",
-		"BaseOpacitySpecEnv_MAT",
-		"BaseEnv_ClothMotion_MAT",
-		"BaseEnvVertexAlpha_MAT",
-		"Wood_M6_MoroccanTrimA_MI",
-		"Stone_M0_SquareTiles_MI",
-		"BaseEnv_MAT_V4_Rotating",
-		"HorizontalParallax",
-		"TileScroll_Mat",
-		"BasaltEnv_MAT",
-		"BaseEnvEmissive_MAT",
-		"BaseEnv_Unlit_MAT_V4"
-	]
-
-	types_blend = [
-		"BaseEnv_Blend_UV1_MAT_V4",
-		"BaseEnv_Blend_UV2_MAT_V4",
-		"BaseEnv_Blend_UV3_MAT_V4",
-		"BaseEnv_Blend_UV4_MAT_V4",
-		"BaseEnv_Blend_MAT_V4_V3Compatibility",
-		"BaseEnv_Blend_MAT_V4",
-		"BaseEnv_BlendNormalPan_MAT_V4",
-		"BaseEnv_Blend_UV2_Masked_MAT_V4",
-		"BlendEnv_MAT"
-	]
-
-	types_glass = [
-		"Glass"
-	]
-
-	types_emissive = [
-		"BaseEnv_Unlit_Texture_MAT_V4",
-	]
-
-	types_emissive_scroll = [
-		"BaseEnvEmissiveScroll_MAT",
-	]
-
-	types_screen = [
-		"BaseEnvEmissiveLCDScreen_MAT"
-	]
-
-	types_hologram = [
-		"BaseEnv_HologramA"
-	]
-
-	types_decal = [
-		"BaseOpacity_RGB_Env_MAT"
-	]
-	# if mat_type in types_glass:
-	#     N_SHADER.node_tree = get_valorant_shader(group_name="VALORANT_Base")
-	#     N_SHADER.inputs["Roughness"].default_value = 0.2
-	#     N_SHADER.inputs["Specular"].default_value = 0.2
-	#     link(N_SHADER.outputs["BSDF"], N_OUTPUT.inputs["Surface"])
-	#     mat.use_screen_refraction = True
+	
 	FoliageList = ['tree','Foliage','grass','Vista','Mountains']
 	for j in FoliageList:
 		if j in mat_name:
@@ -430,27 +302,12 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 		if "StaticSwitchParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticSwitchParameters"]:
 				param_name = param["ParameterInfo"]["Name"].lower()
-				if "rotate" in param_name:
-					pass
-				if "invert alpha (texture)" in param_name:
-					SetMaterialScalarValue(UEMat,"Invert Alpha",1)
-
-				if "use min light brightness color" in param_name :
-					if param["Value"]:
-						SetMaterialScalarValue(UEMat,"Use MLB Color",1)
-
-				if "use vertex color" in param_name:
-					SetMaterialScalarValue(UEMat,"Use Vertex Color",1)
-
-				if "use vertex alpha" in param_name:
-					SetMaterialScalarValue(UEMat,"Use Vertex Alpha",1)
-
-				if "use alpha as emissive" in param_name:
-					SetMaterialScalarValue(UEMat,"Use Alpha as Emissive",1)
+				param_value = param["ParameterValue"]
 
 		if "StaticComponentMaskParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
 				param_name = param["ParameterInfo"]["Name"].lower()
+				param_value = param["ParameterValue"]
 				if param_name == "mask":
 					# MASK = "R"
 					colors = {"R", "G", "B", "A"}
@@ -463,52 +320,13 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 	if "ScalarParameterValues" in mat_props:
 		for param in mat_props["ScalarParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
-
-			if "metallic" in param_name :
-				SetMaterialScalarValue(UEMat,"Metallic Strength",param["ParameterValue"])
-			# if "roughness mult" in param_name and "Roughness Strength" in N_SHADER.inputs:
-			#     N_SHADER.inputs["Roughness Strength"].default_value = param["ParameterValue"]
-			if "min light brightness" in param_name:
-				pass
-				# N_SHADER.inputs["Emission Strength"].default_value = param["ParameterValue"]
-
-			if "normal" in param_name :
-				SetMaterialScalarValue(UEMat,"Normal Strength",param["ParameterValue"])
-			if "roughness mult" in param_name:
-				SetMaterialScalarValue(UEMat,"Roughness Mult",param["ParameterValue"])
+			param_value = param["ParameterValue"]
+			SetMaterialScalarValue(UEMat,ParamName,param_value)
 	if "VectorParameterValues" in mat_props:
 		for param in mat_props["VectorParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
-			if "emissive mult" in param_name:
-				SetMaterialVectorValue(UEMat,"Emissive Multiplier",get_rgb(param_value))
-			if "diffusecolor" in param_name:
-				SetMaterialVectorValue(UEMat,"Diffuse Color",get_rgb(param_value))
-
-			if "ao color" in param_name:
-				SetMaterialVectorValue(UEMat,"AO Color",get_rgb(param_value))
-
-			if "lightmass-only vertex color" in param_name:
-				SetMaterialVectorValue(UEMat,"VC",get_rgb(param_value))
-
-			if "min light brightness color" in param_name:
-				SetMaterialVectorValue(UEMat,"ML Brightness",get_rgb(param_value))
-
-			if "color_1" in param_name:
-				SetMaterialVectorValue(UEMat,"Color 1",get_rgb(param_value))
-
-			if "color_2" in param_name:
-				SetMaterialVectorValue(UEMat,"Color 2",get_rgb(param_value))
-			if "line color" in param_name:
-				SetMaterialVectorValue(UEMat,"line color",get_rgb(param_value))
-			if "layer a tint" in param_name:
-				SetMaterialVectorValue(UEMat,"Tint",get_rgb(param_value))
-			if "layer b tint" in param_name:
-				SetMaterialVectorValue(UEMat,"Tint B",get_rgb(param_value))
-	if "GlassShardGlow" in UEMat.get_name():
-		SetMaterialScalarValue(UEMat,"Only Glow",1)
-		SetMaterialScalarValue(UEMat,"Emission Strength",15)
-
+			SetMaterialVectorValue(UEMat,ParamName,param_value)
 
 
 def get_scalar_value(mat_props, s_param_name):
@@ -522,8 +340,7 @@ def get_scalar_value(mat_props, s_param_name):
 # NOTE: Might be tuned bit more
 
 
-def get_image(tex_name, tex_local_path):
-	pass
+
 def ImportTexture(Path):
 	task = unreal.AssetImportTask()
 	task.set_editor_property('destination_path', '/Game/Meshes/All')
@@ -745,8 +562,8 @@ def SetAllSettings(asset,Comp):
 				continue
 			if Setting == "OrthoWidth":
 				Setting = "ortho_width"
-			PropPinto = Comp.get_editor_property(Setting)
-			classname = GetClassName(PropPinto)
+			PropSet = Comp.get_editor_property(Setting)
+			classname = GetClassName(PropSet)
 			if type(ActorSetting) == int:
 				Comp.set_editor_property(Setting, ActorSetting)
 				continue
@@ -759,7 +576,7 @@ def SetAllSettings(asset,Comp):
 			if type(ActorSetting) == str:
 				ActorSetting = ActorSetting.upper()
 			if "::" in ActorSetting:
-				ActorSetting = Return2Pontinhos(ActorSetting)
+				ActorSetting = ReturnFormattedString(ActorSetting,":")
 			if classname == "Color":
 				LCBlue = ActorSetting['B']
 				LCRed = ActorSetting['R']
@@ -786,10 +603,11 @@ def HasSetting(asset,comp,black):
 				return False
 			return True
 	return False
-def Return2Pontinhos(stra):
-	start = stra.rfind(":") + 1
-	end = len(stra)
-	return stra[start:end]
+def ReturnFormattedString(string,prefix):
+	start = string.rfind(prefix) + 1
+	end = len(string)
+	return string[start:end]
+
 def returnUnrealVector(prop):
 	vec = unreal.Vector(prop["X"],prop["Y"],prop["Z"])
 	return vec
@@ -799,20 +617,6 @@ def returnUnrealRotator(prop):
 	Quat = unreal.Quat(x=prop["X"], y=prop["Y"], z=prop["Z"], w=prop["W"])
 	rot = Quat.rotator()
 	return rot
-def SetLightMobility(Comp,Type):
-	lastdot = Type.rfind(':') + 1
-	MobilityRedoted = Type[lastdot:len(Type)]
-	MobilityFinalVersion = MobilityRedoted.upper()
-	if MobilityFinalVersion == "STATIC":
-		Beka = Comp.set_editor_property('mobility', unreal.ComponentMobility.STATIC)
-		#Comp.set_editor_property('Intensity', 1.0)
-	if MobilityFinalVersion == "STATIONARY":
-		Beka =Comp.set_editor_property('mobility', unreal.ComponentMobility.STATIONARY)
-	if MobilityFinalVersion == "MOVABLE":
-		Beka =Comp.set_editor_property('mobility', unreal.ComponentMobility.MOVABLE)
-def PrintAndExit(opa):
-	print(opa)
-	exit()
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	map_object = None
 	test = []
@@ -952,9 +756,7 @@ def SetCubeMapTexture(Seting):
 def SetIesTexture(setting):
 	pathIES = setting["ObjectName"]
 	StartNewTextureName = pathIES
-	MidNewTextureName = StartNewTextureName.rfind('_')+1
-	LenTextureName = len(StartNewTextureName)
-	NewTextureName = StartNewTextureName[MidNewTextureName:LenTextureName]
+	NewTextureName = ReturnFormattedString(StartNewTextureName,"_")
 	AssetPath = (f'/Uiana/IESProfiles/{NewTextureName}.{NewTextureName}')
 	TextureIES = unreal.load_asset(AssetPath)
 	return TextureIES
@@ -1004,10 +806,7 @@ def ConvertToLoadableUE(Mesh,Type):
 	PathToGo = f'/Game/Meshes/All/{NewName}'
 	return PathToGo
 
-def ConvertToLoadableMatTest(Mesh,Type):
-	typestring = str(Type)
-	NewName = Mesh.replace(f'{Type}', "")
-	return NewName
+
 def GetMaterialToOverride(Papa):
 	Props = Papa["Properties"]
 	MaterialArray = []
@@ -1026,9 +825,7 @@ def GetMaterialToOverride(Papa):
 		MaterialArray.append(Material)
 	return MaterialArray
 def IterateArrayMats(foo):
-	NameFindDot = foo.rfind('/') + 1
-	NameLen = len(str(foo))
-	ActualName = foo[NameFindDot:NameLen]
+	ActualName = ReturnFormattedString(foo,"/")
 	for j in AllLoadableMaterials:
 		if j.find(ActualName) != -1:
 			return j
@@ -1040,9 +837,7 @@ def SpawnMeshesInMap(data,set,mapname):
 		NameFull = Asset.get_full_name()
 		if "MaterialInstanceConstant " in NameFull:
 			Name = NameFull.replace("MaterialInstanceConstant ", "")
-			NameFindDot = Name.rfind('.') + 1
-			NameLen = len(str(Name))
-			ActualName = Name[NameFindDot:NameLen]
+			ActualName = ReturnFormattedString(Name,".")
 			AllLoadableMaterials[f"{ActualName}"] = NameFull
 	for j in data:
 		object_type = get_object_type(j)
@@ -1170,11 +965,6 @@ def GetReadableUMapType(mapname):
 		if mapname == NewMapName:
 			return MapType
 
-# ANCHOR MAIN FUNCTION
-def AfterSlash(san):
-	first = san.rfind("/") + 1
-	end = len(san)
-	return san[first:end]
 
 def import_map(Setting):
 	print("Importing Map")
@@ -1199,7 +989,7 @@ def import_map(Setting):
 		#slow_task.enter_progress_frame(work=1, desc=f"Map {umap_name} {index}/{total_frames} ")
 	world = unreal.EditorLevelLibrary.get_editor_world()
 	for j in AllLevelPaths:
-		JAfterSlash = AfterSlash(j)
+		JAfterSlash = ReturnFormattedString(j,"/")
 		MapType = GetUMapType(JAfterSlash)
 		unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
 		ReadableMapType = GetReadableUMapType(JAfterSlash)
