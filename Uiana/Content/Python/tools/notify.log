@@ -1,0 +1,9 @@
+ERROR: Memory: bad allocation size -1759697132 bytes
+appMalloc: size=-1759697132 (total=48 Mbytes) <- FArray::Empty: 1642928279 x 12 <- FPackageFileSummary::Serialize4 <- FPackageFileSummary<<: Ver=0/0 <- UnPackage::UnPackage: /Game/Environment/Asset/Decals/AdobeBricks/M1/AdobeBricks_M1_WearAndTear_DF.uasset, ver=517/0, game=ue4.23 <- UnPackage::LoadPackage(info): /Game/Environment/Asset/Decals/AdobeBricks/M1/AdobeBricks_M1_WearAndTear_DF.uasset <- UIMenuItem::HandleCommand <- UIMenu::Popup <- UIBaseDialog::WndProc <- UIBaseDialog::CustomMessageLoop <- UIBaseDialog::ShowDialog: modal=1, title="Choose a package to open" <- CUmodelApp::ShowPackageUI <- Main: umodel_build=(unversioned)
+
+
+******** /Game/Environment/Jammers/Meshes/SM_PitFloor.uasset:  StaticMesh4'SM_PitFloor' ********
+
+ERROR: SDL2.dll was not found, terminating...
+SDL.Init <- VisualizerLoop <- Main: umodel_build=(unversioned)
+

@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "dgSpecHash": "6CWQu33y8w6aiKSvUnhzSPvDijGkJGauy46b5lUOw4c0ssIsJeaR+mjqpFNrHjDEO85WK3oMTRvna90z/KPahw==",
+  "success": false,
+  "projectFilePath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\BERNA\\.nuget\\packages\\microsoft.csharp\\4.4.1\\microsoft.csharp.4.4.1.nupkg.sha512",
+    "C:\\Users\\BERNA\\.nuget\\packages\\system.commandline\\2.0.0-beta1.21216.1\\system.commandline.2.0.0-beta1.21216.1.nupkg.sha512",
+    "C:\\Users\\BERNA\\.nuget\\packages\\system.commandline.dragonfruit\\0.3.0-alpha.21216.1\\system.commandline.dragonfruit.0.3.0-alpha.21216.1.nupkg.sha512",
+    "C:\\Users\\BERNA\\.nuget\\packages\\system.commandline.rendering\\0.3.0-alpha.21216.1\\system.commandline.rendering.0.3.0-alpha.21216.1.nupkg.sha512",
+    "C:\\Users\\BERNA\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Unable to find project 'C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj'. Check that the project reference is valid and that the project file exists.",
+      "libraryId": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj",
+      "targetGraphs": [
+        "net6.0"
+      ]
+    },
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Unable to find project 'C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj'. Check that the project reference is valid and that the project file exists.",
+      "libraryId": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj",
+      "targetGraphs": [
+        "net6.0"
+      ]
+    }
+  ]
+}

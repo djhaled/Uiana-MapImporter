@@ -1,0 +1,13 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-UnrealPSKPSA.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Intermediate\Build\Win64\RangeRemakeEditor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h.obj"
+"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\Development\UnrealPSKPSA\Module.UnrealPSKPSA.cpp.obj"
+"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\Development\UnrealPSKPSA\Module.UnrealPSKPSA.gen.cpp.obj"
+"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\Development\UnrealPSKPSA\Default.rc2.res"
+/OUT:"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\Development\UnrealPSKPSA\UnrealEditor-UnrealPSKPSA.lib"

@@ -1,0 +1,17 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.Uiana.cpp.obj": [
+			"Uiana.cpp.obj",
+			"UianaCommands.cpp.obj",
+			"UianaDataSettings.cpp.obj",
+			"UianaStyle.cpp.obj",
+			"ValActor.cpp.obj"
+		],
+		"Module.Uiana.gen.cpp.obj": [
+			"Uiana.init.gen.cpp.obj",
+			"UianaDataSettings.gen.cpp.obj",
+			"ValActor.gen.cpp.obj"
+		]
+	}
+}

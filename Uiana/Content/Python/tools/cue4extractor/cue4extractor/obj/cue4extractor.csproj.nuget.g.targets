@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)system.commandline.dragonfruit\0.3.0-alpha.21216.1\build\netstandard2.0\System.CommandLine.DragonFruit.targets" Condition="Exists('$(NuGetPackageRoot)system.commandline.dragonfruit\0.3.0-alpha.21216.1\build\netstandard2.0\System.CommandLine.DragonFruit.targets')" />
+  </ImportGroup>
+</Project>

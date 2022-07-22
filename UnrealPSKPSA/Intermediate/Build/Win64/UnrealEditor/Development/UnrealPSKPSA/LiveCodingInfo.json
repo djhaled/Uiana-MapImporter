@@ -1,0 +1,13 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.UnrealPSKPSA.cpp.obj": [
+			"PSKFactory.cpp.obj",
+			"UnrealPSKPSA.cpp.obj"
+		],
+		"Module.UnrealPSKPSA.gen.cpp.obj": [
+			"PSKFactory.gen.cpp.obj",
+			"UnrealPSKPSA.init.gen.cpp.obj"
+		]
+	}
+}
