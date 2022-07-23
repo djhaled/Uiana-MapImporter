@@ -82,23 +82,18 @@ def do_import_tasks(Meshes,tasks,bTexture):
 
 
 def get_object(map_object, index):
-	master_object = search_object(map_object, index)
 	name = map_object.get_object_name()
 	path_to_file = unreal.load_asset(f"/Game/Meshes/All/{name}")
 	if path_to_file != None:
 		return
-	#file_exists = exists(path_to_file)
-	if not master_object:
-		task = unreal.AssetImportTask()
-		task.set_editor_property('destination_path', '/Game/Meshes/All')
-		task.set_editor_property('filename', map_object.model_path)
-		task.set_editor_property('automated', True)
-		task.set_editor_property('save', True)
-		task.set_editor_property('replace_existing', False)
-		AllMeshes.append(map_object)
-		AllTasks.append(task)
-		# master_object =
-	return master_object
+	task = unreal.AssetImportTask()
+	task.set_editor_property('destination_path', '/Game/Meshes/All')
+	task.set_editor_property('filename', map_object.model_path)
+	task.set_editor_property('automated', True)
+	task.set_editor_property('save', True)
+	task.set_editor_property('replace_existing', False)
+	AllMeshes.append(map_object)
+	AllTasks.append(task)
 
 
 def get_map_assets(settings: Settings):
@@ -177,11 +172,11 @@ def get_map_assets(settings: Settings):
 
 	return umaps
 def SetMaterialVectorValue(Mat,ParamName,Value):
-		unreal.MaterialEditingLibrary.set_material_instance_vector_parameter_value(Mat,ParamName,Value)
-		unreal.MaterialEditingLibrary.update_material_instance(Mat)
+	unreal.MaterialEditingLibrary.set_material_instance_vector_parameter_value(Mat,ParamName,Value)
+	unreal.MaterialEditingLibrary.update_material_instance(Mat)
 def SetMaterialScalarValue(Mat,ParamName,Value):
-		unreal.MaterialEditingLibrary.set_material_instance_scalar_parameter_value(Mat,ParamName,Value)
-		unreal.MaterialEditingLibrary.update_material_instance(Mat)
+	unreal.MaterialEditingLibrary.set_material_instance_scalar_parameter_value(Mat,ParamName,Value)
+	unreal.MaterialEditingLibrary.update_material_instance(Mat)
 # TODO : MATERIALS
 def cast(object_to_cast=None, object_class=None):
 	try:
@@ -225,7 +220,7 @@ def set_materials(Set,MapObject,decal):
 					RepeatedMats.append(mat_name)
 					Mat = unreal.MaterialInstanceConstant.cast(Mat)
 					MatBase = import_shaders()
-				    Test = Mat.set_editor_property('parent', MatBase)
+					Parent = Mat.set_editor_property('parent', MatBase)
 					set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat )
 
 	if "OverrideMaterials" in object_properties:
@@ -269,10 +264,6 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 		if j in mat_name:
 			StaticSwitch =  unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'IsPlantation',True)
 
-
-	if mat_type  in types_emissive:
-		unreal.MaterialEditingLibrary.set_material_instance_scalar_parameter_value(UEMat,"Emission Strength",3)
-		unreal.MaterialEditingLibrary.update_material_instance(UEMat)
 	BasePropsBlacklist = ['bVertexFog','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	if "BasePropertyOverrides" in mat_props:
 		for prop_name, prop_value in mat_props["BasePropertyOverrides"].items():
@@ -302,31 +293,32 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 		if "StaticSwitchParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticSwitchParameters"]:
 				param_name = param["ParameterInfo"]["Name"].lower()
-				param_value = param["ParameterValue"]
-
+				param_value = param["Value"]
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, param_name,bool(param_value))
 		if "StaticComponentMaskParameters" in mat_props["StaticParameters"]:
-			for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
-				param_name = param["ParameterInfo"]["Name"].lower()
-				param_value = param["ParameterValue"]
-				if param_name == "mask":
-					# MASK = "R"
-					colors = {"R", "G", "B", "A"}
-					for color in colors:
-						if color in param:
-							if param[color]:
-								pass
+			pass
+			# for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
+			# 	param_name = param["ParameterInfo"]["Name"].lower()
+			# 	param_value = param["ParameterInfo"]["bOverride"]
+			# 	if param_name == "mask":
+			# 		# MASK = "R"
+			# 		colors = {"R", "G", "B", "A"}
+			# 		for color in colors:
+			# 			if color in param:
+			# 				if param[color]:
+			# 					pass
 								#if f"Use {color}" in N_SHADER.inputs:
 									#N_SHADER.inputs[f"Use {color}"].default_value = 1
 	if "ScalarParameterValues" in mat_props:
 		for param in mat_props["ScalarParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
-			SetMaterialScalarValue(UEMat,ParamName,param_value)
+			SetMaterialScalarValue(UEMat,param_name,param_value)
 	if "VectorParameterValues" in mat_props:
 		for param in mat_props["VectorParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
-			SetMaterialVectorValue(UEMat,ParamName,param_value)
+			SetMaterialVectorValue(UEMat,param_name,get_rgb(param_value))
 
 
 def get_scalar_value(mat_props, s_param_name):
@@ -339,7 +331,7 @@ def get_scalar_value(mat_props, s_param_name):
 # SECTION Get Textures
 # NOTE: Might be tuned bit more
 
-
+COUNT = 0
 
 def ImportTexture(Path):
 	task = unreal.AssetImportTask()
@@ -378,16 +370,25 @@ def SetTextures(mat_props: dict, MatRef):
 				ImportedTexture = unreal.load_asset(f'/Game/Meshes/All/{tex_name}.{tex_name}')
 			if ImportedTexture == None:
 				continue
-			if "diffuse" == param_name or "diffuse a" == param_name or "albedo" == param_name or "texture a" == param_name or "rgba" == param_name:
-				StaticSwitch =  unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use DF Texture',True)
-				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'DF', ImportedTexture)
-			if "mra" == param_name or "mra a" == param_name:
-				StaticSwitch =  unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use MRA Texture',True)
+			if "diffuse" == param_name or "albedo" == param_name :
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
+			if "diffuse a" == param_name  or "texture a" == param_name or "rgba" == param_name:
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
+			if "diffuse b" == param_name:
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
+			if "mra" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA', ImportedTexture)
-			if "normal" == param_name or "texture a normal" == param_name or "normal a" == param_name:
-				StaticSwitch =  unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use NM Texture',True)
-				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'NM', ImportedTexture)
+			if  "mra a" == param_name:
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA A', ImportedTexture)
+			if "mra b" == param_name :
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA B', ImportedTexture)
+			if "normal" == param_name:
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Normal', ImportedTexture)
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustNormal',True)
+			if  "texture a normal" == param_name or "normal a" == param_name:
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture A Normal', ImportedTexture)
 			if "normal b" == param_name or "texture b normal" == param_name:
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture B Normal', ImportedTexture)
 				pass
 			if "mask" in param_name or "rgba" in param_name:
 				pass
@@ -425,20 +426,11 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
 
 	new_list = []
 
-	def is_blacklisted(object_name: str) -> bool:
-		for blocked in BLACKLIST:
-			if blocked.lower() in object_name.lower():
-				return True
-		return False
 
 	# Check for blacklisted items
 	for og_model in filtered_list:
 		model_name_lower = get_object_name(data=og_model, mat=False).lower()
-
-		if is_blacklisted(model_name_lower):
-			continue
-		else:
-			new_list.append(og_model)
+		new_list.append(og_model)
 
 	return new_list
 def HasTransform(prop):
@@ -805,7 +797,10 @@ def ConvertToLoadableUE(Mesh,Type):
 	NewName = Name.replace(f'{Type}', "")
 	PathToGo = f'/Game/Meshes/All/{NewName}'
 	return PathToGo
-
+def ConvertToLoadableMaterial(Mesh,Type):
+	typestring = str(Type)
+	NewName = Mesh.replace(f'{Type}', "")
+	return NewName
 
 def GetMaterialToOverride(Papa):
 	Props = Papa["Properties"]
@@ -820,7 +815,7 @@ def GetMaterialToOverride(Papa):
 		if Result == None:
 			continue
 		ToLoad = AllLoadableMaterials[f"{Result}"]
-		Shi = ConvertToLoadableMatTest(ToLoad,"MaterialInstanceConstant ")
+		Shi = ConvertToLoadableMaterial(ToLoad,"MaterialInstanceConstant ")
 		Material = unreal.load_asset(Shi)
 		MaterialArray.append(Material)
 	return MaterialArray
@@ -903,7 +898,7 @@ def import_object(map_object: MapObject,  object_index: int):
 # ANCHOR Post Processing
 
 def import_shaders():
-	BaseShader = unreal.load_asset('/Uiana/Materials/MasterMaterial')
+	BaseShader = unreal.load_asset('/Uiana/Materials/ValoOpaqueMasterNEW')
 	return BaseShader
 
 def importDecalShaders():

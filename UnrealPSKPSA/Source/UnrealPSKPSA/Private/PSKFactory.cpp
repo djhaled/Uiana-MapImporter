@@ -134,7 +134,6 @@ UObject* UPSKFactory::ImportPSKX(const FString Filename, UObject* Parent, const 
 			MaterialInstance->MarkPackageDirty();
 			FStaticMaterial StaticMaterial;
 			StaticMaterial.MaterialInterface = MaterialInstance;
-			MaterialInstance->Parent = CastChecked<UMaterial>(UEditorAssetLibrary::LoadAsset("/Uiana/Materials/MasterMaterial.MasterMaterial"));
 			StaticMesh->GetStaticMaterials().Add(StaticMaterial);
 			StaticMesh->GetSectionInfoMap().Set(0, MatIndex, FMeshSectionInfo(MatIndex));
 			continue;
@@ -143,19 +142,10 @@ UObject* UPSKFactory::ImportPSKX(const FString Filename, UObject* Parent, const 
 		MaterialInstance->MarkPackageDirty();
 		FStaticMaterial StaticMaterial;
 		StaticMaterial.MaterialInterface = MaterialInstance;
-		MaterialInstance->Parent = CastChecked<UMaterial>(UEditorAssetLibrary::LoadAsset("/Uiana/Materials/MasterMaterial.MasterMaterial"));
 		StaticMesh->GetStaticMaterials().Add(StaticMaterial);
 		StaticMesh->GetSectionInfoMap().Set(0, MatIndex, FMeshSectionInfo(MatIndex));
 	}
-	
 
-	//int32 beka = Reader.VMain
-	if (Reader.Sets.empty() != true)
-	{
-		StaticMesh->SetLightMapResolution(Reader.Sets[0].LightningResolution);
-		StaticMesh->SetLightmapUVDensity(Reader.Sets[0].UVDensity);
-		StaticMesh->SetLightMapCoordinateIndex(Reader.Sets[0].CoordinateIndex);
-	}
 	auto& SourceModel = StaticMesh->AddSourceModel();
 	SourceModel.BuildSettings.bGenerateLightmapUVs = false;
 	SourceModel.BuildSettings.bBuildReversedIndexBuffer = false;
