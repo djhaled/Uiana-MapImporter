@@ -1,16 +1,8 @@
-from ast import Import
-from pydoc import allmethods
-import sys
+
 import os
 from os.path import exists
 import subprocess
-import struct
-import traceback
-from unicodedata import name
 import unreal
-from contextlib import redirect_stdout
-from sys import stdout
-from io import StringIO
 import time
 from mods.liana.helpers import *
 from mods.liana.valorant import *
@@ -18,12 +10,6 @@ from mods.liana.valorant import *
 start_time = time.time()
 AssetRegistry = unreal.AssetRegistryHelpers.get_asset_registry()
 Seting = None
-projectpath = unreal.Paths.project_plugins_dir()
-newpath = projectpath + 'Uiana/Content/Python/assets/umapTYPE.json'
-f = open(newpath)
-unpack_4uint8 = struct.Struct("<4B").unpack
-JsonMapTypeData = json.load(f)
-AllLevelPaths = []
 RepeatedMats = []
 AllTasks = []
 AllTextures= []
@@ -31,14 +17,33 @@ object_types = []
 AllLoadableMaterials = {}
 AllMeshes = []
 AllObjects = []
-SELECTIVE_OBJECTS = []
-SELECTIVE_UMAP = [
-
-]
 
 
 
 
+def IterateArrayMats(foo,all):
+	ActualName = ReturnFormattedString(foo,"/")
+	for j in AllLoadableMaterials:
+		if j.find(ActualName) != -1:
+			return j
+	return None
+def GetMaterialToOverride(Papa):
+	Props = Papa["Properties"]
+	MaterialArray = []
+	OverrideMaterials = Props["OverrideMaterials"]
+	for j in OverrideMaterials:
+		Loadable = ConvertToLoadableUE(j,"MaterialInstanceConstant ")
+		if Loadable == None:
+			MaterialArray.append(None)
+			continue
+		Result = IterateArrayMats(Loadable)
+		if Result == None:
+			continue
+		ToLoad = AllLoadableMaterials[f"{Result}"]
+		Shi = ConvertToLoadableMaterial(ToLoad,"MaterialInstanceConstant ")
+		Material = unreal.load_asset(Shi)
+		MaterialArray.append(Material)
+	return MaterialArray
 def extract_assets(settings: Settings):
 	if settings.assets_path.joinpath("exported.yo").exists():
 		pass
@@ -56,8 +61,6 @@ def extract_assets(settings: Settings):
 		subprocess.call(args,stderr=subprocess.DEVNULL)
 
 
-def PrintExecutionTime(number):
-	print(f"--- %s seconds{number} ---" % (time.time() - start_time))
 
 def extract_data(settings: Settings, export_directory: str, asset_list_txt: str = ""):
 	args = [settings.cue4extractor.__str__(),
@@ -170,21 +173,9 @@ def get_map_assets(settings: Settings):
 	else:
 		umaps = get_files(
 			path=settings.selected_map.umaps_path.__str__(), extension=".json")
-		logger.info("JSON files are already extracted")
 
 	return umaps
-def SetMaterialVectorValue(Mat,ParamName,Value):
-	unreal.MaterialEditingLibrary.set_material_instance_vector_parameter_value(Mat,ParamName,Value)
-	unreal.MaterialEditingLibrary.update_material_instance(Mat)
-def SetMaterialScalarValue(Mat,ParamName,Value):
-	unreal.MaterialEditingLibrary.set_material_instance_scalar_parameter_value(Mat,ParamName,Value)
-	unreal.MaterialEditingLibrary.update_material_instance(Mat)
 # TODO : MATERIALS
-def cast(object_to_cast=None, object_class=None):
-	try:
-		return object_class.cast(object_to_cast)
-	except:
-		return None
 	### WAITING ON HALF TO FIX .PSKS
 def SetDecalMaterial(Set,MapObject):
 	Set = Seting
@@ -192,7 +183,7 @@ def SetDecalMaterial(Set,MapObject):
 	ObjectName = MapObject["Name"]
 	if "DecalMaterial" in MapObject["Properties"]:
 		yoyo = MapObject["Properties"]["DecalMaterial"]
-		mat_name = get_object_name(data=yoyo, mat=True)
+		mat_name = get_obj_name(data=yoyo, mat=True)
 		mat_json = read_json(Set.selected_map.materials_ovr_path.joinpath(f"{mat_name}.json"))
 		Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
 		if Mat is None:
@@ -212,7 +203,7 @@ def set_materials(Set,MapObject,decal):
 	if "StaticMaterials" in object_properties_OG:
 		for index, mat in enumerate(object_properties_OG["StaticMaterials"]):
 			if type(mat["MaterialInterface"]) is dict:
-				mat_name = get_object_name(data=mat["MaterialInterface"], mat=True)
+				mat_name = get_obj_name(data=mat["MaterialInterface"], mat=True)
 				if "WorldGridMaterial" not in mat_name and mat_name not in RepeatedMats:
 					mat_json = read_json(Set.selected_map.materials_path.joinpath(f"{mat_name}.json"))
 					mat_data = mat_json[0]
@@ -228,7 +219,7 @@ def set_materials(Set,MapObject,decal):
 	if "OverrideMaterials" in object_properties:
 		for index, mat in enumerate(object_properties["OverrideMaterials"]):
 			if type(mat) is dict:
-				mat_name = get_object_name(data=mat, mat=True)
+				mat_name = get_obj_name(data=mat, mat=True)
 				if mat_name  in RepeatedMats:
 					continue
 				mat_json = read_json(Set.selected_map.materials_ovr_path.joinpath(f"{mat_name}.json"))
@@ -398,75 +389,6 @@ def SetTextures(mat_props: dict, MatRef):
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 
 
-
-def filter_objects(umap_DATA, lights: bool = False) -> list:
-
-	objects = umap_DATA
-	filtered_list = []
-	# Debug check
-	if SELECTIVE_OBJECTS:
-		for filter_model_name in SELECTIVE_OBJECTS:
-			for og_model in objects:
-				object_type = get_object_type(og_model)
-				if object_type == "mesh":
-					if filter_model_name in og_model["Properties"]["StaticMesh"]["ObjectPath"]:
-						og_model["Name"] = og_model["Properties"]["StaticMesh"]["ObjectPath"]
-						filtered_list.append(og_model)
-
-				elif object_type == "decal":
-					if filter_model_name in og_model["Outer"]:
-						og_model["Name"] = og_model["Outer"]
-						filtered_list.append(og_model)
-
-				elif object_type == "light":
-					if filter_model_name in og_model["Outer"]:
-						og_model["Name"] = og_model["Outer"]
-						filtered_list.append(og_model)
-
-	else:
-		filtered_list = objects
-
-	new_list = []
-
-
-	# Check for blacklisted items
-	for og_model in filtered_list:
-		model_name_lower = get_object_name(data=og_model, mat=False).lower()
-		new_list.append(og_model)
-
-	return new_list
-def HasTransform(prop):
-	bFactualBool = False
-	if HasKey("RelativeLocation",prop):
-		bFactualBool = True
-	if HasKey("RelativeRotation",prop):
-		bFactualBool = True
-	if HasKey("RelativeScale3D",prop):
-		bFactualBool = True
-	return bFactualBool
-def FindNonSlasher(dictstuff, value):
-	dact = dir(dictstuff)
-	if type(value) == list:
-		return None
-	newvalue = value.replace("_","")
-	for joga in dact:
-		noslash = joga.replace("_","")
-		uppernoslash = noslash.upper()
-		if uppernoslash == newvalue:
-			return joga
-def CreateNewLevel(mapname):
-	newmap = GetInitialName(mapname)
-	startpath = f"/Game/Maps/{newmap}/{mapname}"
-	unreal.EditorLevelLibrary.new_level(startpath)
-	AllLevelPaths.append(startpath)
-	unreal.EditorLevelLibrary.save_current_level() 
-
-def GetInitialName(ka):
-	slash = ka.find('_')
-	if slash == -1:
-		return ka
-	lenka = len(ka)
-	return ka[0:slash].lower()
 def SpawnMiscObject(data, umap):
 	for obj in data:
 		object_type = get_object_type(obj)
@@ -587,30 +509,9 @@ def SetAllSettings(asset,Comp):
 				continue
 			value = eval(f'unreal.{classname}.{ActualValue}')
 			Comp.set_editor_property(Setting, value)
-def HasSetting(asset,comp,black):
-	asset = asset.lower()
-	propdir = dir(comp)
-	for findprop in propdir:
-		noslashes = findprop.replace("_","")
-		if noslashes == asset:
-			if asset in black:
-				return False
-			return True
-	return False
-def ReturnFormattedString(string,prefix):
-	start = string.rfind(prefix) + 1
-	end = len(string)
-	return string[start:end]
 
-def returnUnrealVector(prop):
-	vec = unreal.Vector(prop["X"],prop["Y"],prop["Z"])
-	return vec
-def GetClassName(self):
-	return type(self).__name__
-def returnUnrealRotator(prop):
-	Quat = unreal.Quat(x=prop["X"], y=prop["Y"], z=prop["Z"], w=prop["W"])
-	rot = Quat.rotator()
-	return rot
+
+
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	map_object = None
 	test = []
@@ -728,105 +629,13 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	if Seting.import_Misc == True:
 		SpawnMiscObject(umap_data,umap_data)
 
-def HasKey(key,array):
-	if array == None:
-		return False
-	if key in array:
-		return True
-	else:
-		return False
 def SetPostProcessSettings(seteng,Comp):
 	for beka in seteng:
 		bekaBlackList=["bOverride_AmbientOcclusionTintColor","AutoExposureBiasBackup","AmbientOcclusionTintColor","SavedSelections","bOverride_AresAdaptiveSharpenEnable",'FilmContrast','FilmWhitePoint',"bOverride_AresClarityEnable","bOverride_IndirectLightingScaleCurve","bOverride_AutoExposureBiasBackup","IndirectLightingColor","IndirectLightingScaleCurve","bOverride_ScreenPercentage"]
 		if beka not in bekaBlackList:
 			Comp.set_editor_property(beka, seteng[beka])
 
-def SetCubeMapTexture(Seting):
-	pathCube = Seting["ObjectName"]
-	newtext = pathCube.replace("TextureCube ","")
-	AssetPath = (f'/Uiana/CubeMaps/{newtext}.{newtext}')
-	TextureCubeMap = unreal.load_asset(AssetPath)
-	return TextureCubeMap
-def SetIesTexture(setting):
-	pathIES = setting["ObjectName"]
-	StartNewTextureName = pathIES
-	NewTextureName = ReturnFormattedString(StartNewTextureName,"_")
-	AssetPath = (f'/Uiana/IESProfiles/{NewTextureName}.{NewTextureName}')
-	TextureIES = unreal.load_asset(AssetPath)
-	return TextureIES
-def GetTransform(Prop,bIsInstanced):
-	if HasKey("Properties",Prop) == False and bIsInstanced == False:
-		return None
-	if bIsInstanced == False:
-		Props = Prop["Properties"]
-	else:
-		Props = Prop
-	if HasKey("RelativeLocation",Props) or HasKey("OffsetLocation",Props) :
-		if bIsInstanced == True:
-			Location =  Props["OffsetLocation"]
-		else:
-			Location =  Props["RelativeLocation"]
-		LocationUnreal = unreal.Vector(Location["X"],Location["Y"],Location["Z"])
-	else:
-		#Location = {'X': 1.0, 'Y': 1.0, 'Z': 1.0}
-		LocationUnreal = unreal.Vector(0.0,0.0,0.0)
 
-	if HasKey("RelativeScale3D",Props):
-		Scale =  Props["RelativeScale3D"]
-		ScaleUnreal = unreal.Vector(Scale["X"],Scale["Y"],Scale["Z"])
-	else:
-		ScaleUnreal = unreal.Vector(1.0,1.0,1.0)
-		#Scale = {'X': 1.0, 'Y': 1.0, 'Z': 1.0}
-	if HasKey("RelativeRotation",Props):
-		Rotation = Props["RelativeRotation"]
-		#### Z = Yaw
-		RotYaw = Rotation["Yaw"]
-		#### Y = Pitch
-		RotPitch = Rotation["Pitch"]
-		#### X == Roll
-		RotRoll = Rotation["Roll"]
-		RotationUnreal = unreal.Rotator(RotRoll,RotPitch,RotYaw)
-	else:
-		Rotation = {'Yaw': 0.0, 'Pitch': 0.0, 'Roll': 0.0}
-		RotationUnreal = unreal.Rotator(0.0,0.0,0.0)
-	Trans = unreal.Transform(LocationUnreal, RotationUnreal, ScaleUnreal)
-	return Trans
-def ConvertToLoadableUE(Mesh,Type):
-	if Mesh == None:
-		return None
-	Name = Mesh["ObjectName"]
-	typestring = str(Type)
-	NewName = Name.replace(f'{Type}', "")
-	PathToGo = f'/Game/Meshes/All/{NewName}'
-	return PathToGo
-def ConvertToLoadableMaterial(Mesh,Type):
-	typestring = str(Type)
-	NewName = Mesh.replace(f'{Type}', "")
-	return NewName
-
-def GetMaterialToOverride(Papa):
-	Props = Papa["Properties"]
-	MaterialArray = []
-	OverrideMaterials = Props["OverrideMaterials"]
-	for j in OverrideMaterials:
-		Loadable = ConvertToLoadableUE(j,"MaterialInstanceConstant ")
-		if Loadable == None:
-			MaterialArray.append(None)
-			continue
-		Result = IterateArrayMats(Loadable)
-		if Result == None:
-			continue
-		ToLoad = AllLoadableMaterials[f"{Result}"]
-		Shi = ConvertToLoadableMaterial(ToLoad,"MaterialInstanceConstant ")
-		Material = unreal.load_asset(Shi)
-		MaterialArray.append(Material)
-	return MaterialArray
-def IterateArrayMats(foo):
-	ActualName = ReturnFormattedString(foo,"/")
-	for j in AllLoadableMaterials:
-		if j.find(ActualName) != -1:
-			return j
-	return None
 def SpawnMeshesInMap(data,set,mapname):
 	AllAssets = AssetRegistry.get_assets_by_path('/Game/Meshes/All/')
 	for j in AllAssets:
@@ -913,13 +722,6 @@ def import_object(map_object: MapObject,  object_index: int):
 
 # ANCHOR Post Processing
 
-def import_shaders():
-	BaseShader = unreal.load_asset('/Uiana/Materials/ValoOpaqueMasterNEW')
-	return BaseShader
-
-def importDecalShaders():
-	BaseShader = unreal.load_asset('/Uiana/Materials/MasterDecalMaterial')
-	return BaseShader
 def ImportAllTexturesFromMaterial(matJson):
 	for node in matJson:
 		if HasKey("Properties",node):
@@ -957,25 +759,6 @@ def ExportAllTexture():
 
 
 	do_import_tasks(None,AllTextures,True)
-def ClearLevel():
-	AllActors = unreal.EditorLevelLibrary.get_all_level_actors()
-	for j in AllActors:
-		unreal.EditorLevelLibrary.destroy_actor(j)
-
-def GetUMapType(mapname):
-	for j in JsonMapTypeData:
-		NewMapName = j["Name"]
-		MapType = j["StreamingType"]
-		if mapname == NewMapName:
-			return eval(f'unreal.{MapType}')
-
-def GetReadableUMapType(mapname):
-	for j in JsonMapTypeData:
-		NewMapName = j["Name"]
-		MapType = j["StreamingType"]
-		if mapname == NewMapName:
-			return MapType
-
 
 def import_map(Setting):
 	print("Importing Map")
@@ -995,16 +778,4 @@ def import_map(Setting):
 		umap_name = umap_json_path.stem
 		CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
-		unreal.EditorLevelLibrary.save_current_level()
-		#exit()
-		#slow_task.enter_progress_frame(work=1, desc=f"Map {umap_name} {index}/{total_frames} ")
-	world = unreal.EditorLevelLibrary.get_editor_world()
-	for j in AllLevelPaths:
-		JAfterSlash = ReturnFormattedString(j,"/")
-		MapType = GetUMapType(JAfterSlash)
-		unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
-		ReadableMapType = GetReadableUMapType(JAfterSlash)
-		if ReadableMapType == "LevelStreamingDynamic":
-			SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
-			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
-			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
+		LevelStreamingStuff()

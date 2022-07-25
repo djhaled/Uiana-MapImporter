@@ -1,5 +1,4 @@
 
-from asyncio.log import logger
 from pathlib import Path
 from .helpers import *
 
@@ -119,18 +118,6 @@ def HasKeyzin(key,array):
 	else:
 		return False
 
-def get_object_name(data: dict, mat: bool):
-	if mat:
-		s = data["ObjectPath"]
-	else:
-		if HasKeyzin("Properties",data) == False:
-			return "None"
-		if "StaticMesh" in data["Properties"]:
-			s = data["Properties"]["StaticMesh"]["ObjectPath"]
-		else:
-			s = data["Outer"]
-	k = get_name(s)
-	return k
 
 
 # ANCHOR Shaders

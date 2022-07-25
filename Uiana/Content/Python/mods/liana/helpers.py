@@ -3,21 +3,270 @@ import os
 import json
 from pathlib import Path
 from subprocess import run
-from shutil import rmtree
 from collections.abc import Iterable
-from enum import Enum
-import requests
-import argparse
 import time
+import unreal
 start_time = time.time()
-
-
+SELECTIVE_OBJECTS = []
+projectpath = unreal.Paths.project_plugins_dir()
+newpath = projectpath + 'Uiana/Content/Python/assets/umapTYPE.json'
+f = open(newpath)
+AllLevelPaths = []
+JsonMapTypeData = json.load(f)
 FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
 
-
+def LevelStreamingStuff():
+	unreal.EditorLevelLibrary.save_current_level()
+	#exit()
+	#slow_task.enter_progress_frame(work=1, desc=f"Map {umap_name} {index}/{total_frames} ")
+world = unreal.EditorLevelLibrary.get_editor_world()
+for j in AllLevelPaths:
+	JAfterSlash = ReturnFormattedString(j,"/")
+	MapType = GetUMapType(JAfterSlash)
+	unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
+	ReadableMapType = GetReadableUMapType(JAfterSlash)
+	if ReadableMapType == "LevelStreamingDynamic":
+		SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+		Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
+		unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
 # ANCHOR: Functions
 # -------------------------- #
+def ClearLevel():
+	AllActors = unreal.EditorLevelLibrary.get_all_level_actors()
+	for j in AllActors:
+		unreal.EditorLevelLibrary.destroy_actor(j)
 
+def SetCubeMapTexture(Seting):
+	pathCube = Seting["ObjectName"]
+	newtext = pathCube.replace("TextureCube ","")
+	AssetPath = (f'/Uiana/CubeMaps/{newtext}.{newtext}')
+	TextureCubeMap = unreal.load_asset(AssetPath)
+	return TextureCubeMap
+def SetIesTexture(setting):
+	pathIES = setting["ObjectName"]
+	StartNewTextureName = pathIES
+	NewTextureName = ReturnFormattedString(StartNewTextureName,"_")
+	AssetPath = (f'/Uiana/IESProfiles/{NewTextureName}.{NewTextureName}')
+	TextureIES = unreal.load_asset(AssetPath)
+	return TextureIES
+def CreateNewLevel(mapname):
+	newmap = GetInitialName(mapname)
+	startpath = f"/Game/Maps/{newmap}/{mapname}"
+	unreal.EditorLevelLibrary.new_level(startpath)
+	AllLevelPaths.append(startpath)
+	unreal.EditorLevelLibrary.save_current_level() 
+def SetMaterialVectorValue(Mat,ParamName,Value):
+	unreal.MaterialEditingLibrary.set_material_instance_vector_parameter_value(Mat,ParamName,Value)
+	unreal.MaterialEditingLibrary.update_material_instance(Mat)
+def SetMaterialScalarValue(Mat,ParamName,Value):
+	unreal.MaterialEditingLibrary.set_material_instance_scalar_parameter_value(Mat,ParamName,Value)
+	unreal.MaterialEditingLibrary.update_material_instance(Mat)
+def GetReadableUMapType(mapname):
+	for j in JsonMapTypeData:
+		NewMapName = j["Name"]
+		MapType = j["StreamingType"]
+		if mapname == NewMapName:
+			return MapType
+
+def GetUMapType(mapname):
+	for j in JsonMapTypeData:
+		NewMapName = j["Name"]
+		MapType = j["StreamingType"]
+		if mapname == NewMapName:
+			return eval(f'unreal.{MapType}')
+def import_shaders():
+	BaseShader = unreal.load_asset('/Uiana/Materials/ValoOpaqueMasterNEW')
+	return BaseShader
+
+def importDecalShaders():
+	BaseShader = unreal.load_asset('/Uiana/Materials/MasterDecalMaterial')
+	return BaseShader
+def IterateArrayMats(foo):
+	ActualName = ReturnFormattedString(foo,"/")
+	for j in AllLoadableMaterials:
+		if j.find(ActualName) != -1:
+			return j
+	return None
+def GetMaterialToOverride(Papa):
+	Props = Papa["Properties"]
+	MaterialArray = []
+	OverrideMaterials = Props["OverrideMaterials"]
+	for j in OverrideMaterials:
+		Loadable = ConvertToLoadableUE(j,"MaterialInstanceConstant ")
+		if Loadable == None:
+			MaterialArray.append(None)
+			continue
+		Result = IterateArrayMats(Loadable)
+		if Result == None:
+			continue
+		ToLoad = AllLoadableMaterials[f"{Result}"]
+		Shi = ConvertToLoadableMaterial(ToLoad,"MaterialInstanceConstant ")
+		Material = unreal.load_asset(Shi)
+		MaterialArray.append(Material)
+	return MaterialArray
+def ConvertToLoadableMaterial(Mesh,Type):
+	typestring = str(Type)
+	NewName = Mesh.replace(f'{Type}', "")
+	return NewName
+def ConvertToLoadableUE(Mesh,Type):
+	if Mesh == None:
+		return None
+	Name = Mesh["ObjectName"]
+	typestring = str(Type)
+	NewName = Name.replace(f'{Type}', "")
+	PathToGo = f'/Game/Meshes/All/{NewName}'
+	return PathToGo
+def GetTransform(Prop,bIsInstanced):
+	if HasKey("Properties",Prop) == False and bIsInstanced == False:
+		return None
+	if bIsInstanced == False:
+		Props = Prop["Properties"]
+	else:
+		Props = Prop
+	if HasKey("RelativeLocation",Props) or HasKey("OffsetLocation",Props) :
+		if bIsInstanced == True:
+			Location =  Props["OffsetLocation"]
+		else:
+			Location =  Props["RelativeLocation"]
+		LocationUnreal = unreal.Vector(Location["X"],Location["Y"],Location["Z"])
+	else:
+		#Location = {'X': 1.0, 'Y': 1.0, 'Z': 1.0}
+		LocationUnreal = unreal.Vector(0.0,0.0,0.0)
+
+	if HasKey("RelativeScale3D",Props):
+		Scale =  Props["RelativeScale3D"]
+		ScaleUnreal = unreal.Vector(Scale["X"],Scale["Y"],Scale["Z"])
+	else:
+		ScaleUnreal = unreal.Vector(1.0,1.0,1.0)
+		#Scale = {'X': 1.0, 'Y': 1.0, 'Z': 1.0}
+	if HasKey("RelativeRotation",Props):
+		Rotation = Props["RelativeRotation"]
+		#### Z = Yaw
+		RotYaw = Rotation["Yaw"]
+		#### Y = Pitch
+		RotPitch = Rotation["Pitch"]
+		#### X == Roll
+		RotRoll = Rotation["Roll"]
+		RotationUnreal = unreal.Rotator(RotRoll,RotPitch,RotYaw)
+	else:
+		Rotation = {'Yaw': 0.0, 'Pitch': 0.0, 'Roll': 0.0}
+		RotationUnreal = unreal.Rotator(0.0,0.0,0.0)
+	Trans = unreal.Transform(LocationUnreal, RotationUnreal, ScaleUnreal)
+	return Trans
+def HasKey(key,array):
+	if array == None:
+		return False
+	if key in array:
+		return True
+	else:
+		return False
+def returnUnrealVector(prop):
+	vec = unreal.Vector(prop["X"],prop["Y"],prop["Z"])
+	return vec
+def GetClassName(self):
+	return type(self).__name__
+def returnUnrealRotator(prop):
+	Quat = unreal.Quat(x=prop["X"], y=prop["Y"], z=prop["Z"], w=prop["W"])
+	rot = Quat.rotator()
+	return rot
+def ReturnFormattedString(string,prefix):
+	start = string.rfind(prefix) + 1
+	end = len(string)
+	return string[start:end]
+def HasSetting(asset,comp,black):
+	asset = asset.lower()
+	propdir = dir(comp)
+	for findprop in propdir:
+		noslashes = findprop.replace("_","")
+		if noslashes == asset:
+			if asset in black:
+				return False
+			return True
+	return False
+def HasTransform(prop):
+	bFactualBool = False
+	if HasKey("RelativeLocation",prop):
+		bFactualBool = True
+	if HasKey("RelativeRotation",prop):
+		bFactualBool = True
+	if HasKey("RelativeScale3D",prop):
+		bFactualBool = True
+	return bFactualBool
+def GetInitialName(ka):
+	slash = ka.find('_')
+	if slash == -1:
+		return ka
+	lenka = len(ka)
+	return ka[0:slash].lower()
+
+def FindNonSlasher(dictstuff, value):
+	dact = dir(dictstuff)
+	if type(value) == list:
+		return None
+	newvalue = value.replace("_","")
+	for joga in dact:
+		noslash = joga.replace("_","")
+		uppernoslash = noslash.upper()
+		if uppernoslash == newvalue:
+			return joga
+def filter_objects(umap_DATA, lights: bool = False) -> list:
+
+	objects = umap_DATA
+	filtered_list = []
+	# Debug check
+	if SELECTIVE_OBJECTS:
+		for filter_model_name in SELECTIVE_OBJECTS:
+			for og_model in objects:
+				object_type = get_object_type(og_model)
+				if object_type == "mesh":
+					if filter_model_name in og_model["Properties"]["StaticMesh"]["ObjectPath"]:
+						og_model["Name"] = og_model["Properties"]["StaticMesh"]["ObjectPath"]
+						filtered_list.append(og_model)
+
+				elif object_type == "decal":
+					if filter_model_name in og_model["Outer"]:
+						og_model["Name"] = og_model["Outer"]
+						filtered_list.append(og_model)
+
+				elif object_type == "light":
+					if filter_model_name in og_model["Outer"]:
+						og_model["Name"] = og_model["Outer"]
+						filtered_list.append(og_model)
+
+	else:
+		filtered_list = objects
+
+	new_list = []
+
+
+	# Check for blacklisted items
+	for og_model in filtered_list:
+		model_name_lower = get_obj_name(data=og_model, mat=False).lower()
+		new_list.append(og_model)
+
+	return new_list
+def get_obj_name(data: dict, mat: bool):
+	if mat:
+		s = data["ObjectPath"]
+	else:
+		if HasKey("Properties",data) == False:
+			return "None"
+		if "StaticMesh" in data["Properties"]:
+			s = data["Properties"]["StaticMesh"]["ObjectPath"]
+		else:
+			s = data["Outer"]
+	k = get_name(s)
+	return k
+def get_name(s: str) -> str:
+	return Path(s).stem
+
+def cast(object_to_cast=None, object_class=None):
+	try:
+		return object_class.cast(object_to_cast)
+	except:
+		return None
+def PrintExecutionTime(number):
+	print(f"--- %s seconds{number} ---" % (time.time() - start_time))
 def MeasureTime():
 	return (time.time() - start_time)
 def HowMuchTimeTookFunc(value1, value2):
@@ -48,17 +297,6 @@ def get_files(path: str, extension: str = "") -> list:
 			files.append(Path(os.path.join(path, file)))
 	return files
 
-
-def remove_file(path: str):
-	"""
-	Remove a file
-	"""
-	if os.path.isfile(path) or os.path.islink(path):
-		os.remove(path)  # remove the file
-	elif os.path.isdir(path):
-		rmtree(path)  # remove dir and all contains
-	else:
-		raise ValueError("file {} is not a file or dir.".format(path))
 
 
 def open_folder(path):
@@ -173,16 +411,9 @@ def create_folders(self):
 # -------------------------- #
 
 
-class BlendMode(Enum):
-	OPAQUE = 0
-	CLIP = 1
-	BLEND = 2
-	HASHED = 3
 
 
-def get_umap_list() -> list:
-	a = requests.get("https://gist.githubusercontent.com/luvyana/d5d7b2be0d33f9d213067f06ec681bd8/raw/cd34145908eb2e936065d10f3b9b570c7d5c7353/umaps.json").json()
-	return a
+
 
 
 
