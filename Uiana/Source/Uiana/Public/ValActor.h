@@ -28,9 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CreateCapsuleComponent(UCapsuleComponent*& NewComp);
 	UFUNCTION(BlueprintCallable)
-	void CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp);
+	void CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp, TArray<FColor> OvrVertex, UStaticMesh* MeshToUSE);
 	UFUNCTION(BlueprintCallable)
-	void CreateStaticComponent(UStaticMeshComponent*& NewComp);
+	void CreateStaticComponent(UStaticMeshComponent*& NewComp, TArray<FColor> OvrVertex, UStaticMesh *MeshToUSE);
 	UFUNCTION(BlueprintCallable)
 	void CreateBoxComponent(UBoxComponent*& NewComp);
 	UFUNCTION(BlueprintCallable)

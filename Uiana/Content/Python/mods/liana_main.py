@@ -4,6 +4,7 @@ import sys
 import os
 from os.path import exists
 import subprocess
+import struct
 import traceback
 from unicodedata import name
 import unreal
@@ -20,6 +21,7 @@ Seting = None
 projectpath = unreal.Paths.project_plugins_dir()
 newpath = projectpath + 'Uiana/Content/Python/assets/umapTYPE.json'
 f = open(newpath)
+unpack_4uint8 = struct.Struct("<4B").unpack
 JsonMapTypeData = json.load(f)
 AllLevelPaths = []
 RepeatedMats = []
@@ -335,7 +337,7 @@ COUNT = 0
 
 def ImportTexture(Path):
 	task = unreal.AssetImportTask()
-	task.set_editor_property('destination_path', '/Game/Meshes/All')
+	task.set_editor_property('destination_path', '/Game/Meshes/Textures')
 	task.set_editor_property('filename', Path)
 	task.set_editor_property('automated', True)
 	task.set_editor_property('save', True)
@@ -367,7 +369,7 @@ def SetTextures(mat_props: dict, MatRef):
 		tex_name = Path(tex_local_path).stem
 		if "diffuse b low" not in param_name:
 			if Path(tex_local_path).exists() and tex_name not in blacklist_tex:
-				ImportedTexture = unreal.load_asset(f'/Game/Meshes/All/{tex_name}.{tex_name}')
+				ImportedTexture = unreal.load_asset(f'/Game/Meshes/Textures/{tex_name}.{tex_name}')
 			if ImportedTexture == None:
 				continue
 			if "diffuse" == param_name or "albedo" == param_name :
@@ -837,6 +839,7 @@ def SpawnMeshesInMap(data,set,mapname):
 	for j in data:
 		object_type = get_object_type(j)
 		if object_type == "mesh":
+			HasVCol = False
 			map_object = MapObject(settings=set, data=j, umap_name=mapname)
 			ActualData = map_object.data
 			LocalData = ActualData
@@ -856,10 +859,20 @@ def SpawnMeshesInMap(data,set,mapname):
 			SMActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.ValActor,Transform.translation,Transform.rotation.rotator())
 			SMActor.set_actor_scale3d(Transform.scale3d)
 			MeshToLoad = unreal.load_asset(PathToGo)
+			OvrVertexes = []
+			if HasKey("LODData",ActualData):
+				Lod = ActualData["LODData"]
+				for itLod in Lod:
+					if HasKey("OverrideVertexColors",itLod):
+						DataToConvert = itLod["OverrideVertexColors"]["Data"]
+						for rgba_hex in DataToConvert:
+							testbk = []
+							Color = unreal.BPFL.return_from_hex(rgba_hex)
+							OvrVertexes.append(Color)
+							HasVCol = True
 			if map_object.is_instanced():
 				instance_data = ActualData["PerInstanceSMData"]
-				Instance = SMActor.create_instance_component()
-				Instance.set_static_mesh(MeshToLoad)
+				Instance = SMActor.create_instance_component(OvrVertexes,MeshToLoad)
 				SMActor.set_actor_label(NameProp)
 				for j in instance_data:
 					Trans = GetTransform(j,True)
@@ -867,9 +880,12 @@ def SpawnMeshesInMap(data,set,mapname):
 						continue
 					Transform = unreal.Transform(location=Trans.translation, rotation=Trans.rotation.rotator(), scale=Trans.scale3d)
 					Instance.add_instance(Transform)
+				if(HasVCol == True):
+					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes)
 			else:
-				Instance = SMActor.create_static_component()
-				Instance.set_static_mesh(MeshToLoad)
+				Instance = SMActor.create_static_component(OvrVertexes,MeshToLoad)
+				if(HasVCol == True):
+					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes)
 				SMActor.set_actor_label(NameProp)
 			SetAllSettings(ObjectProps,Instance)
 			if HasKey("OverrideMaterials",ObjectProps):

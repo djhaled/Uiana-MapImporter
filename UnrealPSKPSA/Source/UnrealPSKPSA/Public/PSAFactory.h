@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Factories/Factory.h"
-#include "PSKFactory.generated.h"
+#include "PSAFactory.generated.h"
 
 UCLASS()
-class UNREALPSKPSA_API UPSKFactory : public UFactory
+class UNREALPSKPSA_API UPSAFactory : public UFactory
 {
 	GENERATED_BODY()
 public:
-	UPSKFactory()
+	UPSAFactory()
 	{
 		bEditorImport = true;
 		bText = false;
@@ -22,15 +22,11 @@ public:
 	}
 	
 	UObject* Import(const FString Filename, UObject* Parent, const FName Name, const EObjectFlags Flags) const;
-	static void ProcessSkeleton(const FSkeletalMeshImportData&    ImportData,
-	                            const USkeleton*                  Skeleton,
-	                            FReferenceSkeleton&               OutRefSkeleton,
-	                            int32&                            OutSkeletalDepth);
 	
 protected:
-	UClass* FactoryClass = USkeletalMesh::StaticClass();
-	FString FactoryExtension = "psk";
-	FString FactoryDescription = "ActorX Skeletal Mesh";
+	UClass* FactoryClass = UAnimSequence::StaticClass();
+	FString FactoryExtension = "psa";
+	FString FactoryDescription = "ActorX Animation Sequence";
 
 	virtual bool FactoryCanImport(const FString& Filename) override
 	{
@@ -40,7 +36,7 @@ protected:
 	
 	virtual UObject* FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Params, FFeedbackContext* Warn, bool& bOutOperationCanceled) override
 	{
-		return Import(Filename, InParent, FName(*InName.ToString().Replace(TEXT("_LOD0"), TEXT(""))), Flags);
+		return Import(Filename, InParent, InName, Flags);
 	}
-
+	
 };

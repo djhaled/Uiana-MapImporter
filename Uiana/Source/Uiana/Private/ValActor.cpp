@@ -6,6 +6,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/BillboardComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Rendering/ColorVertexBuffer.h"
 
 // Sets default values
 AValActor::AValActor()
@@ -38,10 +40,11 @@ void AValActor::CreateCapsuleComponent(UCapsuleComponent*& NewComp)
 
 }
 
-void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp)
+void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp, TArray<FColor> OvrVertex, UStaticMesh* MeshToUSE)
 {
 	UHierarchicalInstancedStaticMeshComponent* HiStaticMesh;
 	NewComp = NewObject<UHierarchicalInstancedStaticMeshComponent>(this, HiStaticMesh->StaticClass());
+	NewComp->SetStaticMesh(MeshToUSE);
 	NewComp->SetupAttachment(RootComponent);
 	NewComp->RegisterComponent();
 	AddInstanceComponent(NewComp);
@@ -49,14 +52,16 @@ void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponen
 	//NewComp->SetMobility(EComponentMobility::Static);
 }
 
-void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp)
+void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp, TArray<FColor> OvrVertex,UStaticMesh* MeshToUSE)
 {
 	UStaticMeshComponent* HiStaticMesh;
 	NewComp = NewObject<UStaticMeshComponent>(this, HiStaticMesh->StaticClass());
+	NewComp->SetStaticMesh(MeshToUSE);
 	NewComp->SetupAttachment(RootComponent);
 	NewComp->RegisterComponent();
 	AddInstanceComponent(NewComp);
 	NewComp->SetFlags(RF_Transactional);
+	NewComp->SetLODDataCount(1, NewComp->LODData.Num());
 	//NewComp->SetMobility(EComponentMobility::Static);
 }
 

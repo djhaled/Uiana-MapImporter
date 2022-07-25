@@ -43,6 +43,7 @@ public class Uiana : ModuleRules
 				"Engine",
 				"Settings",
 				"Slate",
+				"RenderCore",
 				"EditorStyle",
 				"PythonScriptPlugin",
 				"SlateCore",

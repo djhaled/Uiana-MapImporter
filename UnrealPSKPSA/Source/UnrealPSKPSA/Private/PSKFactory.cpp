@@ -1,166 +1,244 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "PSKFactory.h"
-#include "json.hpp"
+
+#include "ActorXUtils.h"
+#include "IMeshBuilderModule.h"
+#include "MeshDescription.h"
 #include "PSKReader.h"
-#include "RawMesh.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "Editor/UnrealEd/Classes/Factories/MaterialInstanceConstantFactoryNew.h"
-#include "EditorAssetLibrary.h"
-#include "AssetToolsModule.h"
-#include "IAssetTools.h"
-#include "Misc/FileHelper.h"
+#include "ImportUtils/SkeletalMeshImportUtils.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "Rendering/SkeletalMeshLODModel.h"
+#include "Rendering/SkeletalMeshModel.h"
 
-DEFINE_LOG_CATEGORY(LogPSKPSA);
-UPSKFactory::UPSKFactory()
+
+UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FName Name, const EObjectFlags Flags) const
 {
-	bCreateNew = false;
-	bEditorImport = true;
-	bText = false;
+	auto Psk = PSKReader(Filename);
+	if (!Psk.Read()) return nullptr;
 
-	Formats.Add(TEXT("pskx;ActorX Static Mesh"));
-	Formats.Add(TEXT("psk;ActorX Skeletal Mesh"));
-
-	SupportedClass = UStaticMesh::StaticClass();
-}
-
-bool UPSKFactory::DoesSupportClass(UClass* InClass)
-{
-	return InClass == UStaticMesh::StaticClass();
-}
-
-UClass* UPSKFactory::ResolveSupportedClass()
-{
-	return UStaticMesh::StaticClass();
-}
-
-bool UPSKFactory::FactoryCanImport(const FString& InSystemFilePath)
-{
-	const auto Extension = FPaths::GetExtension(InSystemFilePath);
-	const auto bIsSkeletal = Extension.Compare("psk", ESearchCase::IgnoreCase) == 0;
-	const auto bIsStatic = Extension.Compare("pskx", ESearchCase::IgnoreCase) == 0;
-	return bIsSkeletal || bIsStatic;
-}
-
-UObject* UPSKFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
-{
-	const auto Extension = FPaths::GetExtension(Filename);
-
-	if (Extension.Equals("pskx"))
+	TArray<FColor> PointVertexColors;
+	PointVertexColors.Init(FColor::White, Psk.VertexColors.Num());
+	if (Psk.bHasVertexColors)
 	{
-		return ImportPSKX(Filename, InParent, InName, Flags);
-	}
-	if (Extension.Equals("psk"))
-	{
-		return ImportPSKX(Filename, InParent, InName, Flags);
+		for (auto i = 0; i < Psk.Wedges.Num(); i++)
+		{
+			auto FixedColor = Psk.VertexColors[i];
+			Swap(FixedColor.R, FixedColor.B);
+			PointVertexColors[Psk.Wedges[i].PointIndex] = FixedColor;
+		}
 	}
 	
-	return nullptr;
-}
+	FSkeletalMeshImportData SkeletalMeshImportData;
 
-UObject* UPSKFactory::ImportPSKX(const FString Filename, UObject* Parent, const FName Name, const EObjectFlags Flags)
-{
-	auto Reader = PskReader(Filename);
-	Reader.Read();
+	for (auto i = 0; i < Psk.Normals.Num(); i++)
+		Psk.Normals[i].Y = -Psk.Normals[i].Y;
 
-	TArray<FColor> VertexColorsByFace;
-	if (Reader.VertexColors.size() > 0)
+	for (auto Vertex : Psk.Vertices)
 	{
-		VertexColorsByFace.Init(FColor(0,0,0,0), Reader.VertexColors.size());
-		for (auto i = 0; i < Reader.Wedges.size(); i++)
-		{
-			VertexColorsByFace[Reader.Wedges[i].PointIndex] = Reader.VertexColors[i];
-		}
-	}	
-
-	auto RawMesh = FRawMesh();
-	for (auto Vert : Reader.Vertices)
-	{
-		//Vert.Y = -Vert.Y;
-		RawMesh.VertexPositions.Add(Vert);
+		auto FixedVertex = Vertex;
+		FixedVertex.Y = -FixedVertex.Y;
+		SkeletalMeshImportData.Points.Add(FixedVertex);
+		SkeletalMeshImportData.PointToRawMap.Add(SkeletalMeshImportData.Points.Num()-1);
 	}
-	for (auto Face : Reader.Faces)
+	
+	auto WindingOrder = {2, 1, 0};
+	for (const auto PskFace : Psk.Faces)
 	{
-		for (auto VertexIndex = 0; VertexIndex < 3; VertexIndex++)
+		SkeletalMeshImportData::FTriangle Face;
+		Face.MatIndex = PskFace.MatIndex;
+		Face.SmoothingGroups = 1;
+		Face.AuxMatIndex = 0;
+
+		for (auto VertexIndex : WindingOrder)
 		{
-			auto Wedge = Reader.Wedges[Face.WedgeIndex[VertexIndex]];
+			const auto WedgeIndex = PskFace.WedgeIndex[VertexIndex];
+			const auto PskWedge = Psk.Wedges[WedgeIndex];
 			
-			RawMesh.WedgeIndices.Add(Wedge.PointIndex);
-			RawMesh.WedgeTexCoords[0].Add(FVector2f(Wedge.U, Wedge.V));
+			SkeletalMeshImportData::FVertex Wedge;
+			Wedge.MatIndex = PskWedge.MatIndex;
+			Wedge.VertexIndex = PskWedge.PointIndex;
+			Wedge.Color = Psk.bHasVertexColors ? PointVertexColors[PskWedge.PointIndex] : FColor::White;
+			Wedge.UVs[0] = FVector2f(PskWedge.U, PskWedge.V);
+			for (auto UVIdx = 0; UVIdx < Psk.ExtraUVs.Num(); UVIdx++)
+			{
+				auto UV =  Psk.ExtraUVs[UVIdx][Face.WedgeIndex[VertexIndex]];
+				Wedge.UVs[UVIdx+1] = UV;
+			}
 			
-			for (auto i = 0; i < Reader.ExtraUVs.size(); i++)
-			{
-				auto UV = Reader.ExtraUVs[i].UVData[Face.WedgeIndex[i]];
-				RawMesh.WedgeTexCoords[i+1].Add(UV);
-			}
+			Face.WedgeIndex[VertexIndex] = SkeletalMeshImportData.Wedges.Add(Wedge);
+			Face.TangentZ[VertexIndex] = Psk.bHasVertexNormals ? Psk.Normals[PskWedge.PointIndex] : FVector3f::ZeroVector;
+			Face.TangentY[VertexIndex] = FVector3f::ZeroVector;
+			Face.TangentX[VertexIndex] = FVector3f::ZeroVector;
 
-			if (VertexColorsByFace.Num() > 0)
-			{
-				RawMesh.WedgeColors.Add(VertexColorsByFace[Wedge.PointIndex]);
-			}
-
-			if (Reader.Normals.size() > 0)
-			{
-				RawMesh.WedgeTangentZ.Add(Reader.Normals[Wedge.PointIndex]);
-			}
-			else
-			{
-				RawMesh.WedgeTangentZ.Add(FVector3f::ZeroVector);
-			}
-
-			RawMesh.WedgeTangentY.Add(FVector3f::ZeroVector);
-			RawMesh.WedgeTangentX.Add(FVector3f::ZeroVector);
+			
 		}
+		Swap(Face.WedgeIndex[0], Face.WedgeIndex[2]);
+		Swap(Face.TangentZ[0], Face.TangentZ[2]);
+
+		SkeletalMeshImportData.Faces.Add(Face);
+	}
+
+	for (auto PskBone : Psk.Bones)
+	{
+		SkeletalMeshImportData::FBone Bone;
+		Bone.Name = PskBone.Name;
+		Bone.NumChildren = PskBone.NumChildren;
+		Bone.ParentIndex = PskBone.ParentIndex == -1 ? INDEX_NONE : PskBone.ParentIndex;
 		
-		RawMesh.FaceMaterialIndices.Add(Face.MatIndex);
-		RawMesh.FaceSmoothingMasks.Add(1);
+		auto PskBonePos = PskBone.BonePos;
+		FTransform3f PskTransform;
+		PskTransform.SetLocation(FVector3f(PskBonePos.Position.X, -PskBonePos.Position.Y, PskBonePos.Position.Z));
+		PskTransform.SetRotation(FQuat4f(PskBonePos.Orientation.X, -PskBonePos.Orientation.Y, PskBonePos.Orientation.Z, PskBonePos.Orientation.W).GetNormalized());
+
+		SkeletalMeshImportData::FJointPos BonePos;
+		BonePos.Transform = PskTransform;
+		BonePos.Length = PskBonePos.Length;
+		BonePos.XSize = PskBonePos.XSize;
+		BonePos.YSize = PskBonePos.YSize;
+		BonePos.ZSize = PskBonePos.ZSize;
+
+		Bone.BonePos = BonePos;
+		SkeletalMeshImportData.RefBonesBinary.Add(Bone);
 	}
 
-	const auto StaticMesh = CastChecked<UStaticMesh>(CreateOrOverwriteAsset(UStaticMesh::StaticClass(), Parent, Name, Flags));
-	for (auto MatIndex = 0; MatIndex < Reader.Materials.size(); MatIndex++)
+	for (auto PskInfluence : Psk.Influences)
 	{
-		auto MaterialName = FName(Reader.Materials[MatIndex].MaterialName);
-		auto MaterialNamey = FString(Reader.Materials[MatIndex].MaterialName);
-		FString Test = "/Game/Meshes/All/";
-		IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
-		UMaterialInstanceConstantFactoryNew* Factory = NewObject<UMaterialInstanceConstantFactoryNew>();
-		auto lala = AssetTools.CreateAsset(MaterialNamey, Test, UMaterialInstanceConstant::StaticClass(), Factory);
-		if (lala == nullptr)
-		{
-			TArray< FStringFormatArg > args;
-			args.Add(FStringFormatArg(MaterialNamey));
-			FString PathMat = FString::Format(TEXT("/Game/Meshes/All/{0}.{0}"), args);
-			auto Asset = UEditorAssetLibrary::LoadAsset(PathMat);
-			UMaterialInstanceConstant* MaterialInstance = CastChecked<UMaterialInstanceConstant>(Asset);
-			MaterialInstance->MarkPackageDirty();
-			FStaticMaterial StaticMaterial;
-			StaticMaterial.MaterialInterface = MaterialInstance;
-			StaticMesh->GetStaticMaterials().Add(StaticMaterial);
-			StaticMesh->GetSectionInfoMap().Set(0, MatIndex, FMeshSectionInfo(MatIndex));
-			continue;
-		}
-		UMaterialInstanceConstant* MaterialInstance = CastChecked<UMaterialInstanceConstant>(lala);
-		MaterialInstance->MarkPackageDirty();
-		FStaticMaterial StaticMaterial;
-		StaticMaterial.MaterialInterface = MaterialInstance;
-		StaticMesh->GetStaticMaterials().Add(StaticMaterial);
-		StaticMesh->GetSectionInfoMap().Set(0, MatIndex, FMeshSectionInfo(MatIndex));
+		SkeletalMeshImportData::FRawBoneInfluence Influence;
+		Influence.BoneIndex = PskInfluence.BoneIdx;
+		Influence.VertexIndex = PskInfluence.PointIdx;
+		Influence.Weight = PskInfluence.Weight;
+		SkeletalMeshImportData.Influences.Add(Influence);
 	}
 
-	auto& SourceModel = StaticMesh->AddSourceModel();
-	SourceModel.BuildSettings.bGenerateLightmapUVs = false;
-	SourceModel.BuildSettings.bBuildReversedIndexBuffer = false;
-	SourceModel.BuildSettings.bRecomputeTangents = true;
-	SourceModel.BuildSettings.bComputeWeightedNormals = true;
-	SourceModel.BuildSettings.bRecomputeNormals = Reader.Normals.size() == 0;
-	SourceModel.SaveRawMesh(RawMesh);
+	for (auto PskMaterial : Psk.Materials)
+	{
+		SkeletalMeshImportData::FMaterial Material;
+		Material.MaterialImportName = PskMaterial.MaterialName;
 
-	StaticMesh->Build();
-	StaticMesh->MarkPackageDirty();
-	FAssetRegistryModule::AssetCreated(StaticMesh);
+		auto MaterialInstance = FActorXUtils::LocalFindOrCreate<UMaterialInstanceConstant>(UMaterialInstanceConstant::StaticClass(), Parent, PskMaterial.MaterialName, Flags);
+		Material.Material = MaterialInstance;
+		SkeletalMeshImportData.Materials.Add(Material);
+	}
+	SkeletalMeshImportData.MaxMaterialIndex = SkeletalMeshImportData.Materials.Num()-1;
+
+	SkeletalMeshImportData.bDiffPose = false;
+	SkeletalMeshImportData.bHasNormals = Psk.bHasVertexNormals;
+	SkeletalMeshImportData.bHasTangents = false;
+	SkeletalMeshImportData.bHasVertexColors = true;
+	SkeletalMeshImportData.NumTexCoords = 1 + Psk.ExtraUVs.Num(); 
+	SkeletalMeshImportData.bUseT0AsRefPose = false;
 	
-	return StaticMesh;
+	const auto Skeleton = FActorXUtils::LocalCreate<USkeleton>(USkeleton::StaticClass(), Parent,  Name.ToString().Append("_Skeleton"), Flags);
+
+	FReferenceSkeleton RefSkeleton;
+	auto SkeletalDepth = 0;
+	ProcessSkeleton(SkeletalMeshImportData, Skeleton, RefSkeleton, SkeletalDepth);
+
+	TArray<FVector3f> LODPoints;
+	TArray<SkeletalMeshImportData::FMeshWedge> LODWedges;
+	TArray<SkeletalMeshImportData::FMeshFace> LODFaces;
+	TArray<SkeletalMeshImportData::FVertInfluence> LODInfluences;
+	TArray<int32> LODPointToRawMap;
+	SkeletalMeshImportData.CopyLODImportData(LODPoints, LODWedges, LODFaces, LODInfluences, LODPointToRawMap);
+
+	FSkeletalMeshLODModel LODModel;
+	LODModel.NumTexCoords = FMath::Max<uint32>(1, SkeletalMeshImportData.NumTexCoords);
+
+	const auto SkeletalMesh = NewObject<USkeletalMesh>(Parent, USkeletalMesh::StaticClass(), Name, Flags);
+	SkeletalMesh->PreEditChange(nullptr);
+	SkeletalMesh->InvalidateDeriveDataCacheGUID();
+	SkeletalMesh->UnregisterAllMorphTarget();
+
+	SkeletalMesh->GetRefBasesInvMatrix().Empty();
+	SkeletalMesh->GetMaterials().Empty();
+	SkeletalMesh->SetHasVertexColors(true);
+
+	FSkeletalMeshModel* ImportedResource = SkeletalMesh->GetImportedModel();
+	auto& SkeletalMeshLODInfos = SkeletalMesh->GetLODInfoArray();
+	SkeletalMeshLODInfos.Empty();
+	SkeletalMeshLODInfos.Add(FSkeletalMeshLODInfo());
+	SkeletalMeshLODInfos[0].ReductionSettings.NumOfTrianglesPercentage = 1.0f;
+	SkeletalMeshLODInfos[0].ReductionSettings.NumOfVertPercentage = 1.0f;
+	SkeletalMeshLODInfos[0].ReductionSettings.MaxDeviationPercentage = 0.0f;
+	SkeletalMeshLODInfos[0].LODHysteresis = 0.02f;
+
+	ImportedResource->LODModels.Empty();
+	ImportedResource->LODModels.Add(new FSkeletalMeshLODModel);
+	SkeletalMesh->SetRefSkeleton(RefSkeleton);
+	SkeletalMesh->CalculateInvRefMatrices();
+
+	SkeletalMesh->SaveLODImportedData(0, SkeletalMeshImportData);
+	FSkeletalMeshBuildSettings BuildOptions;
+	BuildOptions.bRemoveDegenerates = true;
+	BuildOptions.bRecomputeNormals = !Psk.bHasVertexNormals;
+	BuildOptions.bRecomputeTangents = true;
+	BuildOptions.bUseMikkTSpace = true;
+	SkeletalMesh->GetLODInfo(0)->BuildSettings = BuildOptions;
+	SkeletalMesh->SetImportedBounds(FBoxSphereBounds(FBoxSphereBounds3f(FBox3f(SkeletalMeshImportData.Points))));
+
+	auto& MeshBuilderModule = IMeshBuilderModule::GetForRunningPlatform();
+	const FSkeletalMeshBuildParameters SkeletalMeshBuildParameters(SkeletalMesh, GetTargetPlatformManagerRef().GetRunningTargetPlatform(), 0, false);
+	if (!MeshBuilderModule.BuildSkeletalMesh(SkeletalMeshBuildParameters))
+	{
+		SkeletalMesh->MarkAsGarbage();
+		return nullptr;
+	}
+
+	for (auto Material : SkeletalMeshImportData.Materials)
+	{
+		SkeletalMesh->GetMaterials().Add(FSkeletalMaterial(Material.Material.Get()));
+	}
+
+	SkeletalMesh->PostEditChange();
+	
+	SkeletalMesh->SetSkeleton(Skeleton);
+	Skeleton->MergeAllBonesToBoneTree(SkeletalMesh);
+	
+	FAssetRegistryModule::AssetCreated(SkeletalMesh);
+	SkeletalMesh->MarkPackageDirty();
+
+	Skeleton->PostEditChange();
+	FAssetRegistryModule::AssetCreated(Skeleton);
+	Skeleton->MarkPackageDirty();
+
+	return SkeletalMesh;
 }
 
+void UPSKFactory::ProcessSkeleton(const FSkeletalMeshImportData& ImportData, const USkeleton* Skeleton, FReferenceSkeleton& OutRefSkeleton, int& OutSkeletalDepth)
+{
+	const auto RefBonesBinary = ImportData.RefBonesBinary;
+	OutRefSkeleton.Empty();
+	
+	FReferenceSkeletonModifier RefSkeletonModifier(OutRefSkeleton, Skeleton);
+	
+	for (const auto Bone : RefBonesBinary)
+	{
+		const FMeshBoneInfo BoneInfo(FName(*Bone.Name), Bone.Name, Bone.ParentIndex);
+		RefSkeletonModifier.Add(BoneInfo, FTransform(Bone.BonePos.Transform));
+	}
 
+    OutSkeletalDepth = 0;
 
+    TArray<int> SkeletalDepths;
+    SkeletalDepths.Empty(ImportData.RefBonesBinary.Num());
+    SkeletalDepths.AddZeroed(ImportData.RefBonesBinary.Num());
+    for (auto b = 0; b < OutRefSkeleton.GetNum(); b++)
+    {
+        const auto Parent = OutRefSkeleton.GetParentIndex(b);
+        auto Depth  = 1.0f;
 
+        SkeletalDepths[b] = 1.0f;
+        if (Parent != INDEX_NONE)
+        {
+            Depth += SkeletalDepths[Parent];
+        }
+        if (OutSkeletalDepth < Depth)
+        {
+            OutSkeletalDepth = Depth;
+        }
+        SkeletalDepths[b] = Depth;
+    }
+}

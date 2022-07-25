@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Factories/Factory.h"
-#include "PSKFactory.generated.h"
+#include "PSKXFactory.generated.h"
 
 UCLASS()
-class UNREALPSKPSA_API UPSKFactory : public UFactory
+class UNREALPSKPSA_API UPSKXFactory : public UFactory
 {
 	GENERATED_BODY()
+	
 public:
-	UPSKFactory()
+	UPSKXFactory()
 	{
 		bEditorImport = true;
 		bText = false;
@@ -22,15 +22,11 @@ public:
 	}
 	
 	UObject* Import(const FString Filename, UObject* Parent, const FName Name, const EObjectFlags Flags) const;
-	static void ProcessSkeleton(const FSkeletalMeshImportData&    ImportData,
-	                            const USkeleton*                  Skeleton,
-	                            FReferenceSkeleton&               OutRefSkeleton,
-	                            int32&                            OutSkeletalDepth);
 	
 protected:
-	UClass* FactoryClass = USkeletalMesh::StaticClass();
-	FString FactoryExtension = "psk";
-	FString FactoryDescription = "ActorX Skeletal Mesh";
+	UClass* FactoryClass = UStaticMesh::StaticClass();
+	FString FactoryExtension = "pskx";
+	FString FactoryDescription = "ActorX Static Mesh";
 
 	virtual bool FactoryCanImport(const FString& Filename) override
 	{
