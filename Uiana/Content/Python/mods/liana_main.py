@@ -561,6 +561,9 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 			if HasTransform(LightningProps) == False:
 				attachscene = GetAttachScene(LightningActor,LightningOuter,objectsToImport)
 				ActualData = attachscene
+			if LightningType == "SphereReflectionCaptureComponent":
+				if HasKey("Cubemap",LightningProps) == False:
+					continue
 			#Initial Stuff 
 			TransformLights = GetTransform(ActualData,False)
 			PostProcessSettings = []
@@ -598,6 +601,8 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 			for Setting in LightningProps:
 				LightSettingType = type(LightningProps[Setting])
 				LightSetting = LightningProps[Setting]
+				#if Setting == "ReflectionSourceType":
+					#continue
 				if Setting == "IESTexture":
 					CompToUse.set_editor_property('IESTexture',SetIesTexture(LightSetting))
 				if Setting == "Cubemap":

@@ -37,21 +37,12 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	}
 
 	auto RawMesh = FRawMesh();
-	TArray<FVector3f> Bekoso = {};
-	int beks = 0;
 	for (auto Vertex : Reader->Vertices)
 	{
-		auto testjs = FMath::RandRange(0.0001, 0.0205);
 		auto FixedVertex = Vertex;
 		FixedVertex.Y = -FixedVertex.Y; // mirror y axis cuz ue dumb dumb
-		if (Bekoso.Contains(FixedVertex))
-		{
-			beks = beks + 1;
-		}
 		RawMesh.VertexPositions.Add(FixedVertex);
-		Bekoso.Add(FixedVertex);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), beks);
 	for (const auto Face : Reader->Faces)
 	{
 		for (auto VtxIdx = 2; VtxIdx >= 0; VtxIdx--) // reverse face winding to account for -y vertex pos
@@ -66,8 +57,8 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 				auto UV = Reader->ExtraUVs[UVIdx][Face.WedgeIndex[VtxIdx]];
 				RawMesh.WedgeTexCoords[UVIdx+1].Add(UV);
 			}
-
-			RawMesh.WedgeTangentZ.Add(bHasNormals ? Reader->Normals[Wedge.PointIndex] : FVector3f::ZeroVector);
+			auto WedgeNormal = Reader->Normals[Wedge.PointIndex];
+			RawMesh.WedgeTangentZ.Add(bHasNormals ? WedgeNormal : FVector3f::ZeroVector);
 			RawMesh.WedgeTangentY.Add(FVector3f::ZeroVector);
 			RawMesh.WedgeTangentX.Add(FVector3f::ZeroVector);
 
@@ -111,7 +102,6 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	}
 	
 	auto& SourceModel = StaticMesh->AddSourceModel();
-	SourceModel.BuildSettings.bGenerateLightmapUVs = false;
 	SourceModel.BuildSettings.bBuildReversedIndexBuffer = false;
 	SourceModel.BuildSettings.bRecomputeTangents = true;
 	SourceModel.BuildSettings.bComputeWeightedNormals = false;
@@ -119,6 +109,11 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	SourceModel.BuildSettings.bUseHighPrecisionTangentBasis = false;
 	SourceModel.BuildSettings.bUseFullPrecisionUVs = false;
 	SourceModel.BuildSettings.bRecomputeNormals = !bHasNormals;
+	SourceModel.BuildSettings.bUseMikkTSpace = false; // default: true
+	SourceModel.BuildSettings.bUseBackwardsCompatibleF16TruncUVs = false;
+	SourceModel.BuildSettings.bGenerateLightmapUVs = true;
+	SourceModel.BuildSettings.bGenerateDistanceFieldAsIfTwoSided = false;
+	SourceModel.BuildSettings.bSupportFaceRemap = false;
 	SourceModel.SaveRawMesh(RawMesh);
 
 	StaticMesh->Build();
