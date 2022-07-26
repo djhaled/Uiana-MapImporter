@@ -5,7 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
 
-void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> Bekalici)
+void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray)
 {
 	if (!SMComp) return;
 
@@ -27,15 +27,12 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> Bekalic
 		//We're going to use the LODResources to get the total number of vertices that the provided mesh has
 		FStaticMeshLODResources& LodResources = SM->GetRenderData()->LODResources[0];
 
-		//Creating a color array
-		TArray<FColor> RandomColorArray;
 		//Since we know beforehand the number of elements we might as well reserve the memory now
 		auto numverts = LodResources.GetNumVertices();
-		auto testbekaaa = Bekalici.Num() - numverts;
 		auto names = SM->GetName();
-		Bekalici.SetNum(numverts);
+		VtxColorsArray.SetNum(numverts);
 		//Initialize the new vertex colros with the array we created above
-		LODInfo->OverrideVertexColors->InitFromColorArray(Bekalici);
+		LODInfo->OverrideVertexColors->InitFromColorArray(VtxColorsArray);
 
 		//Initialize resource and mark render state of object as dirty in order for the engine to re-render it
 		BeginInitResource(LODInfo->OverrideVertexColors);

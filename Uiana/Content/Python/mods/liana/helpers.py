@@ -45,7 +45,20 @@ def GetReadableUMapType(mapname):
 		MapType = j["StreamingType"]
 		if mapname == NewMapName:
 			return MapType
-
+BLACKLIST = [
+    "navmesh",
+    "_breakable",
+    "_collision",
+    "windstreaks_plane",
+    "sm_port_snowflakes_boundmesh",
+    "sm_barrierduality",
+    "M_Pitt_Caustics_Box",
+    "box_for_volumes",
+    "supergrid",
+    "_col",
+    "M_Pitt_Lamps_Glow",
+    "for_volumes",
+]
 def GetUMapType(mapname):
 	for j in JsonMapTypeData:
 		NewMapName = j["Name"]
@@ -168,40 +181,51 @@ def FindNonSlasher(dictstuff, value):
 			return joga
 def filter_objects(umap_DATA, lights: bool = False) -> list:
 
-	objects = umap_DATA
-	filtered_list = []
-	# Debug check
-	if SELECTIVE_OBJECTS:
-		for filter_model_name in SELECTIVE_OBJECTS:
-			for og_model in objects:
-				object_type = get_object_type(og_model)
-				if object_type == "mesh":
-					if filter_model_name in og_model["Properties"]["StaticMesh"]["ObjectPath"]:
-						og_model["Name"] = og_model["Properties"]["StaticMesh"]["ObjectPath"]
-						filtered_list.append(og_model)
+    objects = umap_DATA
+    filtered_list = []
 
-				elif object_type == "decal":
-					if filter_model_name in og_model["Outer"]:
-						og_model["Name"] = og_model["Outer"]
-						filtered_list.append(og_model)
+    # Debug check
+    if SELECTIVE_OBJECTS:
+        for filter_model_name in SELECTIVE_OBJECTS:
+            for og_model in objects:
+                object_type = get_object_type(og_model)
+                if object_type == "mesh":
+                    if filter_model_name in og_model["Properties"]["StaticMesh"]["ObjectPath"]:
+                        og_model["Name"] = og_model["Properties"]["StaticMesh"]["ObjectPath"]
+                        filtered_list.append(og_model)
 
-				elif object_type == "light":
-					if filter_model_name in og_model["Outer"]:
-						og_model["Name"] = og_model["Outer"]
-						filtered_list.append(og_model)
+                elif object_type == "decal":
+                    if filter_model_name in og_model["Outer"]:
+                        og_model["Name"] = og_model["Outer"]
+                        filtered_list.append(og_model)
 
-	else:
-		filtered_list = objects
+                elif object_type == "light":
+                    if filter_model_name in og_model["Outer"]:
+                        og_model["Name"] = og_model["Outer"]
+                        filtered_list.append(og_model)
 
-	new_list = []
+    else:
+        filtered_list = objects
 
+    new_list = []
 
-	# Check for blacklisted items
-	for og_model in filtered_list:
-		model_name_lower = get_obj_name(data=og_model, mat=False).lower()
-		new_list.append(og_model)
+    def is_blacklisted(object_name: str) -> bool:
+        for blocked in BLACKLIST:
+            if blocked.lower() in object_name.lower():
+                return True
+        return False
 
-	return new_list
+    # Check for blacklisted items
+    for og_model in filtered_list:
+        model_name_lower = get_obj_name(data=og_model, mat=False).lower()
+
+        if is_blacklisted(model_name_lower):
+            continue
+        else:
+            new_list.append(og_model)
+
+    return new_list
+
 def get_obj_name(data: dict, mat: bool):
 	if mat:
 		s = data["ObjectPath"]

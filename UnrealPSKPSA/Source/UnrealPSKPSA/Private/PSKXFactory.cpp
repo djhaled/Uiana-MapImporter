@@ -43,6 +43,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 		FixedVertex.Y = -FixedVertex.Y; // mirror y axis cuz ue dumb dumb
 		RawMesh.VertexPositions.Add(FixedVertex);
 	}
+
 	for (const auto Face : Reader->Faces)
 	{
 		for (auto VtxIdx = 2; VtxIdx >= 0; VtxIdx--) // reverse face winding to account for -y vertex pos
@@ -57,8 +58,16 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 				auto UV = Reader->ExtraUVs[UVIdx][Face.WedgeIndex[VtxIdx]];
 				RawMesh.WedgeTexCoords[UVIdx+1].Add(UV);
 			}
-			auto WedgeNormal = Reader->Normals[Wedge.PointIndex];
-			RawMesh.WedgeTangentZ.Add(bHasNormals ? WedgeNormal : FVector3f::ZeroVector);
+
+			auto Normal = FVector3f::ZeroVector;
+
+			if (bHasNormals)
+			{
+				Normal = Reader->Normals[Wedge.PointIndex];
+				Normal.Y = -Normal.Y;
+			}
+
+			RawMesh.WedgeTangentZ.Add(Normal);
 			RawMesh.WedgeTangentY.Add(FVector3f::ZeroVector);
 			RawMesh.WedgeTangentX.Add(FVector3f::ZeroVector);
 
@@ -102,18 +111,11 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	}
 	
 	auto& SourceModel = StaticMesh->AddSourceModel();
+	SourceModel.BuildSettings.bGenerateLightmapUVs = false;
 	SourceModel.BuildSettings.bBuildReversedIndexBuffer = false;
 	SourceModel.BuildSettings.bRecomputeTangents = true;
 	SourceModel.BuildSettings.bComputeWeightedNormals = false;
-	SourceModel.BuildSettings.bRemoveDegenerates = false;
-	SourceModel.BuildSettings.bUseHighPrecisionTangentBasis = false;
-	SourceModel.BuildSettings.bUseFullPrecisionUVs = false;
 	SourceModel.BuildSettings.bRecomputeNormals = !bHasNormals;
-	SourceModel.BuildSettings.bUseMikkTSpace = false; // default: true
-	SourceModel.BuildSettings.bUseBackwardsCompatibleF16TruncUVs = false;
-	SourceModel.BuildSettings.bGenerateLightmapUVs = true;
-	SourceModel.BuildSettings.bGenerateDistanceFieldAsIfTwoSided = false;
-	SourceModel.BuildSettings.bSupportFaceRemap = false;
 	SourceModel.SaveRawMesh(RawMesh);
 
 	StaticMesh->Build();
