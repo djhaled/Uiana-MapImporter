@@ -30,6 +30,14 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> Bekalic
 		//Creating a color array
 		TArray<FColor> RandomColorArray;
 		//Since we know beforehand the number of elements we might as well reserve the memory now
+		auto numverts = LodResources.GetNumVertices();
+		auto testbekaaa = Bekalici.Num() - numverts;
+		auto names = SM->GetName();
+		for (int32 i = 0; i < testbekaaa; i++)
+		{
+			//Generate a random color for the current vertex
+			Bekalici.Add(FColor::MakeRandomColor());
+		}
 
 		//Initialize the new vertex colros with the array we created above
 		LODInfo->OverrideVertexColors->InitFromColorArray(Bekalici);

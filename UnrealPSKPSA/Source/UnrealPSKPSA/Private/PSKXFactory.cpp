@@ -37,11 +37,19 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	}
 
 	auto RawMesh = FRawMesh();
+	TArray<FVector3f> Bekoso = {};
 	for (auto Vertex : Reader->Vertices)
 	{
+		auto testjs = FMath::RandRange(0.0001, 0.0205);
 		auto FixedVertex = Vertex;
 		FixedVertex.Y = -FixedVertex.Y; // mirror y axis cuz ue dumb dumb
+		if (Bekoso.Contains(FixedVertex))
+		{
+			FixedVertex.Z = FixedVertex.Z - testjs;
+			UE_LOG(LogTemp, Warning, TEXT("Hello"));
+		}
 		RawMesh.VertexPositions.Add(FixedVertex);
+		Bekoso.Add(FixedVertex);
 	}
 
 	for (const auto Face : Reader->Faces)
@@ -107,6 +115,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	SourceModel.BuildSettings.bBuildReversedIndexBuffer = false;
 	SourceModel.BuildSettings.bRecomputeTangents = true;
 	SourceModel.BuildSettings.bComputeWeightedNormals = false;
+	SourceModel.BuildSettings.bRemoveDegenerates = false;
 	SourceModel.BuildSettings.bRecomputeNormals = !bHasNormals;
 	SourceModel.SaveRawMesh(RawMesh);
 

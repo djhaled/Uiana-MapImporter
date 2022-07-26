@@ -1,0 +1,19 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.UnrealPSKPSA.cpp.obj": [
+			"PSAFactory.cpp.obj",
+			"PSAReader.cpp.obj",
+			"PSKFactory.cpp.obj",
+			"PSKReader.cpp.obj",
+			"PSKXFactory.cpp.obj",
+			"UnrealPSKPSA.cpp.obj"
+		],
+		"Module.UnrealPSKPSA.gen.cpp.obj": [
+			"PSAFactory.gen.cpp.obj",
+			"PSKFactory.gen.cpp.obj",
+			"PSKXFactory.gen.cpp.obj",
+			"UnrealPSKPSA.init.gen.cpp.obj"
+		]
+	}
+}
