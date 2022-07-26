@@ -140,7 +140,7 @@ bool PSKReader::Read()
 	bHasVertexNormals = Normals.Num() > 0;
 	bHasVertexColors = VertexColors.Num() > 0;
 	bHasExtraUVs = ExtraUVs.Num() > 0;
-
+	Ar.close();
 	return true;
 }
 

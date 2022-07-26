@@ -11,25 +11,9 @@ SELECTIVE_OBJECTS = []
 projectpath = unreal.Paths.project_plugins_dir()
 newpath = projectpath + 'Uiana/Content/Python/assets/umapTYPE.json'
 f = open(newpath)
-AllLevelPaths = []
 JsonMapTypeData = json.load(f)
 FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
 
-def LevelStreamingStuff():
-	unreal.EditorLevelLibrary.save_current_level()
-	#exit()
-	#slow_task.enter_progress_frame(work=1, desc=f"Map {umap_name} {index}/{total_frames} ")
-world = unreal.EditorLevelLibrary.get_editor_world()
-for j in AllLevelPaths:
-	JAfterSlash = ReturnFormattedString(j,"/")
-	MapType = GetUMapType(JAfterSlash)
-	unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
-	ReadableMapType = GetReadableUMapType(JAfterSlash)
-	if ReadableMapType == "LevelStreamingDynamic":
-		SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
-		Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
-		unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
-# ANCHOR: Functions
 # -------------------------- #
 def ClearLevel():
 	AllActors = unreal.EditorLevelLibrary.get_all_level_actors()
@@ -49,12 +33,6 @@ def SetIesTexture(setting):
 	AssetPath = (f'/Uiana/IESProfiles/{NewTextureName}.{NewTextureName}')
 	TextureIES = unreal.load_asset(AssetPath)
 	return TextureIES
-def CreateNewLevel(mapname):
-	newmap = GetInitialName(mapname)
-	startpath = f"/Game/Maps/{newmap}/{mapname}"
-	unreal.EditorLevelLibrary.new_level(startpath)
-	AllLevelPaths.append(startpath)
-	unreal.EditorLevelLibrary.save_current_level() 
 def SetMaterialVectorValue(Mat,ParamName,Value):
 	unreal.MaterialEditingLibrary.set_material_instance_vector_parameter_value(Mat,ParamName,Value)
 	unreal.MaterialEditingLibrary.update_material_instance(Mat)
@@ -81,29 +59,6 @@ def import_shaders():
 def importDecalShaders():
 	BaseShader = unreal.load_asset('/Uiana/Materials/MasterDecalMaterial')
 	return BaseShader
-def IterateArrayMats(foo):
-	ActualName = ReturnFormattedString(foo,"/")
-	for j in AllLoadableMaterials:
-		if j.find(ActualName) != -1:
-			return j
-	return None
-def GetMaterialToOverride(Papa):
-	Props = Papa["Properties"]
-	MaterialArray = []
-	OverrideMaterials = Props["OverrideMaterials"]
-	for j in OverrideMaterials:
-		Loadable = ConvertToLoadableUE(j,"MaterialInstanceConstant ")
-		if Loadable == None:
-			MaterialArray.append(None)
-			continue
-		Result = IterateArrayMats(Loadable)
-		if Result == None:
-			continue
-		ToLoad = AllLoadableMaterials[f"{Result}"]
-		Shi = ConvertToLoadableMaterial(ToLoad,"MaterialInstanceConstant ")
-		Material = unreal.load_asset(Shi)
-		MaterialArray.append(Material)
-	return MaterialArray
 def ConvertToLoadableMaterial(Mesh,Type):
 	typestring = str(Type)
 	NewName = Mesh.replace(f'{Type}', "")

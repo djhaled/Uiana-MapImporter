@@ -17,11 +17,11 @@ object_types = []
 AllLoadableMaterials = {}
 AllMeshes = []
 AllObjects = []
+AllLevelPaths = []
 
+testbek = 0
 
-
-
-def IterateArrayMats(foo,all):
+def IterateArrayMats(foo):
 	ActualName = ReturnFormattedString(foo,"/")
 	for j in AllLoadableMaterials:
 		if j.find(ActualName) != -1:
@@ -628,14 +628,30 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 		SpawnMeshesInMap(umap_data,settings,umap_name)
 	if Seting.import_Misc == True:
 		SpawnMiscObject(umap_data,umap_data)
-
+def LevelStreamingStuff():
+	world = unreal.EditorLevelLibrary.get_editor_world()
+	for j in AllLevelPaths:
+		JAfterSlash = ReturnFormattedString(j,"/")
+		MapType = GetUMapType(JAfterSlash)
+		unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
+		ReadableMapType = GetReadableUMapType(JAfterSlash)
+		if ReadableMapType == "LevelStreamingDynamic":
+			SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
+			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
+# ANCHOR: Functions
 def SetPostProcessSettings(seteng,Comp):
 	for beka in seteng:
 		bekaBlackList=["bOverride_AmbientOcclusionTintColor","AutoExposureBiasBackup","AmbientOcclusionTintColor","SavedSelections","bOverride_AresAdaptiveSharpenEnable",'FilmContrast','FilmWhitePoint',"bOverride_AresClarityEnable","bOverride_IndirectLightingScaleCurve","bOverride_AutoExposureBiasBackup","IndirectLightingColor","IndirectLightingScaleCurve","bOverride_ScreenPercentage"]
 		if beka not in bekaBlackList:
 			Comp.set_editor_property(beka, seteng[beka])
 
-
+def CreateNewLevel(mapname):
+	newmap = GetInitialName(mapname)
+	startpath = f"/Game/Maps/{newmap}/{mapname}"
+	unreal.EditorLevelLibrary.new_level(startpath)
+	AllLevelPaths.append(startpath)
+	unreal.EditorLevelLibrary.save_current_level() 
 def SpawnMeshesInMap(data,set,mapname):
 	AllAssets = AssetRegistry.get_assets_by_path('/Game/Meshes/All/')
 	for j in AllAssets:
@@ -778,4 +794,5 @@ def import_map(Setting):
 		umap_name = umap_json_path.stem
 		CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
-		LevelStreamingStuff()
+		unreal.EditorLevelLibrary.save_current_level()
+	LevelStreamingStuff()
