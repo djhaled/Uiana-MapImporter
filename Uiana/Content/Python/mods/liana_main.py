@@ -21,14 +21,14 @@ AllLevelPaths = []
 
 testbek = 0
 
-def IterateArrayMats(foo):
-	ActualName = ReturnFormattedString(foo,"/")
+def IterateArrayMats(arr):
+	ActualName = ReturnFormattedString(arr,"/")
 	for j in AllLoadableMaterials:
 		if j.find(ActualName) != -1:
 			return j
 	return None
-def GetMaterialToOverride(Papa):
-	Props = Papa["Properties"]
+def GetMaterialToOverride(Data):
+	Props = Data["Properties"]
 	MaterialArray = []
 	OverrideMaterials = Props["OverrideMaterials"]
 	for j in OverrideMaterials:
@@ -251,12 +251,7 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 	mat_props = mat_data["Properties"]
 	mat_name = mat_data["Name"]
 	SetTextures(mat_props,UEMat)
-	
-	FoliageList = ['tree','Foliage','grass','Vista','Mountains']
-	for j in FoliageList:
-		if j in mat_name:
-			StaticSwitch =  unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'IsPlantation',True)
-
+	SetAllSettings(mat_props,UEMat)
 	BasePropsBlacklist = ['bVertexFog','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	if "BasePropertyOverrides" in mat_props:
 		for prop_name, prop_value in mat_props["BasePropertyOverrides"].items():
@@ -480,13 +475,7 @@ def SetAllSettings(asset,Comp):
 				Setting = "ortho_width"
 			PropSet = Comp.get_editor_property(Setting)
 			classname = GetClassName(PropSet)
-			if type(ActorSetting) == int:
-				Comp.set_editor_property(Setting, ActorSetting)
-				continue
-			if type(ActorSetting) == float:
-				Comp.set_editor_property(Setting, ActorSetting)
-				continue
-			if type(ActorSetting) == bool:
+			if type(ActorSetting) == int or type(ActorSetting) == float or type(ActorSetting) == bool :
 				Comp.set_editor_property(Setting, ActorSetting)
 				continue
 			if type(ActorSetting) == str:
@@ -494,29 +483,97 @@ def SetAllSettings(asset,Comp):
 			if "::" in ActorSetting:
 				ActorSetting = ReturnFormattedString(ActorSetting,":")
 			if classname == "Color":
-				LCBlue = ActorSetting['B']
-				LCRed = ActorSetting['R']
-				LCGreen = ActorSetting['G']
-				LCAlpha = ActorSetting['A']
-				Colorized = unreal.Color(r=LCRed, g=LCGreen, b=LCBlue, a=LCAlpha)
+				Colorized = unreal.Color(r=ActorSetting['R'], g=ActorSetting['G'], b=ActorSetting['B'], a=ActorSetting['A'])
 				Comp.set_editor_property(Setting, Colorized)
 				continue
 			if type(ActorSetting) == dict:
+				print("ActorSetting")
 				continue
-
 			ActualValue = FindNonSlasher(eval(f'unreal.{classname}'),ActorSetting)
 			if ActualValue == None:
 				continue
 			value = eval(f'unreal.{classname}.{ActualValue}')
 			Comp.set_editor_property(Setting, value)
 
+def ImportDecal(DecalData):
+	Transform = GetTransform(object_data,False)
+	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,Transform[0],Transform[1])
+	DecActor.set_actor_scale3d(Transform[2])
+	DecalComponent = DecActor.decal
+	DecalMat = SetDecalMaterial(Settings, object_data)
+	DecalComponent.set_decal_material(DecalMat)
+	BlacklistDecal =  ['DecalMaterial','LightColorType','RelativeScale3D','RelativeRotation','RelativeLocation','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
+	for propName,PropValue in object_data["Properties"].items():
+		if propName not in BlacklistDecal:
+			if propName == "DecalSize":
+				PropValue = unreal.Vector(PropValue["X"],PropValue["Y"],PropValue["Z"])
+			DecalComponent.set_editor_property(propName,PropValue)
+def ImportLights(OBJData, ArrObjsImport):
+	ActualData = OBJData
+	LightningType = ActualData["Type"]
+	LightningProps = ActualData["Properties"]
+	LightningOuter = ActualData["Outer"]
+	LightningActualName = ActualData["Name"]
+	if HasTransform(LightningProps) == False:
+		attachscene = GetAttachScene(ActualData,LightningOuter,ArrObjsImport)
+		ActualData = attachscene
+	if LightningType == "SphereReflectionCaptureComponent":
+		if HasKey("Cubemap",LightningProps) == False:
+			return
+	TransformLights = GetTransform(ActualData,False)
+	PostProcessSettings = []
+	LightTypeNoComp = LightningType.replace("Component","")
+	LightType = eval(f'unreal.{LightTypeNoComp}')
+			########SpawnLightAndGetReferenceForComp#######
+	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, TransformLights.translation, TransformLights.rotation.rotator())
+	LightActor.set_actor_label(LightningActualName)
+	LightActor.set_actor_scale3d(TransformLights.scale3d )
+	if hasattr(LightActor,"light_component"):
+		CompToUse = LightActor.light_component
+	elif  hasattr(LightActor,"portal_component"):
+		CompToUse = LightActor.portal_component
+	elif hasattr(LightActor,"scene_component"):
+		CompToUse = LightActor.scene_component
+	elif hasattr(LightActor,"settings"):
+		LightActor.set_editor_property("Unbound", True)
+		LightActor.set_editor_property("Priority",1.0)
+		CompToUse = LightActor.settings
+	elif hasattr(LightActor,"capture_component"):
+		CompToUse = LightActor.capture_component
+	elif hasattr(LightActor,"component") == False:
+		CompToUse = LightActor
+	else:
+		CompToUse = LightActor.component 
+	#Figure out Mobility
+	Mobility = unreal.ComponentMobility.STATIC
+	LightActor.modify()
+	if HasKey("Settings",LightningProps) == True:
+		PostProcessSettings = LightningProps["Settings"]
+		SetPostProcessSettings(PostProcessSettings,CompToUse)
+	for Setting in LightningProps:
+		LightSettingType = type(LightningProps[Setting])
+		LightSetting = LightningProps[Setting]
+				#if Setting == "ReflectionSourceType":
+					#continue
+		if Setting == "IESTexture":
+			CompToUse.set_editor_property('IESTexture',SetIesTexture(LightSetting))
+		if Setting == "Cubemap":
+			CompToUse.set_editor_property('Cubemap',SetCubeMapTexture(LightSetting))
+		if Setting == "LightColor":
+			Colorized = unreal.Color(r=LightSetting['R'], g=LightSetting['G'], b=LightSetting['B'], a=LightSetting['A'])
+			CompToUse.set_editor_property('LightColor',Colorized)
+		if Setting == "FogInscatteringColor":
+			Colorized = unreal.LinearColor(r=LightSetting['R'], g=LightSetting['G'], b=LightSetting['B'], a=LightSetting['A'])
+			CompToUse.set_editor_property('fog_inscattering_luminance',Colorized)
+		if Setting == "Mobility":
+			CompToUse.set_editor_property('Mobility',Mobility)
+	SetAllSettings(LightningProps,CompToUse)
 
 
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	map_object = None
 	test = []
 	#print(f'Currently doing {umap_name}, stand by.')
-	word = unreal.EditorLevelLibrary.get_editor_world()
 	objectsToImport = filter_objects(umap_data)
 	if COUNT != 0:
 		objectsToImport = objectsToImport[:COUNT]
@@ -528,106 +585,9 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name)
 			imported_object = import_object(map_object=map_object, object_index=objectIndex)
 		if object_type == "decal" and settings.import_decals:
-			continue
-
-			if "DecalSize" in object_data["Properties"]:
-				size = object_data["Properties"]["DecalSize"]
-				decal_size = (size["X"] * 0.01, size["Y"] * 0.01, size["Z"] * 0.01)
-			else:
-				decal_size = (1, 1, 1)
-			Transform = GetTransform(object_data,False)
-			Location = Transform[0]
-			Rotation = Transform[1]
-			Scale = Transform[2]
-			DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,Location,Rotation)
-			DecActor.set_actor_scale3d(Scale)
-			DecalComponent = DecActor.decal
-			DecalMat = SetDecalMaterial(Settings, object_data)
-			DecalComponent.set_decal_material(DecalMat)
-			BlacklistDecal =  ['DecalMaterial','LightColorType','RelativeScale3D','RelativeRotation','RelativeLocation','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
-			for propName,PropValue in object_data["Properties"].items():
-				if propName not in BlacklistDecal:
-					if propName == "DecalSize":
-						PropValue = unreal.Vector(PropValue["X"],PropValue["Y"],PropValue["Z"])
-					DecalComponent.set_editor_property(propName,PropValue)
-
+			ImportDecal(object_data)
 		if object_type == "light" and settings.import_lights:
-			LightningActor = object_data
-			LightningType = LightningActor["Type"]
-			LightningProps = LightningActor["Properties"]
-			LightningOuter = LightningActor["Outer"]
-			LightningActualName = LightningActor["Name"]
-			ActualData = LightningActor
-			if HasTransform(LightningProps) == False:
-				attachscene = GetAttachScene(LightningActor,LightningOuter,objectsToImport)
-				ActualData = attachscene
-			if LightningType == "SphereReflectionCaptureComponent":
-				if HasKey("Cubemap",LightningProps) == False:
-					continue
-			#Initial Stuff 
-			TransformLights = GetTransform(ActualData,False)
-			PostProcessSettings = []
-			#######SetPositionInWorld###########
-			 ########SetLightningTypes#######
-			LightTypeNoComp = LightningType.replace("Component","")
-			if LightningType == "StaticMeshComponent":
-				continue
-			LightType = eval(f'unreal.{LightTypeNoComp}')
-			########SpawnLightAndGetReferenceForComp#######
-			LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, TransformLights.translation, TransformLights.rotation.rotator())
-			LightActor.set_actor_label(LightningActualName)
-			LightActor.set_actor_scale3d(TransformLights.scale3d )
-			if hasattr(LightActor,"light_component"):
-				CompToUse = LightActor.light_component
-			elif  hasattr(LightActor,"portal_component"):
-				CompToUse = LightActor.portal_component
-			elif hasattr(LightActor,"scene_component"):
-				CompToUse = LightActor.scene_component
-			elif hasattr(LightActor,"settings"):
-				LightActor.set_editor_property("Unbound", True)
-				LightActor.set_editor_property("Priority",1.0)
-				CompToUse = LightActor.settings
-			elif hasattr(LightActor,"capture_component"):
-				CompToUse = LightActor.capture_component
-			elif hasattr(LightActor,"component") == False:
-				CompToUse = LightActor
-			else:
-				CompToUse = LightActor.component 
-			Mobility = unreal.ComponentMobility.STATIC
-			LightActor.modify()
-			if HasKey("Settings",LightningProps) == True:
-				PostProcessSettings = LightningProps["Settings"]
-				SetPostProcessSettings(PostProcessSettings,CompToUse)
-			for Setting in LightningProps:
-				LightSettingType = type(LightningProps[Setting])
-				LightSetting = LightningProps[Setting]
-				#if Setting == "ReflectionSourceType":
-					#continue
-				if Setting == "IESTexture":
-					CompToUse.set_editor_property('IESTexture',SetIesTexture(LightSetting))
-				if Setting == "Cubemap":
-					CompToUse.set_editor_property('Cubemap',SetCubeMapTexture(LightSetting))
-				if Setting == "LightColor":
-					LCBlue = LightSetting['B']
-					LCRed = LightSetting['R']
-					LCGreen = LightSetting['G']
-					LCAlpha = LightSetting['A']
-					Colorized = unreal.Color(b=LCBlue, g=LCGreen, r=LCRed, a=LCAlpha)
-					CompToUse.set_editor_property('LightColor',Colorized)
-				if Setting == "FogInscatteringColor":
-					LCBlue = LightSetting['B']
-					LCRed = LightSetting['R']
-					LCGreen = LightSetting['G']
-					LCAlpha = LightSetting['A']
-					Colorized = unreal.LinearColor(r=LCRed, g=LCGreen, b=LCBlue, a=LCAlpha)
-					CompToUse.set_editor_property('fog_inscattering_luminance',Colorized)
-				if Setting == "Mobility":
-					CompToUse.set_editor_property('Mobility',Mobility)
-
-			SetAllSettings(LightningProps,CompToUse)
-
-
-
+			ImportLights(object_data,objectsToImport)
 	do_import_tasks(AllMeshes,AllTasks,False)
 	if Seting.import_Mesh == True:
 		SpawnMeshesInMap(umap_data,settings,umap_name)
@@ -645,11 +605,11 @@ def LevelStreamingStuff():
 			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
 			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
 # ANCHOR: Functions
-def SetPostProcessSettings(seteng,Comp):
-	for beka in seteng:
+def SetPostProcessSettings(AllSettings,Comp):
+	for Setting in AllSettings:
 		bekaBlackList=["bOverride_AmbientOcclusionTintColor","AutoExposureBiasBackup","AmbientOcclusionTintColor","SavedSelections","bOverride_AresAdaptiveSharpenEnable",'FilmContrast','FilmWhitePoint',"bOverride_AresClarityEnable","bOverride_IndirectLightingScaleCurve","bOverride_AutoExposureBiasBackup","IndirectLightingColor","IndirectLightingScaleCurve","bOverride_ScreenPercentage"]
-		if beka not in bekaBlackList:
-			Comp.set_editor_property(beka, seteng[beka])
+		if Setting not in bekaBlackList:
+			Comp.set_editor_property(Setting, AllSettings[Setting])
 
 def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)
