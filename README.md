@@ -52,7 +52,7 @@ Before you download the addon, you must download these first.
 
 
 ## Credits
-- LUVIANA
+- Luviana
 - floxay
 - CoRe | Janik.M
 - Rata
