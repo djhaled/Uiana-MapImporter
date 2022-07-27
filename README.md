@@ -13,7 +13,7 @@
 </div>
 
 # **Uiana**
-Unreal Engine plugin for creating VALORANT content.
+Unreal Engine plugin for creating VALORANT content. Heavily inspired in Piana by Luviana.
 
 
 ## 📒 Requirements
@@ -21,7 +21,7 @@ Unreal Engine plugin for creating VALORANT content.
 Before you download the addon, you must download these first.
 
 * [Download & Install .NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-6.0.5-windows-x64-installer)
-* [Unreal 5.0+](https://www.unrealengine.com/en-US/download) - Update your Blender if it's not 3.1 or 3.2 (for now it's preferred to use Blender 3.1 for faster import.)
+* [Unreal 5.0+](https://www.unrealengine.com/en-US/download) 
 * At least **30+ gb of empty space.** (SSD will be faster.)
 
 
@@ -52,7 +52,7 @@ Before you download the addon, you must download these first.
 
 
 ## Credits
-
+- LUVIANA
 - floxay
 - CoRe | Janik.M
 - Rata
