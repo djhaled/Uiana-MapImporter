@@ -2,7 +2,7 @@
 
 <br />
 <div align="center">
-  <a href="https://github.com/luvyana/Piana">
+  <a href="https://github.com/djhaled/Uiana-MapImporter">
     <img src="10379540_x240.jpg" alt="Logo">
   </a>
 
@@ -52,7 +52,7 @@ Before you download the addon, you must download these first.
 
 
 ## Credits
-- LUVIANA
+- Luviana
 - floxay
 - CoRe | Janik.M
 - Rata
