@@ -1,6 +1,6 @@
-"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.cpp"
+D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.cpp
 /I .
-/I "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Source\Uiana\Private"
+/I D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Source\Uiana\Private
 /I Runtime
 /I Runtime\Projects\Public
 /I Runtime\TraceLog\Public
@@ -255,9 +255,9 @@
 /I ..\Plugins\Experimental\PythonScriptPlugin\Intermediate\Build\Win64\UnrealEditor\Inc\PythonScriptPlugin
 /I ..\Plugins\Experimental\PythonScriptPlugin\Source
 /I ..\Plugins\Experimental\PythonScriptPlugin\Source\PythonScriptPlugin\Public
-/I "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\Inc\Uiana"
-/I "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Source"
-/I "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Source\Uiana\Public"
+/I D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\Inc\Uiana
+/I D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Source
+/I D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Source\Uiana\Public
 /I ThirdParty\mimalloc\include
 /I ThirdParty\LibTiff\Source\Win64
 /I ThirdParty\LibTiff\Source
@@ -278,12 +278,12 @@
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
-/FI"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Intermediate\Build\Win64\RangeRemakeEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h"
-/FI"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Definitions.Uiana.h"
-/Yu"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Intermediate\Build\Win64\RangeRemakeEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h"
-/Fp"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Intermediate\Build\Win64\RangeRemakeEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h.pch"
-/Fo"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.cpp.obj"
-/sourceDependencies "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.cpp.json"
+/FI"D:\BekaUEProjects\ProjectBeka\Intermediate\Build\Win64\ProjectBekaEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h"
+/FI"D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Definitions.Uiana.h"
+/Yu"D:\BekaUEProjects\ProjectBeka\Intermediate\Build\Win64\ProjectBekaEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h"
+/Fp"D:\BekaUEProjects\ProjectBeka\Intermediate\Build\Win64\ProjectBekaEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h.pch"
+/Fo"D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.cpp.obj"
+/sourceDependencies D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.cpp.json
 /Zc:inline
 /nologo
 /Oi

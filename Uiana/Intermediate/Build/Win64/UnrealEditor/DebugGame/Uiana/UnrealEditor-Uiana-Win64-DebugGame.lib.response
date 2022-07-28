@@ -6,8 +6,8 @@
 /NAME:"UnrealEditor-Uiana-Win64-DebugGame.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Intermediate\Build\Win64\RangeRemakeEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h.obj"
-"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.cpp.obj"
-"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.gen.cpp.obj"
-"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Default.rc2.res"
-/OUT:"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\UnrealEditor-Uiana-Win64-DebugGame.lib"
+"D:\BekaUEProjects\ProjectBeka\Intermediate\Build\Win64\ProjectBekaEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h.obj"
+"D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.cpp.obj"
+"D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Module.Uiana.gen.cpp.obj"
+"D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Default.rc2.res"
+/OUT:"D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\UnrealEditor-Uiana-Win64-DebugGame.lib"

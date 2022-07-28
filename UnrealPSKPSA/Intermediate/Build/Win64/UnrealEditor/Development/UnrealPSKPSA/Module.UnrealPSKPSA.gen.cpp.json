@@ -1,21 +1,21 @@
 {
     "Version": "1.1",
     "Data": {
-        "Source": "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\development\\unrealpskpsa\\module.unrealpskpsa.gen.cpp",
+        "Source": "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\development\\unrealpskpsa\\module.unrealpskpsa.gen.cpp",
         "ProvidedModule": "",
-        "PCH": "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\intermediate\\build\\win64\\rangeremakeeditor\\development\\unrealed\\sharedpch.unrealed.shadowerrors.h.pch",
+        "PCH": "d:\\beka ueprojects\\projectbeka\\intermediate\\build\\win64\\projectbekaeditor\\development\\unrealed\\sharedpch.unrealed.shadowerrors.h.pch",
         "Includes": [
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\development\\unrealpskpsa\\definitions.unrealpskpsa.h",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\psafactory.gen.cpp",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\source\\unrealpskpsa\\public\\psafactory.h",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\psafactory.generated.h",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\pskfactory.gen.cpp",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\source\\unrealpskpsa\\public\\pskfactory.h",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\pskfactory.generated.h",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\pskxfactory.gen.cpp",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\source\\unrealpskpsa\\public\\pskxfactory.h",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\pskxfactory.generated.h",
-            "c:\\users\\berna\\documents\\unreal projects\\rangeremake\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\unrealpskpsa.init.gen.cpp"
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\development\\unrealpskpsa\\definitions.unrealpskpsa.h",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\psafactory.gen.cpp",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\source\\unrealpskpsa\\public\\psafactory.h",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\psafactory.generated.h",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\pskfactory.gen.cpp",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\source\\unrealpskpsa\\public\\pskfactory.h",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\pskfactory.generated.h",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\pskxfactory.gen.cpp",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\source\\unrealpskpsa\\public\\pskxfactory.h",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\pskxfactory.generated.h",
+            "d:\\beka ueprojects\\projectbeka\\plugins\\unrealpskpsa\\intermediate\\build\\win64\\unrealeditor\\inc\\unrealpskpsa\\unrealpskpsa.init.gen.cpp"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

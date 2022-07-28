@@ -55,8 +55,8 @@
 #define NDEBUG 1
 #define UE_BUILD_DEVELOPMENT 1
 #define UE_IS_ENGINE_MODULE 0
-#define UE_PROJECT_NAME RangeRemake
-#define UE_TARGET_NAME RangeRemakeEditor
+#define UE_PROJECT_NAME ProjectBeka
+#define UE_TARGET_NAME ProjectBekaEditor
 #define UE_MODULE_NAME "Uiana"
 #define UE_PLUGIN_NAME "Uiana"
 #define IMPLEMENT_ENCRYPTION_KEY_REGISTRATION() 

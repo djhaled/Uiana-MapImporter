@@ -20,8 +20,8 @@ class UCapsuleComponent;
 #endif
 #define UIANA_ValActor_generated_h
 
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_SPARSE_DATA
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_RPC_WRAPPERS \
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_SPARSE_DATA
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_RPC_WRAPPERS \
  \
 	DECLARE_FUNCTION(execCreateBlockingVolumeComponent); \
 	DECLARE_FUNCTION(execCreateBillboardComponent); \
@@ -31,7 +31,7 @@ class UCapsuleComponent;
 	DECLARE_FUNCTION(execCreateCapsuleComponent);
 
 
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_RPC_WRAPPERS_NO_PURE_DECLS \
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_RPC_WRAPPERS_NO_PURE_DECLS \
  \
 	DECLARE_FUNCTION(execCreateBlockingVolumeComponent); \
 	DECLARE_FUNCTION(execCreateBillboardComponent); \
@@ -41,7 +41,7 @@ class UCapsuleComponent;
 	DECLARE_FUNCTION(execCreateCapsuleComponent);
 
 
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_INCLASS_NO_PURE_DECLS \
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesAValActor(); \
 	friend struct Z_Construct_UClass_AValActor_Statics; \
@@ -50,7 +50,7 @@ public: \
 	DECLARE_SERIALIZER(AValActor)
 
 
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_INCLASS \
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_INCLASS \
 private: \
 	static void StaticRegisterNativesAValActor(); \
 	friend struct Z_Construct_UClass_AValActor_Statics; \
@@ -59,7 +59,7 @@ public: \
 	DECLARE_SERIALIZER(AValActor)
 
 
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_STANDARD_CONSTRUCTORS \
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API AValActor(const FObjectInitializer& ObjectInitializer); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(AValActor) \
@@ -72,7 +72,7 @@ private: \
 public:
 
 
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_ENHANCED_CONSTRUCTORS \
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_ENHANCED_CONSTRUCTORS \
 private: \
 	/** Private move- and copy-constructors, should never be used */ \
 	NO_API AValActor(AValActor&&); \
@@ -83,25 +83,25 @@ public: \
 	DEFINE_DEFAULT_CONSTRUCTOR_CALL(AValActor)
 
 
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_10_PROLOG
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_GENERATED_BODY_LEGACY \
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_10_PROLOG
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_SPARSE_DATA \
-	FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_RPC_WRAPPERS \
-	FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_INCLASS \
-	FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_STANDARD_CONSTRUCTORS \
+	FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_SPARSE_DATA \
+	FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_RPC_WRAPPERS \
+	FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_INCLASS \
+	FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_GENERATED_BODY \
+#define FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_SPARSE_DATA \
-	FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_INCLASS_NO_PURE_DECLS \
-	FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_ENHANCED_CONSTRUCTORS \
+	FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_SPARSE_DATA \
+	FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_INCLASS_NO_PURE_DECLS \
+	FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h_13_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -109,7 +109,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> UIANA_API UClass* StaticClass<class AValActor>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID FID_RangeRemake_Plugins_Uiana_Source_Uiana_Public_ValActor_h
+#define CURRENT_FILE_ID FID_ProjectBeka_Plugins_Uiana_Source_Uiana_Public_ValActor_h
 
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

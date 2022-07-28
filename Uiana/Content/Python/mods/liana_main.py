@@ -15,8 +15,7 @@ AllTasks = []
 AllTextures= []
 object_types = []
 AllLoadableMaterials = {}
-AllMeshes = []
-AllObjects = []
+AllMeshes = []  
 AllLevelPaths = []
 
 testbek = 0
@@ -83,6 +82,7 @@ def do_import_tasks(Meshes,tasks,bTexture):
 			else:
 				pass
 	AllTasks.clear()
+	AllMeshes.clear()
 	AllTextures.clear()
 
 
@@ -487,7 +487,6 @@ def SetAllSettings(asset,Comp):
 				Comp.set_editor_property(Setting, Colorized)
 				continue
 			if type(ActorSetting) == dict:
-				print("ActorSetting")
 				continue
 			ActualValue = FindNonSlasher(eval(f'unreal.{classname}'),ActorSetting)
 			if ActualValue == None:
@@ -614,9 +613,9 @@ def SetPostProcessSettings(AllSettings,Comp):
 def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)
 	startpath = f"/Game/Maps/{newmap}/{mapname}"
-	unreal.EditorLevelLibrary.new_level(startpath)
+	SubSystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+	unreal.LevelEditorSubsystem.new_level(SubSystem,startpath)
 	AllLevelPaths.append(startpath)
-	unreal.EditorLevelLibrary.save_current_level() 
 def SpawnMeshesInMap(data,set,mapname):
 	AllAssets = AssetRegistry.get_assets_by_path('/Game/Meshes/All/')
 	for j in AllAssets:
@@ -742,7 +741,7 @@ def ExportAllTexture():
 	do_import_tasks(None,AllTextures,True)
 
 def import_map(Setting):
-	print("Importing Map")
+	AllLevelPaths.clear()
 	settings = Settings(Setting)
 	global Seting
 	Seting = settings
@@ -759,5 +758,4 @@ def import_map(Setting):
 		umap_name = umap_json_path.stem
 		CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
-		unreal.EditorLevelLibrary.save_current_level()
 	LevelStreamingStuff()
