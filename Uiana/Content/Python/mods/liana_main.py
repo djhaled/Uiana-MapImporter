@@ -519,6 +519,10 @@ def SetAllSettings(asset,Comp):
 						ReturnLMass = SetMaterialLightmassSetting(ActorSetting)
 						Comp.set_editor_property("lightmass_settings",ReturnLMass)
 						continue
+					if type(Comp) == unreal.DirectionalLightComponent:
+						ReturnLMass = SetDirectLightSetting(ActorSetting)
+						Comp.set_editor_property("lightmass_settings",ReturnLMass)
+						continue
 					ReturnLMass = SetLightMassSettings(ActorSetting)
 					Comp.set_editor_property("lightmass_settings",ReturnLMass)
 				continue
@@ -537,7 +541,18 @@ def SetMaterialLightmassSetting(ActorSetting):
 		if val == "ExportResolutionScale":
 			Set.set_editor_property("export_resolution_scale",ActorSetting[val])
 		return Set
-
+def SetDirectLightSetting(ActorSetting):
+	Set = unreal.LightmassDirectionalLightSettings()
+	for val in ActorSetting:
+		if val == "IndirectLightingSaturation":
+			Set.set_editor_property("indirect_lighting_saturation",ActorSetting[val])
+		if val == "LightSourceAngle":
+			Set.set_editor_property("light_source_angle",ActorSetting[val])
+		if val == "ShadowExponent":
+			Set.set_editor_property("shadow_exponent",ActorSetting[val])
+		if val == "bUseAreaShadowsForStationaryLight":
+			Set.set_editor_property("use_area_shadows_for_stationary_light",ActorSetting[val])
+	return Set
 def SetLightMassSettings(ActorSetting):
 	Set = unreal.LightmassPrimitiveSettings()
 	for val in ActorSetting:
