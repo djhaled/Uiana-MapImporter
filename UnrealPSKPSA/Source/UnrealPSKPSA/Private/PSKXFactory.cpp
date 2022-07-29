@@ -111,9 +111,9 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	}
 	
 	auto& SourceModel = StaticMesh->AddSourceModel();
-	SourceModel.BuildSettings.bGenerateLightmapUVs = false;
 	SourceModel.BuildSettings.bBuildReversedIndexBuffer = false;
-	SourceModel.BuildSettings.bRecomputeTangents = true;
+	SourceModel.BuildSettings.bRecomputeTangents = false;
+	SourceModel.BuildSettings.bGenerateLightmapUVs = true;
 	SourceModel.BuildSettings.bComputeWeightedNormals = false;
 	SourceModel.BuildSettings.bRecomputeNormals = !bHasNormals;
 	SourceModel.SaveRawMesh(RawMesh);

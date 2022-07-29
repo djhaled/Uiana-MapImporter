@@ -142,6 +142,8 @@ def ReturnFormattedString(string,prefix):
 	end = len(string)
 	return string[start:end]
 def HasSetting(asset,comp,black):
+	if asset == "LightmassSettings":
+		return True
 	if asset[0] == "b":
 		asset= asset[1:len(asset)]
 	asset = asset.lower()

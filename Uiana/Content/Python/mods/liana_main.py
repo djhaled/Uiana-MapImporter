@@ -462,9 +462,35 @@ def SpawnMiscObject(data, umap):
 			ActorTypeEval = SpawnActor
 		Comp = ActorTypeEval
 		SetAllSettings(ActorProps,Comp)
+def SetSMSettings():
+	OBJPath = Seting.selected_map.objects_path
+	### first normal mats #######
+	ListObjs = os.listdir(OBJPath)
+	for j in ListObjs:
+		Join = OBJPath.joinpath(j)
+		ObjJson = read_json(Join)
+		sm = ObjJson
+		if sm["Type"] == "StaticMesh":
+			Props = sm["Properties"]
+			Name = sm["Name"]
+			LmCoord = 0
+			LMRes = 256
+			if HasKey("LightMapResolution",Props):
+				LMRes = Props["LightMapResolution"]
+			if HasKey("LightMapCoordinateIndex",Props):
+				LmCoord = Props["LightMapCoordinateIndex"]
+			MeshToLoad = unreal.load_asset(f"/Game/Meshes/All/{Name}")
+			if (MeshToLoad):
+				CastSM = unreal.StaticMesh.cast(MeshToLoad)
+				CastSM.set_editor_property("light_map_coordinate_index", LmCoord)
+				CastSM.set_editor_property("light_map_resolution", LMRes)
+
+
+
+
 
 def SetAllSettings(asset,Comp):
-	blackmisc = ["currentfocusdistance","CachedMaxDrawDistance","OnComponentBeginOverlap","Mobility"]
+	blackmisc = ["currentfocusdistance","CachedMaxDrawDistance","OnComponentBeginOverlap"]
 	for Setting in asset:
 		bHasIt = HasSetting(Setting,Comp,blackmisc)
 		if bHasIt == True:
@@ -487,12 +513,49 @@ def SetAllSettings(asset,Comp):
 				Comp.set_editor_property(Setting, Colorized)
 				continue
 			if type(ActorSetting) == dict:
+				if Setting == "LightmassSettings":
+					### gotta fix later
+					if type(Comp) == unreal.MaterialInstanceConstant:
+						ReturnLMass = SetMaterialLightmassSetting(ActorSetting)
+						Comp.set_editor_property("lightmass_settings",ReturnLMass)
+						continue
+					ReturnLMass = SetLightMassSettings(ActorSetting)
+					Comp.set_editor_property("lightmass_settings",ReturnLMass)
 				continue
 			ActualValue = FindNonSlasher(eval(f'unreal.{classname}'),ActorSetting)
 			if ActualValue == None:
 				continue
 			value = eval(f'unreal.{classname}.{ActualValue}')
 			Comp.set_editor_property(Setting, value)
+def SetMaterialLightmassSetting(ActorSetting):
+	Set = unreal.LightmassMaterialInterfaceSettings()
+	for val in ActorSetting:
+		if val == "DiffuseBoost":
+			Set.set_editor_property("diffuse_boost",ActorSetting[val])
+		if val == "bCastShadowAsMasked":
+			Set.set_editor_property("cast_shadow_as_masked",ActorSetting[val])
+		if val == "ExportResolutionScale":
+			Set.set_editor_property("export_resolution_scale",ActorSetting[val])
+		return Set
+
+def SetLightMassSettings(ActorSetting):
+	Set = unreal.LightmassPrimitiveSettings()
+	for val in ActorSetting:
+		if val == "DiffuseBoost":
+			Set.set_editor_property("diffuse_boost",ActorSetting[val])
+		if val == "EmissiveBoost":
+			Set.set_editor_property("emissive_boost",ActorSetting[val])
+		if val == "FullyOccludedSamplesFraction":
+			Set.set_editor_property("fully_occluded_samples_fraction",ActorSetting[val])
+		if val == "bShadowIndirectOnly":
+			Set.set_editor_property("shadow_indirect_only",ActorSetting[val])
+		if val == "bUseEmissiveForStaticLighting":
+			Set.set_editor_property("use_emissive_for_static_lighting",ActorSetting[val])
+		if val == "bUseTwoSidedLighting":
+			Set.set_editor_property("use_two_sided_lighting",ActorSetting[val])
+		if val == "bUseVertexNormalForHemisphereGather":
+			Set.set_editor_property("use_vertex_normal_for_hemisphere_gather",ActorSetting[val])
+		return Set
 
 def ImportDecal(DecalData):
 	Transform = GetTransform(object_data,False)
@@ -572,7 +635,6 @@ def ImportLights(OBJData, ArrObjsImport):
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	map_object = None
 	test = []
-	#print(f'Currently doing {umap_name}, stand by.')
 	objectsToImport = filter_objects(umap_data)
 	if COUNT != 0:
 		objectsToImport = objectsToImport[:COUNT]
@@ -760,3 +822,4 @@ def import_map(Setting):
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
 		unreal.EditorLevelLibrary.save_current_level()
 	LevelStreamingStuff()
+	SetSMSettings()

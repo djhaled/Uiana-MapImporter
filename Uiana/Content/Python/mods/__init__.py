@@ -24,10 +24,10 @@ class UeSettings:
 		fMapName = "character select"
 	vAesKey = args.AES
 	PExportPath = Path(args.ExportPath)
-	PakFolha = args.PakFolder.replace('RiotGames','Riot Games')
+	PakFolha = args.PakFolder
 	PPakFolder = Path(PakFolha)
 	NewPath = (args.PluginPath) + ('\\Uiana\\Content\\Python')
-	FixedPath = NewPath.replace('UnrealProjects','Unreal Projects')
+	FixedPath = NewPath
 	PPluginPath = Path(FixedPath)
 import_map(UeSettings)
 exit()
