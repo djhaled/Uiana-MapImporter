@@ -758,4 +758,5 @@ def import_map(Setting):
 		umap_name = umap_json_path.stem
 		CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
+		unreal.EditorLevelLibrary.save_current_level()
 	LevelStreamingStuff()

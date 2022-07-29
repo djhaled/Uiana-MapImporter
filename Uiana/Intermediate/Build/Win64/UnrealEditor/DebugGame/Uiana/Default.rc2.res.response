@@ -62,6 +62,6 @@
 /DBUILD_VERSION=++UE5+Release-5.0-CL-20280985
 /DBUILD_ICON_FILE_NAME="\"..\\Build\\Windows\\Resources\\Default.ico\""
 /DPROJECT_COPYRIGHT_STRING="Fill out your copyright notice in the Description page of Project Settings."
-/DPROJECT_PRODUCT_IDENTIFIER=ProjectBeka
-/fo "D:\BekaUEProjects\ProjectBeka\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Default.rc2.res"
+/DPROJECT_PRODUCT_IDENTIFIER=RangeRemake
+/fo "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\Uiana\Intermediate\Build\Win64\UnrealEditor\DebugGame\Uiana\Default.rc2.res"
 "..\Build\Windows\Resources\Default.rc2"

@@ -1,6 +1,6 @@
-D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\DebugGame\UnrealPSKPSA\Module.UnrealPSKPSA.cpp
+"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\DebugGame\UnrealPSKPSA\Module.UnrealPSKPSA.cpp"
 /I .
-/I D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Source\UnrealPSKPSA\Private
+/I "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Source\UnrealPSKPSA\Private"
 /I ..\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject
 /I Runtime
 /I Runtime\CoreUObject\Public
@@ -253,15 +253,16 @@ D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\Unre
 /I ..\Intermediate\Build\Win64\UnrealEditor\Inc\AnimationDataController
 /I Developer\AnimationDataController\Public
 /I Runtime\RawMesh\Public
+/I Runtime\MeshConversion\Public
 /I Runtime\MeshUtilitiesCommon\Public
 /I ..\Plugins\Editor\EditorScriptingUtilities\Intermediate\Build\Win64\UnrealEditor\Inc\EditorScriptingUtilities
 /I ..\Plugins\Editor\EditorScriptingUtilities\Source
 /I ..\Plugins\Editor\EditorScriptingUtilities\Source\EditorScriptingUtilities\Public
 /I ..\Intermediate\Build\Win64\UnrealEditor\Inc\StaticMeshEditor
 /I Editor\StaticMeshEditor\Public
-/I D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\Inc\UnrealPSKPSA
-/I D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Source
-/I D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Source\UnrealPSKPSA\Public
+/I "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\Inc\UnrealPSKPSA"
+/I "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Source"
+/I "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Source\UnrealPSKPSA\Public"
 /I ThirdParty\mimalloc\include
 /I ThirdParty\LibTiff\Source\Win64
 /I ThirdParty\LibTiff\Source
@@ -282,12 +283,12 @@ D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\Unre
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
-/FI"D:\BekaUEProjects\ProjectBeka\Intermediate\Build\Win64\ProjectBekaEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h"
-/FI"D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\DebugGame\UnrealPSKPSA\Definitions.UnrealPSKPSA.h"
-/Yu"D:\BekaUEProjects\ProjectBeka\Intermediate\Build\Win64\ProjectBekaEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h"
-/Fp"D:\BekaUEProjects\ProjectBeka\Intermediate\Build\Win64\ProjectBekaEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h.pch"
-/Fo"D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\DebugGame\UnrealPSKPSA\Module.UnrealPSKPSA.cpp.obj"
-/sourceDependencies D:\BekaUEProjects\ProjectBeka\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\DebugGame\UnrealPSKPSA\Module.UnrealPSKPSA.cpp.json
+/FI"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Intermediate\Build\Win64\RangeRemakeEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h"
+/FI"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\DebugGame\UnrealPSKPSA\Definitions.UnrealPSKPSA.h"
+/Yu"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Intermediate\Build\Win64\RangeRemakeEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h"
+/Fp"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Intermediate\Build\Win64\RangeRemakeEditor\DebugGame\UnrealEd\SharedPCH.UnrealEd.NonOptimized.ShadowErrors.h.pch"
+/Fo"C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\DebugGame\UnrealPSKPSA\Module.UnrealPSKPSA.cpp.obj"
+/sourceDependencies "C:\Users\BERNA\Documents\Unreal Projects\RangeRemake\Plugins\UnrealPSKPSA\Intermediate\Build\Win64\UnrealEditor\DebugGame\UnrealPSKPSA\Module.UnrealPSKPSA.cpp.json"
 /Zc:inline
 /nologo
 /Oi
