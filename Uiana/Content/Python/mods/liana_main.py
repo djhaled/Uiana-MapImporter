@@ -514,25 +514,32 @@ def SetAllSettings(asset,Comp):
 				continue
 			if type(ActorSetting) == dict:
 				if Setting == "LightmassSettings":
+					ReturnLMass = None
 					### gotta fix later
 					if type(Comp) == unreal.MaterialInstanceConstant:
-						ReturnLMass = SetMaterialLightmassSetting(ActorSetting)
-						Comp.set_editor_property("lightmass_settings",ReturnLMass)
+						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassMaterialInterfaceSettings")
 						continue
-					if type(Comp) == unreal.DirectionalLightComponent:
-						ReturnLMass = SetDirectLightSetting(ActorSetting)
-						Comp.set_editor_property("lightmass_settings",ReturnLMass)
+					if type(Comp) == unreal.DirectionalLightComponent or type(Comp) == unreal.SpotLightComponent:
+						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassDirectionalLightSettings")
 						continue
-					ReturnLMass = SetLightMassSettings(ActorSetting)
+					if type(Comp) == unreal.PointLightComponent:
+						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassPointLightSettings")
+						continue
+					if type(Comp) == unreal.StaticMeshComponent or type(Comp) == unreal.HierarchicalInstancedStaticMeshComponent:
+						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassPrimitiveSettings")
+					if ReturnLMass == None:
+						print(type(Comp))
+						continue
 					Comp.set_editor_property("lightmass_settings",ReturnLMass)
+					continue
 				continue
 			ActualValue = FindNonSlasher(eval(f'unreal.{classname}'),ActorSetting)
 			if ActualValue == None:
 				continue
 			value = eval(f'unreal.{classname}.{ActualValue}')
 			Comp.set_editor_property(Setting, value)
-def SetMaterialLightmassSetting(ActorSetting):
-	Set = unreal.LightmassMaterialInterfaceSettings()
+def SetLightmassSetting(ActorSetting,Evalu):
+	Set = eval(f'unreal.{Evalu}()')
 	for val in ActorSetting:
 		if val == "DiffuseBoost":
 			Set.set_editor_property("diffuse_boost",ActorSetting[val])
@@ -540,10 +547,6 @@ def SetMaterialLightmassSetting(ActorSetting):
 			Set.set_editor_property("cast_shadow_as_masked",ActorSetting[val])
 		if val == "ExportResolutionScale":
 			Set.set_editor_property("export_resolution_scale",ActorSetting[val])
-		return Set
-def SetDirectLightSetting(ActorSetting):
-	Set = unreal.LightmassDirectionalLightSettings()
-	for val in ActorSetting:
 		if val == "IndirectLightingSaturation":
 			Set.set_editor_property("indirect_lighting_saturation",ActorSetting[val])
 		if val == "LightSourceAngle":
@@ -552,10 +555,6 @@ def SetDirectLightSetting(ActorSetting):
 			Set.set_editor_property("shadow_exponent",ActorSetting[val])
 		if val == "bUseAreaShadowsForStationaryLight":
 			Set.set_editor_property("use_area_shadows_for_stationary_light",ActorSetting[val])
-	return Set
-def SetLightMassSettings(ActorSetting):
-	Set = unreal.LightmassPrimitiveSettings()
-	for val in ActorSetting:
 		if val == "DiffuseBoost":
 			Set.set_editor_property("diffuse_boost",ActorSetting[val])
 		if val == "EmissiveBoost":

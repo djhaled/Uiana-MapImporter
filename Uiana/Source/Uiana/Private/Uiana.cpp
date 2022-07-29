@@ -148,10 +148,8 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(AESK));
 	args.Add(FStringFormatArg(CurrentPath));
 	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\" \"{9}\""), args);
-	//FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py {0} {1} {2} {3} {4} {5} {6} {7} {8} {9}"), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
 	GEngine->Exec(NULL, TCharCommand);
-	ShutdownModule();
 	return FReply::Handled();
 }
 
