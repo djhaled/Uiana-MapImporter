@@ -29,18 +29,16 @@ Before you download the addon, you must download these first.
 1. Press Code > Download Zip > Extract it with WinRAR , 7-zip
 2. Create a Plugins folder on your project if you don't already have
 3. Drag "UIANA" and "UnrealPSKPSA" (made by the great Half) from the .Rar file and put it on the Plugins folder
-4. Enable Python in plugins
-6. Restart the engine
-7. Press Uiana button (Valorant Icon) on top of the UI to open the tool
-8. Inside Uiana's UI, go to Settings and fill the inputs as follows.
+4. Press Uiana button (Valorant Icon) on top of the UI to open the tool
+5. Inside Uiana's UI, go to Settings and fill the inputs as follows.
    ```js
    Export Folder    = "Path to save your settings & export the maps"
                     // Pick an empty folder with a lot of space.
    PAKs Folder      = "Path to VALORANT's PAK files."
                     // ..Riot Games\VALORANT\live\ShooterGame\Content\Paks\
    ```
-9. Select your preferable settings and hit "Generate Map" on bottom right.
-10. Voi-La
+6. Select your preferable settings and hit "Generate Map" on bottom right.
+7. Voi-La
    
 
 
