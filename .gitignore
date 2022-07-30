@@ -6,7 +6,8 @@ Piana/
 __pycache__/
 *.py[cod]
 *$py.class
-
+Binaries/
+Intermediate/
 # C extensions
 *.so
 
