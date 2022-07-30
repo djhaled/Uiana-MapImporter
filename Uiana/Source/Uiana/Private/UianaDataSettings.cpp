@@ -7,9 +7,9 @@ UUianaDataSettings::UUianaDataSettings(const FObjectInitializer& ObjectInitializ
 	PaksFolder.Path = "C:/Riot Games/VALORANT/live/ShooterGame/Content/Paks";
 	AesKey = FString("0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6");
 	Map = Ascent;
-	ImportMisc = true;
+	ImportMisc = false;
 	ImportMeshes = true;
 	ImportMaterials = true;
 	ImportDecals = false;
-	ImportLights = false;
+	ImportLights = true;
 }

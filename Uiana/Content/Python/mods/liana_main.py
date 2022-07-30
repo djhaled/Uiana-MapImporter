@@ -181,18 +181,29 @@ def SetDecalMaterial(Set,MapObject):
 	Set = Seting
 	object_properties_OG = MapObject["Properties"]
 	ObjectName = MapObject["Name"]
+	Parent = "DecalBugged"
 	if "DecalMaterial" in MapObject["Properties"]:
 		yoyo = MapObject["Properties"]["DecalMaterial"]
 		mat_name = get_obj_name(data=yoyo, mat=True)
 		mat_json = read_json(Set.selected_map.materials_ovr_path.joinpath(f"{mat_name}.json"))
+		MaterialData = mat_json[0]
+		if HasKey("Properties",MaterialData) == False:
+			return
+		Props = MaterialData["Properties"]
+		if HasKey("Parent",Props) == False:
+			print(MaterialData["Name"])
+		else:
+			Parent = Props["Parent"]["ObjectName"]
 		Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
 		if Mat is None:
 			Mat=unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/Meshes/All/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
 			unreal.EditorAssetLibrary.save_asset(f'/Game/Meshes/All/{mat_name}')
 		Mat = unreal.MaterialInstanceConstant.cast(Mat)
-		MatBase = importDecalShaders()
+		MatBase = ImportShader(Parent.replace("Material ", ""))
+		if MatBase == None:
+			print(Parent.replace("Material ", ""))
 		Mat.set_editor_property('parent', MatBase)
-		set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat,decal=True )
+		set_material(settings=Settings,  mat_data=MaterialData, object_cls=MapObject,UEMat = Mat,decal=True )
 		return Mat
 def set_materials(Set,MapObject,decal):
 	Set = Seting
@@ -252,7 +263,7 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 	mat_name = mat_data["Name"]
 	SetTextures(mat_props,UEMat)
 	SetAllSettings(mat_props,UEMat)
-	BasePropsBlacklist = ['bVertexFog','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
+	BasePropsBlacklist = ['bVertexFog','bOverride_DecalDiffuseLighting','bDecalDiffuseLighting','bDitherOpacityMask','DecalDiffuseLighting','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	if "BasePropertyOverrides" in mat_props:
 		for prop_name, prop_value in mat_props["BasePropertyOverrides"].items():
 			if "BlendMode" == prop_name:
@@ -284,19 +295,11 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 				param_value = param["Value"]
 				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, param_name,bool(param_value))
 		if "StaticComponentMaskParameters" in mat_props["StaticParameters"]:
-			pass
-			# for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
-			# 	param_name = param["ParameterInfo"]["Name"].lower()
-			# 	param_value = param["ParameterInfo"]["bOverride"]
-			# 	if param_name == "mask":
-			# 		# MASK = "R"
-			# 		colors = {"R", "G", "B", "A"}
-			# 		for color in colors:
-			# 			if color in param:
-			# 				if param[color]:
-			# 					pass
-								#if f"Use {color}" in N_SHADER.inputs:
-									#N_SHADER.inputs[f"Use {color}"].default_value = 1
+			for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
+				listosa = ["R","G","B"]
+				for pa in listosa:
+					value = param[pa]
+					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, pa,bool(value))
 	if "ScalarParameterValues" in mat_props:
 		for param in mat_props["ScalarParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
@@ -358,9 +361,11 @@ def SetTextures(mat_props: dict, MatRef):
 				ImportedTexture = unreal.load_asset(f'/Game/Meshes/Textures/{tex_name}.{tex_name}')
 			if ImportedTexture == None:
 				continue
+			if "rgba" == param_name:
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'RGBA', ImportedTexture)
 			if "diffuse" == param_name or "albedo" == param_name :
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
-			if "diffuse a" == param_name  or "texture a" == param_name or "rgba" == param_name:
+			if "diffuse a" == param_name  or "texture a" == param_name :
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
 			if "diffuse b" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
@@ -528,7 +533,6 @@ def SetAllSettings(asset,Comp):
 					if type(Comp) == unreal.StaticMeshComponent or type(Comp) == unreal.HierarchicalInstancedStaticMeshComponent:
 						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassPrimitiveSettings")
 					if ReturnLMass == None:
-						print(type(Comp))
 						continue
 					Comp.set_editor_property("lightmass_settings",ReturnLMass)
 					continue
@@ -572,18 +576,16 @@ def SetLightmassSetting(ActorSetting,Evalu):
 		return Set
 
 def ImportDecal(DecalData):
-	Transform = GetTransform(object_data,False)
-	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,Transform[0],Transform[1])
-	DecActor.set_actor_scale3d(Transform[2])
+	Transform = GetTransform(DecalData,False)
+	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,Transform.translation,Transform.rotation.rotator())
+	DecActor.set_actor_scale3d(Transform.scale3d)
 	DecalComponent = DecActor.decal
-	DecalMat = SetDecalMaterial(Settings, object_data)
+	DecalMat = SetDecalMaterial(Settings, DecalData)
 	DecalComponent.set_decal_material(DecalMat)
-	BlacklistDecal =  ['DecalMaterial','LightColorType','RelativeScale3D','RelativeRotation','RelativeLocation','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
-	for propName,PropValue in object_data["Properties"].items():
+	BlacklistDecal =  ['DecalMaterial','LightColorType','CachedVertexFogIntensityFromVolumes','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
+	for propName,PropValue in DecalData["Properties"].items():
 		if propName not in BlacklistDecal:
-			if propName == "DecalSize":
-				PropValue = unreal.Vector(PropValue["X"],PropValue["Y"],PropValue["Z"])
-			DecalComponent.set_editor_property(propName,PropValue)
+			SetAllSettings(DecalData,DecalComponent)
 def ImportLights(OBJData, ArrObjsImport):
 	ActualData = OBJData
 	LightningType = ActualData["Type"]
@@ -786,6 +788,8 @@ def ImportAllTexturesFromMaterial(matJson):
 				TextParamValues = props["TextureParameterValues"]
 				for param in TextParamValues:
 					tex_game_path = get_texture_path(s=param, f=Seting.texture_format)
+					if tex_game_path == None:
+						continue
 					tex_local_path = Seting.assets_path.joinpath(tex_game_path).__str__()
 					param_name = param['ParameterInfo']['Name'].lower()
 					tex_name = Path(tex_local_path).stem

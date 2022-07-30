@@ -65,12 +65,16 @@ def GetUMapType(mapname):
 		MapType = j["StreamingType"]
 		if mapname == NewMapName:
 			return eval(f'unreal.{MapType}')
+def ImportShader(Shader):
+	BaseShader = unreal.load_asset(f'/Uiana/Materials/{Shader}')
+	return BaseShader
+
 def import_shaders():
 	BaseShader = unreal.load_asset('/Uiana/Materials/ValoOpaqueMasterNEW')
 	return BaseShader
 
 def importDecalShaders():
-	BaseShader = unreal.load_asset('/Uiana/Materials/MasterDecalMaterial')
+	BaseShader = unreal.load_asset('/Uiana/Materials/ValoDecals')
 	return BaseShader
 def ConvertToLoadableMaterial(Mesh,Type):
 	typestring = str(Type)
