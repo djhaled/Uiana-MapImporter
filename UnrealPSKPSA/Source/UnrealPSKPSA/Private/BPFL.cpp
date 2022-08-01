@@ -4,9 +4,11 @@
 #include "BPFL.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
+#include "GameFramework/Actor.h"
 #include "VectorTypes.h"
 #include "Engine/StaticMesh.h"
 #include "KismetProceduralMeshLibrary.h"
+#include "Engine/World.h"
 #include "StaticMeshDescription.h"
 #include "PSKReader.h"
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
@@ -137,4 +139,5 @@ TArray<FVector3f> UBPFL::ReturnCurrentVerts(UStaticMesh* Mesh)
 	}
 	return ReturnArray;
 }
+
 
