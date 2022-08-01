@@ -26,5 +26,8 @@ public:
 	static TMap<FVector3f, FColor> MakeHashmap(TArray<FVector3f> arr1, TArray<FColor> TestVtx);
 	static TArray<FColor> FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArray<FColor> BrokenVtxColorArray, TArray<FVector3f> ReaderVerts);
 	static TArray<FVector3f> ReturnCurrentVerts(UStaticMesh* Mesh);
+<<<<<<< Updated upstream:Uiana/Source/Uiana/Public/BPFL.h
+>>>>>>> Stashed changes:UnrealPSKPSA/Source/UnrealPSKPSA/Public/BPFL.h
+=======
 >>>>>>> Stashed changes:UnrealPSKPSA/Source/UnrealPSKPSA/Public/BPFL.h
 };

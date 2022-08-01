@@ -728,7 +728,10 @@ def SpawnMeshesInMap(data,set,mapname):
 			MeshToLoad = unreal.load_asset(PathToGo)
 			OvrVertexes = []
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 			PathOriginal = GetActualPath(ObjectProps["StaticMesh"])
 >>>>>>> Stashed changes
 			if HasKey("LODData",ActualData):
