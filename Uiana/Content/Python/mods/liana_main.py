@@ -248,7 +248,7 @@ def set_materials(Set,MapObject,decal):
 						ParentName = "BaseEnv_MAT_V4"
 					MatBase = ImportShader(ParentName)
 					if MatBase == None:
-						if ParentName not in AllParentNames and bIsDefaultEnv  == False:
+						if ParentName not in AllParentNames and DefEnv == None:
 							AllParentNames.append(ParentName)
 						replace1 = Parenteses.replace("MaterialInstanceConstant ", "")
 						replace2 = replace1.replace("Material ", "")
@@ -287,7 +287,7 @@ def set_materials(Set,MapObject,decal):
 					ParentName = "BaseEnv_MAT_V4"
 				MatBase = ImportShader(Parenteses.replace("Material ", ""))
 				if MatBase == None:
-					if ParentName not in AllParentNames and bIsDefaultEnv  == False:
+					if ParentName not in AllParentNames and DefEnv == None:
 						AllParentNames.append(ParentName)
 				#MatBase = import_shaders()
 				Test = Mat.set_editor_property('parent', MatBase)
