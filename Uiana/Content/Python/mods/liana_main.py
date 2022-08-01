@@ -14,6 +14,7 @@ Seting = None
 RepeatedMats = []
 AllTasks = []
 AllTextures= []
+AllParentNames = []
 object_types = []
 AllLoadableMaterials = {}
 AllMeshes = []  
@@ -21,6 +22,8 @@ AllLevelPaths = []
 
 testbek = 0
 
+
+BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4"]
 def IterateArrayMats(arr):
 	ActualName = ReturnFormattedString(arr,"/")
 	for j in AllLoadableMaterials:
@@ -44,6 +47,13 @@ def GetMaterialToOverride(Data):
 		Material = unreal.load_asset(Shi)
 		MaterialArray.append(Material)
 	return MaterialArray
+
+def bIsDefaultEnv(asset):
+	if asset in BaseEnv:
+		return "BaseEnv_MAT_V4"
+	else:
+		return None
+
 def extract_assets(settings: Settings):
 	if settings.assets_path.joinpath("exported.yo").exists():
 		pass
@@ -177,6 +187,7 @@ def get_map_assets(settings: Settings):
 
 	return umaps
 # TODO : MATERIALS
+
 	### WAITING ON HALF TO FIX .PSKS
 def SetDecalMaterial(Set,MapObject):
 	Set = Seting
@@ -192,7 +203,8 @@ def SetDecalMaterial(Set,MapObject):
 			return
 		Props = MaterialData["Properties"]
 		if HasKey("Parent",Props) == False:
-			print(MaterialData["Name"])
+			idk = 0 
+			#print(MaterialData["Name"])
 		else:
 			Parent = Props["Parent"]["ObjectName"]
 		Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
@@ -211,7 +223,7 @@ def set_materials(Set,MapObject,decal):
 	object_properties_OG = MapObject.json["Properties"]
 	ObjectName = MapObject.json["Name"]
 	object_properties = MapObject.data["Properties"]
-		
+	Parenteses = "MatBugged"
 	if "StaticMaterials" in object_properties_OG:
 		for index, mat in enumerate(object_properties_OG["StaticMaterials"]):
 			if type(mat["MaterialInterface"]) is dict:
@@ -219,22 +231,42 @@ def set_materials(Set,MapObject,decal):
 				if "WorldGridMaterial" not in mat_name and mat_name not in RepeatedMats:
 					mat_json = read_json(Set.selected_map.materials_path.joinpath(f"{mat_name}.json"))
 					mat_data = mat_json[0]
+					MatProps = mat_data["Properties"]
 					Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
 					if Mat is None:
 						continue
+					if HasKey("Parent",MatProps) == False:
+						MaName = mat_data["Name"]
+						print(f'{MaName} is a material not MatInstance')
+					else:
+						Parenteses = MatProps["Parent"]["ObjectName"]
 					RepeatedMats.append(mat_name)
 					Mat = unreal.MaterialInstanceConstant.cast(Mat)
-					MatBase = import_shaders()
+					ParentName = Parenteses.replace("Material ", "")
+					DefEnv = bIsDefaultEnv(ParentName)
+					if DefEnv == True:
+						ParentName = "BaseEnv_MAT_V4"
+					MatBase = ImportShader(ParentName)
+					if MatBase == None:
+						if ParentName not in AllParentNames and bIsDefaultEnv  == False:
+							AllParentNames.append(ParentName)
+						replace1 = Parenteses.replace("MaterialInstanceConstant ", "")
+						replace2 = replace1.replace("Material ", "")
+						print(f'{replace2} is a MatInstance that we dont have')
+					#MatBase = import_shaders()
 					Parent = Mat.set_editor_property('parent', MatBase)
 					set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat )
 
 	if "OverrideMaterials" in object_properties:
+		Parenteses = "MatBugged"
 		for index, mat in enumerate(object_properties["OverrideMaterials"]):
 			if type(mat) is dict:
 				mat_name = get_obj_name(data=mat, mat=True)
 				if mat_name  in RepeatedMats:
 					continue
 				mat_json = read_json(Set.selected_map.materials_ovr_path.joinpath(f"{mat_name}.json"))
+				mat_data = mat_json[0]
+				MatProps = mat_data["Properties"]
 				Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
 				if Mat is None and mat_name not in RepeatedMats:
 					RepeatedMats.append(mat_name)
@@ -245,7 +277,19 @@ def set_materials(Set,MapObject,decal):
 						Mat=unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/Meshes/All/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
 						unreal.EditorAssetLibrary.save_asset(f'/Game/Meshes/All/{mat_name}')
 				Mat = unreal.MaterialInstanceConstant.cast(Mat)
-				MatBase = import_shaders()
+				if HasKey("Parent",MatProps) == False:
+					print(mat_data["Name"])
+				else:
+					Parenteses = MatProps["Parent"]["ObjectName"]
+				ParentName =Parenteses.replace("Material ", "")
+				DefEnv = bIsDefaultEnv(ParentName)
+				if DefEnv == True:
+					ParentName = "BaseEnv_MAT_V4"
+				MatBase = ImportShader(Parenteses.replace("Material ", ""))
+				if MatBase == None:
+					if ParentName not in AllParentNames and bIsDefaultEnv  == False:
+						AllParentNames.append(ParentName)
+				#MatBase = import_shaders()
 				Test = Mat.set_editor_property('parent', MatBase)
 				set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat )
 
@@ -358,7 +402,7 @@ def SetTextures(mat_props: dict, MatRef):
 		param_name = param['ParameterInfo']['Name'].lower()
 		tex_name = Path(tex_local_path).stem
 		if "diffuse b low" not in param_name:
-			if Path(tex_local_path).exists() and tex_name not in blacklist_tex:
+			if Path(tex_local_path).exists():
 				ImportedTexture = unreal.load_asset(f'/Game/Meshes/Textures/{tex_name}.{tex_name}')
 			if ImportedTexture == None:
 				continue
@@ -851,5 +895,6 @@ def import_map(Setting):
 		CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
 		unreal.EditorLevelLibrary.save_current_level()
+	print(AllParentNames)
 	LevelStreamingStuff()
 	SetSMSettings()
