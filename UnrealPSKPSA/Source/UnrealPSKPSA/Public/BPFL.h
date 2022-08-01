@@ -9,6 +9,8 @@
 /**
  * 
  */
+class AActor;
+
 UCLASS()
 class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
 {
