@@ -727,6 +727,10 @@ def SpawnMeshesInMap(data,set,mapname):
 			SMActor.set_actor_scale3d(Transform.scale3d)
 			MeshToLoad = unreal.load_asset(PathToGo)
 			OvrVertexes = []
+<<<<<<< Updated upstream
+=======
+			PathOriginal = GetActualPath(ObjectProps["StaticMesh"])
+>>>>>>> Stashed changes
 			if HasKey("LODData",ActualData):
 				Lod = ActualData["LODData"]
 				for itLod in Lod:
