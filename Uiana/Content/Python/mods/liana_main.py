@@ -2,6 +2,7 @@
 import os
 from os.path import exists
 import subprocess
+from pathlib import Path
 import unreal
 import time
 from mods.liana.helpers import *
@@ -691,6 +692,7 @@ def SetPostProcessSettings(AllSettings,Comp):
 def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)
 	startpath = f"/Game/Maps/{newmap}/{mapname}"
+	bLoaded =unreal.load_asset(startpath)
 	SubSystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 	unreal.LevelEditorSubsystem.new_level(SubSystem,startpath)
 	AllLevelPaths.append(startpath)
@@ -727,13 +729,7 @@ def SpawnMeshesInMap(data,set,mapname):
 			SMActor.set_actor_scale3d(Transform.scale3d)
 			MeshToLoad = unreal.load_asset(PathToGo)
 			OvrVertexes = []
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
 			PathOriginal = GetActualPath(ObjectProps["StaticMesh"])
->>>>>>> Stashed changes
 			if HasKey("LODData",ActualData):
 				Lod = ActualData["LODData"]
 				for itLod in Lod:
@@ -755,11 +751,11 @@ def SpawnMeshesInMap(data,set,mapname):
 					Transform = unreal.Transform(location=Trans.translation, rotation=Trans.rotation.rotator(), scale=Trans.scale3d)
 					Instance.add_instance(Transform)
 				if(HasVCol == True):
-					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes)
+					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 			else:
 				Instance = SMActor.create_static_component(OvrVertexes,MeshToLoad)
 				if(HasVCol == True):
-					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes)
+					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 				SMActor.set_actor_label(NameProp)
 			SetAllSettings(ObjectProps,Instance)
 			if HasKey("OverrideMaterials",ObjectProps):
@@ -774,6 +770,15 @@ def SpawnMeshesInMap(data,set,mapname):
 
 				#break
 
+def GetActualPath(name):
+	pathe = name["ObjectPath"]
+	rfindpoint = pathe.rfind('.') 
+	fixexportdir =str(Seting.export_path) +'\\export\\Game'
+	fixedName = pathe[0:rfindpoint].replace("ShooterGame/Content",fixexportdir) + '.pskx'
+	windowsfix = fixedName.replace("/","\\")
+	return windowsfix
+	#/find = name.rfind("/") + 1
+	#newname = name[find:len(name)]
 
 def import_object(map_object: MapObject,  object_index: int):
 

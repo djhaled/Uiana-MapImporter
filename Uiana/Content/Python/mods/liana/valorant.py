@@ -8,7 +8,7 @@ def filter_umap(umap_data: dict) -> list:
 
 	mesh_types = ["staticmesh", "staticmeshcomponent", "instancedstaticmeshcomponent", "hierarchicalinstancedstaticmeshcomponent"]
 	gen_types = ['pointlightcomponent',"postprocessvolume" ,"culldistancevolume","lightmasscharacterindirectdetailvolume","precomputedvisibilityvolume",'rectlightcomponent', 'spotlightcomponent', 'skylightcomponent',  'scenecapturecomponentcube',"lightmassimportancevolume","billboardcomponent", 'directionallightcomponent', 'exponentialheightfogcomponent', 'lightmassportalcomponent', 'spherereflectioncapturecomponent']
-	misc_types = ["capsulecomponent","bp_blockingvolume_c","killzvolume","brushcomponent","levelsequenceactor","targetpoint","triggervolume","scenecomponent","textrendercomponent","cameracomponent","cinecameracomponent","scenecapturecomponent2d","boxcomponent"]
+	misc_types = ["capsulecomponent","spawnbarrier_c","bp_blockingvolume_c","killzvolume","brushcomponent","levelsequenceactor","targetpoint","triggervolume","scenecomponent","textrendercomponent","cameracomponent","cinecameracomponent","scenecapturecomponent2d","boxcomponent"]
 	object_types = []
 	decal_types = ["decalcomponent"]
 
@@ -71,7 +71,7 @@ def get_object_type(model_data: dict) -> str:
 	lights = ["PointLightComponent","PostProcessVolume","PrecomputedVisibilityVolume","CullDistanceVolume", "RectLightComponent","LightmassCharacterIndirectDetailVolume", "SpotLightComponent","SkyLightComponent","LightmassImportanceVolume","SceneCaptureComponentCube","SphereReflectionCaptureComponent","DirectionalLightComponent","ExponentialHeightFogComponent","LightmassPortalComponent"]
 	meshes = ["StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent"]
 	decals = ["DecalComponent"]
-	misc_types = ["CapsuleComponent","BP_BlockingVolume_C","LevelSequenceActor","KillZVolume","TargetPoint","TriggerVolume","TextRenderComponent","CameraComponent","CineCameraComponent","BillboardComponent","SceneCaptureComponent2D","BoxComponent"]
+	misc_types = ["CapsuleComponent","SpawnBarrier_C","BP_BlockingVolume_C","LevelSequenceActor","KillZVolume","TargetPoint","TriggerVolume","TextRenderComponent","CameraComponent","CineCameraComponent","BillboardComponent","SceneCaptureComponent2D","BoxComponent"]
 	if model_data["Type"] in meshes:
 		return "mesh"
 	if model_data["Type"] in misc_types:

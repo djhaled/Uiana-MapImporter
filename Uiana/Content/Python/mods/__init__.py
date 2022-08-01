@@ -23,6 +23,7 @@ class UeSettings:
 	if fMapName == "characterSelect":
 		fMapName = "character select"
 	vAesKey = args.AES
+	print(args.PluginPath)
 	PExportPath = Path(args.ExportPath)
 	PakFolha = args.PakFolder
 	PPakFolder = Path(PakFolha)

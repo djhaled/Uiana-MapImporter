@@ -35,7 +35,6 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 			FaceVertexColors[Reader->Wedges[i].PointIndex] = FixedColor;
 		}
 	}
-
 	auto RawMesh = FRawMesh();
 	for (auto Vertex : Reader->Vertices)
 	{
@@ -122,7 +121,6 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	StaticMesh->PostEditChange();
 	FAssetRegistryModule::AssetCreated(StaticMesh);
 	StaticMesh->MarkPackageDirty();
-
 	return StaticMesh;
 }
 

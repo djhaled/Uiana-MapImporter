@@ -53,7 +53,7 @@ BLACKLIST = [
 	"sm_port_snowflakes_boundmesh",
 	"sm_barrierduality",
 	"M_Pitt_Caustics_Box",
-	"box_for_volumes",
+	"box_for_volumes", 
 	"supergrid",
 	"_col",
 	"M_Pitt_Lamps_Glow",
