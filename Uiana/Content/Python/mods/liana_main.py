@@ -23,7 +23,7 @@ AllLevelPaths = []
 testbek = 0
 
 
-BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4"]
+BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT"]
 def IterateArrayMats(arr):
 	ActualName = ReturnFormattedString(arr,"/")
 	for j in AllLoadableMaterials:
@@ -213,12 +213,11 @@ def SetDecalMaterial(Set,MapObject):
 			unreal.EditorAssetLibrary.save_asset(f'/Game/Meshes/All/{mat_name}')
 		Mat = unreal.MaterialInstanceConstant.cast(Mat)
 		MatBase = ImportShader(Parent.replace("Material ", ""))
-		if MatBase == None:
-			print(Parent.replace("Material ", ""))
 		Mat.set_editor_property('parent', MatBase)
 		set_material(settings=Settings,  mat_data=MaterialData, object_cls=MapObject,UEMat = Mat,decal=True )
 		return Mat
 def set_materials(Set,MapObject,decal):
+	ParentToImport = None
 	Set = Seting
 	object_properties_OG = MapObject.json["Properties"]
 	ObjectName = MapObject.json["Name"]
@@ -235,24 +234,14 @@ def set_materials(Set,MapObject,decal):
 					Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
 					if Mat is None:
 						continue
-					if HasKey("Parent",MatProps) == False:
-						MaName = mat_data["Name"]
-						print(f'{MaName} is a material not MatInstance')
-					else:
-						Parenteses = MatProps["Parent"]["ObjectName"]
+					if HasKey("Parent",MatProps):
+						ParentName = MatProps["Parent"]["ObjectName"]
+						ParentToImport = ReturnParent(ParentName)
 					RepeatedMats.append(mat_name)
 					Mat = unreal.MaterialInstanceConstant.cast(Mat)
-					ParentName = Parenteses.replace("Material ", "")
-					DefEnv = bIsDefaultEnv(ParentName)
-					if DefEnv == True:
-						ParentName = "BaseEnv_MAT_V4"
-					MatBase = ImportShader(ParentName)
+					MatBase = ImportShader(ParentToImport)
 					if MatBase == None:
-						if ParentName not in AllParentNames and DefEnv == None:
-							AllParentNames.append(ParentName)
-						replace1 = Parenteses.replace("MaterialInstanceConstant ", "")
-						replace2 = replace1.replace("Material ", "")
-						print(f'{replace2} is a MatInstance that we dont have')
+						print(ParentToImport)
 					#MatBase = import_shaders()
 					Parent = Mat.set_editor_property('parent', MatBase)
 					set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat )
@@ -277,24 +266,27 @@ def set_materials(Set,MapObject,decal):
 						Mat=unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/Meshes/All/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
 						unreal.EditorAssetLibrary.save_asset(f'/Game/Meshes/All/{mat_name}')
 				Mat = unreal.MaterialInstanceConstant.cast(Mat)
-				if HasKey("Parent",MatProps) == False:
-					print(mat_data["Name"])
-				else:
-					Parenteses = MatProps["Parent"]["ObjectName"]
-				ParentName =Parenteses.replace("Material ", "")
-				DefEnv = bIsDefaultEnv(ParentName)
-				if DefEnv == True:
-					ParentName = "BaseEnv_MAT_V4"
-				MatBase = ImportShader(Parenteses.replace("Material ", ""))
+				if HasKey("Parent",MatProps):
+					ParentName = MatProps["Parent"]["ObjectName"]
+					ParentToImport = ReturnParent(ParentName)
+				MatBase = ImportShader(ParentToImport)
 				if MatBase == None:
-					if ParentName not in AllParentNames and DefEnv == None:
-						AllParentNames.append(ParentName)
-				#MatBase = import_shaders()
+					print(ParentToImport)
 				Test = Mat.set_editor_property('parent', MatBase)
 				set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat )
 
 
 # SECTION : Set Material
+def ReturnParent(parentName):
+	rformPar =parentName.rfind(' ') + 1
+	ActualName = parentName[rformPar:len(parentName)]
+	DefEnv = bIsDefaultEnv(ActualName)
+	if DefEnv != None:
+		ParentName = "BaseEnv_MAT_V4"
+	else:
+		ParentName = ActualName
+	return ParentName
+
 
 def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = False, decal: bool = False, object_cls: MapObject = None):
 	if "Properties" not in mat_data:
@@ -428,6 +420,8 @@ def SetTextures(mat_props: dict, MatRef):
 			if "normal b" == param_name or "texture b normal" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture B Normal', ImportedTexture)
 				pass
+			if "mask" in param_name or "Mask Textuer" in param_name or "Mask Texture" in param_name:
+				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Mask Textuer', ImportedTexture)
 			if "mask" in param_name or "rgba" in param_name:
 				pass
 
@@ -895,6 +889,5 @@ def import_map(Setting):
 		CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
 		unreal.EditorLevelLibrary.save_current_level()
-	print(AllParentNames)
 	LevelStreamingStuff()
 	SetSMSettings()
