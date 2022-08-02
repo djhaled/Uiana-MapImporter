@@ -45,19 +45,36 @@ def GetReadableUMapType(mapname):
 		MapType = j["StreamingType"]
 		if mapname == NewMapName:
 			return MapType
-
+BLACKLIST = [
+	"navmesh",
+	"_breakable",
+	"_collision",
+	"windstreaks_plane",
+	"sm_port_snowflakes_boundmesh",
+	"sm_barrierduality",
+	"M_Pitt_Caustics_Box",
+	"box_for_volumes", 
+	"supergrid",
+	"_col",
+	"M_Pitt_Lamps_Glow",
+	"for_volumes",
+]
 def GetUMapType(mapname):
 	for j in JsonMapTypeData:
 		NewMapName = j["Name"]
 		MapType = j["StreamingType"]
 		if mapname == NewMapName:
 			return eval(f'unreal.{MapType}')
+def ImportShader(Shader):
+	BaseShader = unreal.load_asset(f'/Uiana/Materials/{Shader}')
+	return BaseShader
+
 def import_shaders():
 	BaseShader = unreal.load_asset('/Uiana/Materials/ValoOpaqueMasterNEW')
 	return BaseShader
 
 def importDecalShaders():
-	BaseShader = unreal.load_asset('/Uiana/Materials/MasterDecalMaterial')
+	BaseShader = unreal.load_asset('/Uiana/Materials/ValoDecals')
 	return BaseShader
 def ConvertToLoadableMaterial(Mesh,Type):
 	typestring = str(Type)
@@ -129,6 +146,10 @@ def ReturnFormattedString(string,prefix):
 	end = len(string)
 	return string[start:end]
 def HasSetting(asset,comp,black):
+	if asset == "LightmassSettings":
+		return True
+	if asset[0] == "b":
+		asset= asset[1:len(asset)]
 	asset = asset.lower()
 	propdir = dir(comp)
 	for findprop in propdir:
@@ -168,6 +189,7 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
 
 	objects = umap_DATA
 	filtered_list = []
+
 	# Debug check
 	if SELECTIVE_OBJECTS:
 		for filter_model_name in SELECTIVE_OBJECTS:
@@ -193,13 +215,23 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
 
 	new_list = []
 
+	def is_blacklisted(object_name: str) -> bool:
+		for blocked in BLACKLIST:
+			if blocked.lower() in object_name.lower():
+				return True
+		return False
 
 	# Check for blacklisted items
 	for og_model in filtered_list:
 		model_name_lower = get_obj_name(data=og_model, mat=False).lower()
-		new_list.append(og_model)
+
+		if is_blacklisted(model_name_lower):
+			continue
+		else:
+			new_list.append(og_model)
 
 	return new_list
+
 def get_obj_name(data: dict, mat: bool):
 	if mat:
 		s = data["ObjectPath"]
