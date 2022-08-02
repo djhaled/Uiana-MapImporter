@@ -49,7 +49,7 @@ void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponen
 	NewComp->RegisterComponent();
 	AddInstanceComponent(NewComp);
 	NewComp->SetFlags(RF_Transactional);
-	NewComp->SetMobility(EComponentMobility::Static);
+	//NewComp->SetMobility(EComponentMobility::Static);
 }
 
 void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp, TArray<FColor> OvrVertex,UStaticMesh* MeshToUSE)
@@ -62,8 +62,7 @@ void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp, TArray<FCo
 	AddInstanceComponent(NewComp);
 	NewComp->SetFlags(RF_Transactional);
 	NewComp->SetLODDataCount(1, NewComp->LODData.Num());
-	NewComp->SetMobility(EComponentMobility::Static);
-	auto test = NewComp->Mobility;
+	//NewComp->SetMobility(EComponentMobility::Static);
 }
 
 void AValActor::CreateBoxComponent(UBoxComponent*& NewComp)

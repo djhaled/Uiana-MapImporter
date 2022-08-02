@@ -10,7 +10,6 @@ def filter_umap(umap_data: dict) -> list:
 	gen_types = ['pointlightcomponent',"postprocessvolume" ,"culldistancevolume","lightmasscharacterindirectdetailvolume","precomputedvisibilityvolume",'rectlightcomponent', 'spotlightcomponent', 'skylightcomponent',  'scenecapturecomponentcube',"lightmassimportancevolume","billboardcomponent", 'directionallightcomponent', 'exponentialheightfogcomponent', 'lightmassportalcomponent', 'spherereflectioncapturecomponent']
 	misc_types = ["capsulecomponent","bp_blockingvolume_c","killzvolume","brushcomponent","levelsequenceactor","targetpoint","triggervolume","scenecomponent","textrendercomponent","cameracomponent","cinecameracomponent","scenecapturecomponent2d","boxcomponent"]
 	object_types = []
-	decal_types = ["decalcomponent"]
 
 	for obj in umap_data:
 		ObjType = obj["Type"]
@@ -24,8 +23,6 @@ def filter_umap(umap_data: dict) -> list:
 		if ObjType.lower() in gen_types:
 			umap_filtered.append(obj)
 		if ObjType.lower() in misc_types:
-			umap_filtered.append(obj)
-		if ObjType.lower() in decal_types:
 			umap_filtered.append(obj)
 
 	return umap_filtered, object_types
@@ -149,9 +146,6 @@ def get_rgb(pv: dict) -> tuple:
 
 
 def get_texture_path(s: dict, f: str):
-	ParamValue = s["ParameterValue"]
-	if ParamValue == None:
-		return None
 	a = Path(os.path.splitext(s["ParameterValue"]["ObjectPath"])[0].strip("/")).__str__()
 	b = fix_path(a=a) + f
 	return b

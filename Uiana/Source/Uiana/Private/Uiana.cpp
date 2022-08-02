@@ -133,8 +133,14 @@ FReply FUianaModule::ExecuteFunction()
 	FString MapName = GetMapName(Stun->Map.GetValue());
 	FString ExportPath = Stun->ExportFolder.Path;
 	FString PakFolder = Stun->PaksFolder.Path;
+	FString first = TEXT("Riot Games");
+	FString second = TEXT("RiotGames");
+	PakFolder = PakFolder.Replace(*first, *second);
 	FString AESK = Stun->AesKey;
 	FString CurrentPath = FPaths::ProjectPluginsDir();
+	FString third = TEXT("Unreal Projects");
+	FString fourth = TEXT("UnrealProjects");
+	CurrentPath = CurrentPath.Replace(*third, *fourth);
 	Stun->SaveConfig();
 	TArray< FStringFormatArg > args;
 	args.Add(FStringFormatArg(ImportMisc));
@@ -147,7 +153,7 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(PakFolder));
 	args.Add(FStringFormatArg(AESK));
 	args.Add(FStringFormatArg(CurrentPath));
-	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\" \"{9}\""), args);
+	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py {0} {1} {2} {3} {4} {5} {6} {7} {8} {9}"), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
 	GEngine->Exec(NULL, TCharCommand);
 	return FReply::Handled();

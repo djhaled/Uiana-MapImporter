@@ -35,6 +35,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 			FaceVertexColors[Reader->Wedges[i].PointIndex] = FixedColor;
 		}
 	}
+
 	auto RawMesh = FRawMesh();
 	for (auto Vertex : Reader->Vertices)
 	{
@@ -58,15 +59,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 				RawMesh.WedgeTexCoords[UVIdx+1].Add(UV);
 			}
 
-			auto Normal = FVector3f::ZeroVector;
-
-			if (bHasNormals)
-			{
-				Normal = Reader->Normals[Wedge.PointIndex];
-				Normal.Y = -Normal.Y;
-			}
-
-			RawMesh.WedgeTangentZ.Add(Normal);
+			RawMesh.WedgeTangentZ.Add(bHasNormals ? Reader->Normals[Wedge.PointIndex] : FVector3f::ZeroVector);
 			RawMesh.WedgeTangentY.Add(FVector3f::ZeroVector);
 			RawMesh.WedgeTangentX.Add(FVector3f::ZeroVector);
 
@@ -110,9 +103,9 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	}
 	
 	auto& SourceModel = StaticMesh->AddSourceModel();
-	SourceModel.BuildSettings.bBuildReversedIndexBuffer = false;
-	SourceModel.BuildSettings.bRecomputeTangents = false;
 	SourceModel.BuildSettings.bGenerateLightmapUVs = false;
+	SourceModel.BuildSettings.bBuildReversedIndexBuffer = false;
+	SourceModel.BuildSettings.bRecomputeTangents = true;
 	SourceModel.BuildSettings.bComputeWeightedNormals = false;
 	SourceModel.BuildSettings.bRecomputeNormals = !bHasNormals;
 	SourceModel.SaveRawMesh(RawMesh);
@@ -121,6 +114,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	StaticMesh->PostEditChange();
 	FAssetRegistryModule::AssetCreated(StaticMesh);
 	StaticMesh->MarkPackageDirty();
+
 	return StaticMesh;
 }
 
