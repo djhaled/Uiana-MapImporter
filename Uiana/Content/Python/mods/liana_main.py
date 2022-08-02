@@ -23,7 +23,7 @@ AllLevelPaths = []
 testbek = 0
 
 
-BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT"]
+BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
 def IterateArrayMats(arr):
 	ActualName = ReturnFormattedString(arr,"/")
 	for j in AllLoadableMaterials:
@@ -255,7 +255,11 @@ def set_materials(Set,MapObject,decal):
 					continue
 				mat_json = read_json(Set.selected_map.materials_ovr_path.joinpath(f"{mat_name}.json"))
 				mat_data = mat_json[0]
-				MatProps = mat_data["Properties"]
+				if HasKey("Properties",mat_data):
+					MatProps = mat_data["Properties"]
+				else:
+					print(f'This fucking MATERIAL DOESNT HAVE PROPERTIES {mat_data["Name"]}')
+					return
 				Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
 				if Mat is None and mat_name not in RepeatedMats:
 					RepeatedMats.append(mat_name)
