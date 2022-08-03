@@ -36,6 +36,7 @@ def GetMaterialToOverride(Data):
 		    CheckLoaded =  "Stone_M2_Steps_MI"
 		if "MaterialInstanceDynamic" in CheckLoaded:
 			MaterialArray.append(None)
+			continue
 		Material = LoadableMaterials[CheckLoaded]
 		MaterialArray.append(Material)
 	return MaterialArray

@@ -7,6 +7,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 Intermediate/
+Binaries/
 # C extensions
 *.so
 
