@@ -49,11 +49,7 @@ def GetMaterialToOverride(Data):
 	return MaterialArray
 
 def bIsDefaultEnv(asset):
-	if asset in BaseEnv:
-		return "BaseEnv_MAT_V4"
-	else:
-		return None
-
+	return "BaseEnv_MAT_V4"
 def extract_assets(settings: Settings):
 	if settings.assets_path.joinpath("exported.yo").exists():
 		pass
