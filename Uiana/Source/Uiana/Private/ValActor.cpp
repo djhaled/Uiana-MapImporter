@@ -16,7 +16,7 @@ AValActor::AValActor()
 	PrimaryActorTick.bCanEverTick = true;
 	SceneComp = CreateDefaultSubobject<USceneComponent>("RootSceneComp");
 	RootComponent = SceneComp;
-	//SceneComp->Mobility = EComponentMobility::Static;
+	SceneComp->Mobility = EComponentMobility::Static;
 
 
 }
@@ -40,7 +40,7 @@ void AValActor::CreateCapsuleComponent(UCapsuleComponent*& NewComp)
 
 }
 
-void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp, TArray<FColor> OvrVertex, UStaticMesh* MeshToUSE)
+void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp,  UStaticMesh* MeshToUSE)
 {
 	UHierarchicalInstancedStaticMeshComponent* HiStaticMesh;
 	NewComp = NewObject<UHierarchicalInstancedStaticMeshComponent>(this, HiStaticMesh->StaticClass());
@@ -52,7 +52,7 @@ void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponen
 	NewComp->SetMobility(EComponentMobility::Static);
 }
 
-void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp, TArray<FColor> OvrVertex,UStaticMesh* MeshToUSE)
+void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp,UStaticMesh* MeshToUSE)
 {
 	UStaticMeshComponent* HiStaticMesh;
 	NewComp = NewObject<UStaticMeshComponent>(this, HiStaticMesh->StaticClass());
@@ -63,7 +63,6 @@ void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp, TArray<FCo
 	NewComp->SetFlags(RF_Transactional);
 	NewComp->SetLODDataCount(1, NewComp->LODData.Num());
 	NewComp->SetMobility(EComponentMobility::Static);
-	auto test = NewComp->Mobility;
 }
 
 void AValActor::CreateBoxComponent(UBoxComponent*& NewComp)
@@ -104,10 +103,5 @@ void AValActor::CreateBlockingVolumeComponent(UStaticMeshComponent*& NewComp)
 
 
 
-// Called every frame
-void AValActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
-}
 

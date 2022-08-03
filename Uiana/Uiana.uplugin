@@ -1,11 +1,11 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0",
+	"VersionName": "0.17",
 	"FriendlyName": "Uiana",
 	"Description": "Val Map Importer",
 	"Category": "Other",
-	"CreatedBy": "Beka",
+	"CreatedBy": "bk",
 	"CreatedByURL": "",
 	"DocsURL": "",
 	"MarketplaceURL": "",

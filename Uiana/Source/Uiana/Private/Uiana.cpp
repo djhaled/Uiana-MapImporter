@@ -130,13 +130,14 @@ FReply FUianaModule::ExecuteFunction()
 	bool ImportMat = Stun->ImportMaterials;
 	bool ImportDecal = Stun->ImportDecals;
 	bool ImportLights = Stun->ImportLights;
+	bool ImportSubLevels = Stun->UseSubLevels;
 	FString MapName = GetMapName(Stun->Map.GetValue());
 	FString ExportPath = Stun->ExportFolder.Path;
 	FString PakFolder = Stun->PaksFolder.Path;
-	FString AESK = Stun->AesKey;
 	FString CurrentPath = FPaths::ProjectPluginsDir();
 	Stun->SaveConfig();
 	TArray< FStringFormatArg > args;
+	args.Add(FStringFormatArg(ImportSubLevels));
 	args.Add(FStringFormatArg(ImportMisc));
 	args.Add(FStringFormatArg(ImportMesh));
 	args.Add(FStringFormatArg(ImportMat));
@@ -145,7 +146,6 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(MapName));
 	args.Add(FStringFormatArg(ExportPath));
 	args.Add(FStringFormatArg(PakFolder));
-	args.Add(FStringFormatArg(AESK));
 	args.Add(FStringFormatArg(CurrentPath));
 	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\" \"{9}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
@@ -210,7 +210,7 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 		[
 			// Put your tab content here!
 			SNew(SBorder)
-			.BorderImage(new FSlateColorBrush(FColor(10, 10, 10)))
+			.BorderImage(new FSlateColorBrush(FColor(5, 5, 5)))
 		[
 			SNew(SVerticalBox)
 
@@ -218,7 +218,7 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 		.AutoHeight()
 		.Padding(8.f, 5.f, 8.f, 0.f)
 		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Top)
+		.VAlign(VAlign_Fill)
 		[
 			SNew(SBorder)
 			.BorderImage(FEditorStyle::GetBrush("ToolPanel.DarkGroupBorder"))
@@ -257,7 +257,7 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 			SNew(STextBlock)
 			.Justification(ETextJustify::Center)
 		.TextStyle(FEditorStyle::Get(), "NormalText.Important")
-		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate UMap"))
+		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate Map"))
 		]
 		]
 		]

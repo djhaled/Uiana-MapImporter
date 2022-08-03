@@ -49,7 +49,11 @@ def GetMaterialToOverride(Data):
 	return MaterialArray
 
 def bIsDefaultEnv(asset):
-	return "BaseEnv_MAT_V4"
+	if asset in BaseEnv:
+		return "BaseEnv_MAT_V4"
+	else:
+		return None
+
 def extract_assets(settings: Settings):
 	if settings.assets_path.joinpath("exported.yo").exists():
 		pass
@@ -476,6 +480,7 @@ def SpawnMiscObject(data, umap):
 			ActorTypeEval = Actor 
 			########SpawnLightAndGetReferenceForComp#######
 		SpawnActor = unreal.EditorLevelLibrary.spawn_actor_from_class(Actor, TransformActor.translation, TransformActor.rotation.rotator())
+		SpawnActor.set_folder_path(f'Misc/{ActorTypeNew}s')
 		SpawnActor.set_actor_scale3d(TransformActor.scale3d)
 		ActorTypeEval = SpawnActor
 		if IsSceneComp == False:
@@ -535,7 +540,7 @@ def SetSMSettings():
 
 
 def SetAllSettings(asset,Comp):
-	blackmisc = ["currentfocusdistance","CachedMaxDrawDistance","OnComponentBeginOverlap"]
+	blackmisc = ["currentfocusdistance","CachedMaxDrawDistance","OnComponentBeginOverlap","Mobility"]
 	for Setting in asset:
 		bHasIt = HasSetting(Setting,Comp,blackmisc)
 		if bHasIt == True:
@@ -618,6 +623,7 @@ def SetLightmassSetting(ActorSetting,Evalu):
 def ImportDecal(DecalData):
 	Transform = GetTransform(DecalData,False)
 	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,Transform.translation,Transform.rotation.rotator())
+	DecActor.set_folder_path(f'Decals')
 	DecActor.set_actor_scale3d(Transform.scale3d)
 	DecalComponent = DecActor.decal
 	DecalMat = SetDecalMaterial(Settings, DecalData)
@@ -644,6 +650,7 @@ def ImportLights(OBJData, ArrObjsImport):
 	LightType = eval(f'unreal.{LightTypeNoComp}')
 			########SpawnLightAndGetReferenceForComp#######
 	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, TransformLights.translation, TransformLights.rotation.rotator())
+	LightActor.set_folder_path(f'Lights/{LightTypeNoComp}')
 	LightActor.set_actor_label(LightningActualName)
 	LightActor.set_actor_scale3d(TransformLights.scale3d )
 	if hasattr(LightActor,"light_component"):
@@ -782,7 +789,8 @@ def SpawnMeshesInMap(data,set,mapname):
 							HasVCol = True
 			if map_object.is_instanced():
 				instance_data = ActualData["PerInstanceSMData"]
-				Instance = SMActor.create_instance_component(OvrVertexes,MeshToLoad)
+				Instance = SMActor.create_instance_component(MeshToLoad)
+				SMActor.set_folder_path(f'Meshes/Instanced')
 				SMActor.set_actor_label(NameProp)
 				for j in instance_data:
 					Trans = GetTransform(j,True)
@@ -793,7 +801,11 @@ def SpawnMeshesInMap(data,set,mapname):
 				if(HasVCol == True):
 					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 			else:
-				Instance = SMActor.create_static_component(OvrVertexes,MeshToLoad)
+				Instance = SMActor.create_static_component(MeshToLoad)
+				FolderName = 'Meshes/Static'
+				if mapname.endswith("_VFX"):
+					FolderName = 'VFX/Meshes'
+				SMActor.set_folder_path(FolderName)
 				if(HasVCol == True):
 					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 				SMActor.set_actor_label(NameProp)
@@ -888,8 +900,11 @@ def import_map(Setting):
 	for index, umap_json_path in reversed(list(enumerate(umap_json_paths))):
 		umap_data = read_json(umap_json_path)
 		umap_name = umap_json_path.stem
-		CreateNewLevel(umap_name)
+		if Seting.import_sublevel == True:
+			CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
-		unreal.EditorLevelLibrary.save_current_level()
-	LevelStreamingStuff()
+		if Seting.import_sublevel == True:
+			unreal.EditorLevelLibrary.save_current_level()
+	if Seting.import_sublevel == True:
+		LevelStreamingStuff()
 	SetSMSettings()

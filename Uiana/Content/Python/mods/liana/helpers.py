@@ -419,6 +419,7 @@ class Settings:
 		self.import_Misc = UESet.bImportMisc
 		self.import_Mesh = UESet.bImportMesh
 		self.import_materials = UESet.bImportMaterial
+		self.import_sublevel = UESet.bImportSubLevels
 		self.combine_umaps = False
 		self.export_path = UESet.PExportPath
 		self.assets_path = self.export_path.joinpath("export")
