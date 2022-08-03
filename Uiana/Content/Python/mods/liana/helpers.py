@@ -68,7 +68,9 @@ def ImportShader(Shader):
 	BaseShader = unreal.load_asset(f'/Uiana/Materials/{Shader}')
 	return BaseShader
 
-
+def ReturnObjectName(name):
+	rformPar =name.rfind(' ') + 1
+	return name[rformPar:len(name)]
 def import_shaders():
 	BaseShader = unreal.load_asset('/Uiana/Materials/ValoOpaqueMasterNEW')
 	return BaseShader

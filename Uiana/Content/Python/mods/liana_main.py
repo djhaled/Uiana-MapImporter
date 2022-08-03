@@ -11,25 +11,32 @@ from mods.liana.helpers import *
 from mods.liana.valorant import *
 
 Seting = None
+LoadableMaterials = {}
 AllTasks = []
 AllMeshes = [] 
 AllTextures= []
 object_types = []
 AllLevelPaths = []
 file = "snd.mp3"
-
-
+AssetTools = unreal.AssetToolsHelpers.get_asset_tools()
+start_time = time.time()
 BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
 def GetMaterialToOverride(Data):
 	Props = Data["Properties"]
 	MaterialArray = []
 	OverrideMaterials = Props["OverrideMaterials"]
 	for mat in OverrideMaterials:
-		Loadable = ConvertToLoadableUE(mat,"MaterialInstanceConstant ","Materials")
-		if Loadable == None:
+		if mat == None:
 			MaterialArray.append(None)
 			continue
-		Material = unreal.load_asset(Loadable)
+
+		matname = mat["ObjectName"]
+		CheckLoaded = ReturnObjectName(matname)
+		if CheckLoaded == "Stone_M2_Steps_MI1":
+		    CheckLoaded =  "Stone_M2_Steps_MI"
+		if "MaterialInstanceDynamic" in CheckLoaded:
+			MaterialArray.append(None)
+		Material = LoadableMaterials[CheckLoaded]
 		MaterialArray.append(Material)
 	return MaterialArray
 
@@ -70,13 +77,13 @@ def extract_data(settings: Settings, export_directory: str, asset_list_txt: str 
 
 
 def do_import_tasks(Meshes,tasks,bTexture):
-	unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
-	if Meshes is not None:
-		for t in Meshes:
-			if Seting.import_materials == True:
-				set_materials(Settings,t,False)
-			else:
-				pass
+	AssetTools.import_asset_tasks(tasks)
+	# if Meshes is not None:
+	# 	for t in Meshes:
+	# 		if Seting.import_materials == True:
+	# 			set_materials(Settings,t,False)
+			# else:
+			# 	pass
 	AllTasks.clear()
 	AllMeshes.clear()
 	AllTextures.clear()
@@ -91,7 +98,7 @@ def get_object(map_object, index):
 	task.set_editor_property('destination_path', '/Game/ValorantContent/Meshes')
 	task.set_editor_property('filename', map_object.model_path)
 	task.set_editor_property('automated', True)
-	task.set_editor_property('save', True)
+	task.set_editor_property('save', False)
 	task.set_editor_property('replace_existing', False)
 	AllMeshes.append(map_object)
 	AllTasks.append(task)
@@ -194,66 +201,13 @@ def SetDecalMaterial(Set,MapObject):
 			Parent = Props["Parent"]["ObjectName"]
 		Mat = unreal.load_asset(f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
 		if Mat is None:
-			Mat=unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+			Mat= AssetTools.create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
 			unreal.EditorAssetLibrary.save_asset(f'/Game/ValorantContent/Materials/{mat_name}')
 		Mat = unreal.MaterialInstanceConstant.cast(Mat)
 		MatBase = ImportShader(Parent.replace("Material ", ""))
 		Mat.set_editor_property('parent', MatBase)
 		set_material(settings=Settings,  mat_data=MaterialData, object_cls=MapObject,UEMat = Mat,decal=True )
 		return Mat
-def set_materials(Set,MapObject,decal):
-	ParentToImport = None
-	Set = Seting
-	object_properties_OG = MapObject.json["Properties"]
-	ObjectName = MapObject.json["Name"]
-	object_properties = MapObject.data["Properties"]
-	Parenteses = "MatBugged"
-	if "StaticMaterials" in object_properties_OG:
-		for index, mat in enumerate(object_properties_OG["StaticMaterials"]):
-			if type(mat["MaterialInterface"]) is dict:
-				mat_name = get_obj_name(data=mat["MaterialInterface"], mat=True)
-				if "WorldGridMaterial" not in mat_name:
-					mat_json = read_json(Set.selected_map.materials_path.joinpath(f"{mat_name}.json"))
-					mat_data = mat_json[0]
-					MatProps = mat_data["Properties"]
-					Mat = unreal.load_asset(f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
-					if Mat is None:
-						continue
-					if HasKey("Parent",MatProps):
-						ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])
-					Mat = unreal.MaterialInstanceConstant.cast(Mat)
-					MatBase = ImportShader(ParentToImport)
-					if MatBase == None:
-						print(ParentToImport)
-					#MatBase = import_shaders()
-					Parent = Mat.set_editor_property('parent', MatBase)
-					set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat )
-
-	if "OverrideMaterials" in object_properties:
-		Parenteses = "MatBugged"
-		for index, mat in enumerate(object_properties["OverrideMaterials"]):
-			if type(mat) is dict:
-				mat_name = get_obj_name(data=mat, mat=True)
-				mat_json = read_json(Set.selected_map.materials_ovr_path.joinpath(f"{mat_name}.json"))
-				mat_data = mat_json[0]
-				if HasKey("Properties",mat_data):
-					MatProps = mat_data["Properties"]
-				else:
-					print(f'This fucking MATERIAL DOESNT HAVE PROPERTIES {mat_data["Name"]}')
-					return
-				Mat = unreal.load_asset(f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
-				if Mat == None:
-					Mat = unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
-					unreal.EditorAssetLibrary.save_asset(f'/Game/ValorantContent/Materials/{mat_name}')
-				Mat = unreal.MaterialInstanceConstant.cast(Mat)
-				if HasKey("Parent",MatProps):
-					ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])
-				MatBase = ImportShader(ParentToImport)
-				if MatBase == None:
-					print(ParentToImport)
-				Test = Mat.set_editor_property('parent', MatBase)
-				set_material(settings=Settings,  mat_data=mat_json[0], object_cls=MapObject,UEMat = Mat )
-
 
 # SECTION : Set Material
 def ReturnParent(parentName):
@@ -345,10 +299,9 @@ def ImportTexture(Path):
 	task.set_editor_property('destination_path', '/Game/ValorantContent/Textures')
 	task.set_editor_property('filename', Path)
 	task.set_editor_property('automated', True)
-	task.set_editor_property('save', True)
+	task.set_editor_property('save', False)
 	task.set_editor_property('replace_existing', False)
 	AllTextures.append(task)
-
 
 
 def SetTextures(mat_props: dict, MatRef):
@@ -471,8 +424,9 @@ def SetAllSettings(asset,Comp):
 			Comp.set_editor_property(Setting, value)
 def SetLightmassSetting(ActorSetting,Evalu):
 	Set = eval(f'unreal.{Evalu}()')
+	BlacklistLMass = ["bCastShadowAsTranslucent","bOverrideCastShadowAsTranslucent","MaskedTranslucentOpacity","bOverrideMaskedTranslucentOpacity","bLightAsBackFace"]
 	for val in ActorSetting:
-		if val == "bCastShadowAsTranslucent" or val == "bOverrideCastShadowAsTranslucent":
+		if val in BlacklistLMass:
 			continue
 		num = 1
 		if val.startswith("b"):
@@ -481,20 +435,9 @@ def SetLightmassSetting(ActorSetting,Evalu):
 		Set.set_editor_property(newstr[num:len(newstr)].lower(),ActorSetting[val])
 	return Set
 
-def ImportDecal(DecalData):
-	ActorInfo = ActorDefs(DecalData)
-	if ActorInfo.transform == False:
-		return
-	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,ActorInfo.transform.translation,ActorInfo.transform.rotation.rotator())
-	DecActor.set_folder_path(f'Decals')
-	DecActor.set_actor_scale3d(ActorInfo.transform.scale3d)
-	DecalComponent = DecActor.decal
-	DecalMat = SetDecalMaterial(Settings, DecalData)
-	DecalComponent.set_decal_material(DecalMat)
-	BlacklistDecal =  ['DecalMaterial','LightColorType','CachedVertexFogIntensityFromVolumes','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
-	for propName,PropValue in ActorInfo.props.items():
-		if propName not in BlacklistDecal:
-			SetAllSettings(DecalData,DecalComponent)
+
+
+	#################### Spawners
 def ImportLights(OBJData, ArrObjsImport):
 	ActorInfo = ActorDefs(OBJData)
 	if ActorInfo.type == "SphereReflectionCaptureComponent":
@@ -551,60 +494,20 @@ def ImportLights(OBJData, ArrObjsImport):
 			CompToUse.set_editor_property('Mobility',Mobility)
 	SetAllSettings(ActorInfo.props,CompToUse)
 
-
-def import_umap(settings: Settings, umap_data: dict, umap_name: str):
-	map_object = None
-	test = []
-	objectsToImport = filter_objects(umap_data)
-	for objectIndex, object_data in enumerate(objectsToImport):
-		objectIndex = f"{objectIndex:03}"
-		object_type = get_object_type(object_data)
-		if object_type == "mesh" and Seting.import_Mesh == True:
-			#if "Lighting" not in umap_name:
-			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name)
-			imported_object = import_object(map_object=map_object, object_index=objectIndex)
-		if object_type == "decal" and settings.import_decals:
-			ImportDecal(object_data)
-		if object_type == "light" and settings.import_lights:
-			ImportLights(object_data,objectsToImport)
-	do_import_tasks(AllMeshes,AllTasks,False)
-	if Seting.import_Mesh == True:
-		SpawnMeshesInMap(umap_data,settings,umap_name)
-def LevelStreamingStuff():
-	world = unreal.EditorLevelLibrary.get_editor_world()
-	for j in AllLevelPaths:
-		JAfterSlash = ReturnFormattedString(j,"/")
-		MapType = GetUMapType(JAfterSlash)
-		unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
-		ReadableMapType = GetReadableUMapType(JAfterSlash)
-		if ReadableMapType == "LevelStreamingDynamic":
-			SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
-			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
-			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
-# ANCHOR: Functions
-def SetPostProcessSettings(AllSettings,Comp):
-	for Setting in AllSettings:
-		bekaBlackList=["bOverride_AmbientOcclusionTintColor","AutoExposureBiasBackup","AmbientOcclusionTintColor","SavedSelections","bOverride_AresAdaptiveSharpenEnable",'FilmContrast','FilmWhitePoint',"bOverride_AresClarityEnable","bOverride_IndirectLightingScaleCurve","bOverride_AutoExposureBiasBackup","IndirectLightingColor","IndirectLightingScaleCurve","bOverride_ScreenPercentage"]
-		if Setting not in bekaBlackList:
-			Comp.set_editor_property(Setting, AllSettings[Setting])
-
-def CreateNewLevel(mapname):
-	newmap = GetInitialName(mapname)
-	startpath = f"/Game/ValorantContent/Maps/{newmap}/{mapname}"
-	bLoaded =unreal.load_asset(startpath)
-	SubSystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
-	unreal.LevelEditorSubsystem.new_level(SubSystem,startpath)
-	AllLevelPaths.append(startpath)
-def GetOverrideVertexColor(data):
-	vtxarray = []
-	Lod = data["LODData"]
-	for itLod in Lod:
-		if HasKey("OverrideVertexColors",itLod):
-			DataToConvert = itLod["OverrideVertexColors"]["Data"]
-			for rgba_hex in DataToConvert:
-				Color = unreal.BPFL.return_from_hex(rgba_hex)
-				vtxarray.append(Color)
-	return vtxarray
+def ImportDecal(DecalData):
+	ActorInfo = ActorDefs(DecalData)
+	if ActorInfo.transform == False:
+		return
+	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,ActorInfo.transform.translation,ActorInfo.transform.rotation.rotator())
+	DecActor.set_folder_path(f'Decals')
+	DecActor.set_actor_scale3d(ActorInfo.transform.scale3d)
+	DecalComponent = DecActor.decal
+	DecalMat = SetDecalMaterial(Settings, DecalData)
+	DecalComponent.set_decal_material(DecalMat)
+	BlacklistDecal =  ['DecalMaterial','LightColorType','CachedVertexFogIntensityFromVolumes','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
+	for propName,PropValue in ActorInfo.props.items():
+		if propName not in BlacklistDecal:
+			SetAllSettings(DecalData,DecalComponent)
 def SpawnMeshesInMap(data,set,mapname):
 	for j in data:
 		OvrVertexes = []
@@ -660,6 +563,62 @@ def SpawnMeshesInMap(data,set,mapname):
 				if MatOver != None:
 					Instance.set_editor_property('override_materials',MatOver) 
 
+###### end spawners
+def import_umap(settings: Settings, umap_data: dict, umap_name: str):
+	map_object = None
+	test = []
+	objectsToImport = filter_objects(umap_data)
+	for objectIndex, object_data in enumerate(objectsToImport):
+		objectIndex = f"{objectIndex:03}"
+		object_type = get_object_type(object_data)
+		if object_type == "mesh" and Seting.import_Mesh == True:
+			#if "Lighting" not in umap_name:
+			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name)
+			imported_object = import_object(map_object=map_object, object_index=objectIndex)
+		if object_type == "decal" and settings.import_decals:
+			ImportDecal(object_data)
+		if object_type == "light" and settings.import_lights:
+			ImportLights(object_data,objectsToImport)
+	do_import_tasks(AllMeshes,AllTasks,False)
+	if Seting.import_Mesh == True:
+		SpawnMeshesInMap(umap_data,settings,umap_name)
+def LevelStreamingStuff():
+	world = unreal.EditorLevelLibrary.get_editor_world()
+	for j in AllLevelPaths:
+		JAfterSlash = ReturnFormattedString(j,"/")
+		MapType = GetUMapType(JAfterSlash)
+		unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
+		ReadableMapType = GetReadableUMapType(JAfterSlash)
+		if ReadableMapType == "LevelStreamingDynamic":
+			SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
+			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
+# ANCHOR: Functions
+def SetPostProcessSettings(AllSettings,Comp):
+	for Setting in AllSettings:
+		bekaBlackList=["bOverride_AmbientOcclusionTintColor","AutoExposureBiasBackup","AmbientOcclusionTintColor","SavedSelections","bOverride_AresAdaptiveSharpenEnable",'FilmContrast','FilmWhitePoint',"bOverride_AresClarityEnable","bOverride_IndirectLightingScaleCurve","bOverride_AutoExposureBiasBackup","IndirectLightingColor","IndirectLightingScaleCurve","bOverride_ScreenPercentage"]
+		if Setting not in bekaBlackList:
+			Comp.set_editor_property(Setting, AllSettings[Setting])
+
+def CreateNewLevel(mapname):
+	newmap = GetInitialName(mapname)
+	startpath = f"/Game/ValorantContent/Maps/{newmap}/{mapname}"
+	bLoaded =unreal.load_asset(startpath)
+	SubSystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+	unreal.LevelEditorSubsystem.new_level(SubSystem,startpath)
+	AllLevelPaths.append(startpath)
+def GetOverrideVertexColor(data):
+	vtxarray = []
+	Lod = data["LODData"]
+	for itLod in Lod:
+		if HasKey("OverrideVertexColors",itLod):
+			DataToConvert = itLod["OverrideVertexColors"]["Data"]
+			for rgba_hex in DataToConvert:
+				Color = unreal.BPFL.return_from_hex(rgba_hex)
+				vtxarray.append(Color)
+	return vtxarray
+
+
 		#exit()
 
 
@@ -706,8 +665,47 @@ def ImportAllTexturesFromMaterial(matJson):
 
 
 	
+def CreateMaterial(mat):
+	mat_data = mat[0]
+	mat_name = mat_data["Name"]
+	ParentToImport = "None"
+	MatProps = None
+	if HasKey("Properties",mat_data):
+		MatProps = mat_data["Properties"]
+	Mat = unreal.load_asset(f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
+	if Mat is not None:
+		if HasKey("Parent",MatProps):
+			ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])
+		Mat = unreal.MaterialInstanceConstant.cast(Mat)
+		MatBase = ImportShader(ParentToImport)
+		if MatBase == None:
+			print(ParentToImport)
+		Parent = Mat.set_editor_property('parent', MatBase)
 
-def ExportAllTexture():
+	else:
+		Mat = AssetTools.create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+		Mat = unreal.MaterialInstanceConstant.cast(Mat)
+		ParentToImport = "BaseEnv_MAT_V4"
+		if HasKey("Parent",MatProps):
+			ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])
+		MatBase = ImportShader(ParentToImport)
+		if MatBase == None:
+			print(ParentToImport)
+		Mat.set_editor_property('parent', MatBase)
+
+
+	if mat_name not in LoadableMaterials:
+		LoadableMaterials[mat_name] = Mat
+
+
+
+
+
+
+
+	set_material(settings=Settings,  mat_data=mat_data, object_cls=None,UEMat = Mat )
+
+def ExportAllTextures():
 	MatPath = Seting.selected_map.materials_path
 	MatOverridePath = Seting.selected_map.materials_ovr_path
 
@@ -728,6 +726,23 @@ def ExportAllTexture():
 
 
 	do_import_tasks(None,AllTextures,True)
+def ExportAllMaterials():
+	MatPath = Seting.selected_map.materials_path
+	MatOverridePath = Seting.selected_map.materials_ovr_path
+
+	### first normal mats #######
+	listMatPath = os.listdir(MatPath)
+	for pathzin in listMatPath:
+		bago = MatPath.joinpath(pathzin)
+		MatJson = read_json(bago)
+		CreateMaterial(MatJson)
+	   ########## mat ovverrides##############
+	listOverridePath = os.listdir(MatOverridePath)
+	for pathovr in listOverridePath:
+		entireovrpath = MatOverridePath.joinpath(pathovr)
+		MatJson = read_json(entireovrpath)
+		CreateMaterial(MatJson)
+
 
 def import_map(Setting):
 	AllLevelPaths.clear()
@@ -739,7 +754,8 @@ def import_map(Setting):
 	#  Check if the game files are exported
 	######### export all textures before ###########
 	if (Seting.import_materials == True):
-		ExportAllTexture()
+		ExportAllTextures()
+		ExportAllMaterials()
 	###### above takes 0.09 might fix #######
 	umap_json_path: Path
 	for index, umap_json_path in reversed(list(enumerate(umap_json_paths))):
@@ -753,5 +769,6 @@ def import_map(Setting):
 	if Seting.import_sublevel == True:
 		LevelStreamingStuff()
 	SetSMSettings()
+	print("--- %s seconds ---" % (time.time() - start_time))
 	winsound.Beep(18000, 100)
 
