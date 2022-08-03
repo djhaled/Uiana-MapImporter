@@ -280,6 +280,8 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
 			SetMaterialVectorValue(UEMat,param_name,get_rgb(param_value))
+			if "Emissive Mult" == param_name:
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Emissive',True)
 
 
 def get_scalar_value(mat_props, s_param_name):
@@ -323,13 +325,15 @@ def SetTextures(mat_props: dict, MatRef):
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'RGBA', ImportedTexture)
 			if "diffuse" == param_name or "albedo" == param_name :
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustDiffuse',True)
 			if "diffuse a" == param_name  or "texture a" == param_name :
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use B',False)
 			if "diffuse b" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use B',True)
 			if "mra" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA', ImportedTexture)
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustMRA',True)
 			if  "mra a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA A', ImportedTexture)
 			if "mra b" == param_name :
