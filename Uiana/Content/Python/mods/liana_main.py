@@ -1,6 +1,8 @@
 
 import os
 from os.path import exists
+import re
+import winsound
 import subprocess
 from pathlib import Path
 import unreal
@@ -8,43 +10,26 @@ import time
 from mods.liana.helpers import *
 from mods.liana.valorant import *
 
-start_time = time.time()
-AssetRegistry = unreal.AssetRegistryHelpers.get_asset_registry()
 Seting = None
-RepeatedMats = []
 AllTasks = []
+AllMeshes = [] 
 AllTextures= []
-AllParentNames = []
 object_types = []
-AllLoadableMaterials = {}
-AllMeshes = []  
 AllLevelPaths = []
-
-testbek = 0
+file = "snd.mp3"
 
 
 BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
-def IterateArrayMats(arr):
-	ActualName = ReturnFormattedString(arr,"/")
-	for j in AllLoadableMaterials:
-		if j.find(ActualName) != -1:
-			return j
-	return None
 def GetMaterialToOverride(Data):
 	Props = Data["Properties"]
 	MaterialArray = []
 	OverrideMaterials = Props["OverrideMaterials"]
-	for j in OverrideMaterials:
-		Loadable = ConvertToLoadableUE(j,"MaterialInstanceConstant ")
+	for mat in OverrideMaterials:
+		Loadable = ConvertToLoadableUE(mat,"MaterialInstanceConstant ","Materials")
 		if Loadable == None:
 			MaterialArray.append(None)
 			continue
-		Result = IterateArrayMats(Loadable)
-		if Result == None:
-			continue
-		ToLoad = AllLoadableMaterials[f"{Result}"]
-		Shi = ConvertToLoadableMaterial(ToLoad,"MaterialInstanceConstant ")
-		Material = unreal.load_asset(Shi)
+		Material = unreal.load_asset(Loadable)
 		MaterialArray.append(Material)
 	return MaterialArray
 
@@ -99,11 +84,11 @@ def do_import_tasks(Meshes,tasks,bTexture):
 
 def get_object(map_object, index):
 	name = map_object.get_object_name()
-	path_to_file = unreal.load_asset(f"/Game/Meshes/All/{name}")
+	path_to_file = unreal.load_asset(f"/Game/ValorantContent/Meshes/{name}")
 	if path_to_file != None:
 		return
 	task = unreal.AssetImportTask()
-	task.set_editor_property('destination_path', '/Game/Meshes/All')
+	task.set_editor_property('destination_path', '/Game/ValorantContent/Meshes')
 	task.set_editor_property('filename', map_object.model_path)
 	task.set_editor_property('automated', True)
 	task.set_editor_property('save', True)
@@ -207,10 +192,10 @@ def SetDecalMaterial(Set,MapObject):
 			#print(MaterialData["Name"])
 		else:
 			Parent = Props["Parent"]["ObjectName"]
-		Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
+		Mat = unreal.load_asset(f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
 		if Mat is None:
-			Mat=unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/Meshes/All/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
-			unreal.EditorAssetLibrary.save_asset(f'/Game/Meshes/All/{mat_name}')
+			Mat=unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+			unreal.EditorAssetLibrary.save_asset(f'/Game/ValorantContent/Materials/{mat_name}')
 		Mat = unreal.MaterialInstanceConstant.cast(Mat)
 		MatBase = ImportShader(Parent.replace("Material ", ""))
 		Mat.set_editor_property('parent', MatBase)
@@ -227,17 +212,15 @@ def set_materials(Set,MapObject,decal):
 		for index, mat in enumerate(object_properties_OG["StaticMaterials"]):
 			if type(mat["MaterialInterface"]) is dict:
 				mat_name = get_obj_name(data=mat["MaterialInterface"], mat=True)
-				if "WorldGridMaterial" not in mat_name and mat_name not in RepeatedMats:
+				if "WorldGridMaterial" not in mat_name:
 					mat_json = read_json(Set.selected_map.materials_path.joinpath(f"{mat_name}.json"))
 					mat_data = mat_json[0]
 					MatProps = mat_data["Properties"]
-					Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
+					Mat = unreal.load_asset(f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
 					if Mat is None:
 						continue
 					if HasKey("Parent",MatProps):
-						ParentName = MatProps["Parent"]["ObjectName"]
-						ParentToImport = ReturnParent(ParentName)
-					RepeatedMats.append(mat_name)
+						ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])
 					Mat = unreal.MaterialInstanceConstant.cast(Mat)
 					MatBase = ImportShader(ParentToImport)
 					if MatBase == None:
@@ -251,8 +234,6 @@ def set_materials(Set,MapObject,decal):
 		for index, mat in enumerate(object_properties["OverrideMaterials"]):
 			if type(mat) is dict:
 				mat_name = get_obj_name(data=mat, mat=True)
-				if mat_name  in RepeatedMats:
-					continue
 				mat_json = read_json(Set.selected_map.materials_ovr_path.joinpath(f"{mat_name}.json"))
 				mat_data = mat_json[0]
 				if HasKey("Properties",mat_data):
@@ -260,19 +241,13 @@ def set_materials(Set,MapObject,decal):
 				else:
 					print(f'This fucking MATERIAL DOESNT HAVE PROPERTIES {mat_data["Name"]}')
 					return
-				Mat = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
-				if Mat is None and mat_name not in RepeatedMats:
-					RepeatedMats.append(mat_name)
-					Asset = unreal.load_asset(f'/Game/Meshes/All/{mat_name}.{mat_name}')
-					if (Asset):
-						pass
-					else:
-						Mat=unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/Meshes/All/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
-						unreal.EditorAssetLibrary.save_asset(f'/Game/Meshes/All/{mat_name}')
+				Mat = unreal.load_asset(f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
+				if Mat == None:
+					Mat = unreal.AssetToolsHelpers.get_asset_tools().create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+					unreal.EditorAssetLibrary.save_asset(f'/Game/ValorantContent/Materials/{mat_name}')
 				Mat = unreal.MaterialInstanceConstant.cast(Mat)
 				if HasKey("Parent",MatProps):
-					ParentName = MatProps["Parent"]["ObjectName"]
-					ParentToImport = ReturnParent(ParentName)
+					ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])
 				MatBase = ImportShader(ParentToImport)
 				if MatBase == None:
 					print(ParentToImport)
@@ -319,7 +294,7 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 				elif "BLEND_AlphaComposite" in prop_value:
 					blend_mode = unreal.BlendMode.BLEND_ALPHA_COMPOSITE
 				elif "BLEND_AlphaHoldout" in prop_value:
-					blend_mode = unreal.BlendMode.BLEND_OPAQUE
+					blend_mode = unreal.BlendMode.BLEND_BLEND_ALPHA_HOLDOUT
 				BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
 				BasePropOverride.set_editor_property('bOverride_BlendMode', True)
 				BasePropOverride.set_editor_property('blend_mode', blend_mode)
@@ -367,7 +342,7 @@ COUNT = 0
 
 def ImportTexture(Path):
 	task = unreal.AssetImportTask()
-	task.set_editor_property('destination_path', '/Game/Meshes/Textures')
+	task.set_editor_property('destination_path', '/Game/ValorantContent/Textures')
 	task.set_editor_property('filename', Path)
 	task.set_editor_property('automated', True)
 	task.set_editor_property('save', True)
@@ -379,17 +354,6 @@ def ImportTexture(Path):
 def SetTextures(mat_props: dict, MatRef):
 	Set = Seting
 	ImportedTexture = None
-	blacklist_tex = [
-		"Albedo_DF",
-		"MRA_MRA",
-		"Normal_NM",
-		"Diffuse B Low",
-		"Blank_M0_NM",
-		"Blank_M0_Flat_00_black_white_NM",
-		"flatnormal",
-		"Diffuse B Low",
-		"flatwhite",
-	]
 	if (HasKey("TextureParameterValues",mat_props) == False):
 		return
 	for param in mat_props["TextureParameterValues"]:
@@ -399,7 +363,7 @@ def SetTextures(mat_props: dict, MatRef):
 		tex_name = Path(tex_local_path).stem
 		if "diffuse b low" not in param_name:
 			if Path(tex_local_path).exists():
-				ImportedTexture = unreal.load_asset(f'/Game/Meshes/Textures/{tex_name}.{tex_name}')
+				ImportedTexture = unreal.load_asset(f'/Game/ValorantContent/Textures/{tex_name}.{tex_name}')
 			if ImportedTexture == None:
 				continue
 			if "rgba" == param_name:
@@ -432,86 +396,6 @@ def SetTextures(mat_props: dict, MatRef):
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 
-
-def SpawnMiscObject(data, umap):
-	for obj in data:
-		object_type = get_object_type(obj)
-		if object_type != "misc":
-			continue
-		TransformActor = None
-		IsSceneComp = False
-		SceneComps = ["TextRenderComponent","TargetPoint","CameraComponent","CineCameraComponent","LevelSequenceActor","SceneCaptureComponent2D","SphereReflectionCaptureComponent","BoxComponent","TriggerVolume","KillZVolume"]
-		MiscActor = obj
-		OuterName = MiscActor["Outer"]
-		if OuterName == "PersistentLevel":
-			OuterName = MiscActor["Name"]
-	# if MiscActor["Type"] != "BP_PlayerKillVolume_C":
-	# 	return
-		if HasKey("Properties",MiscActor):
-			ActorProps = MiscActor["Properties"]
-		else:
-			continue
-		Actor = unreal.ValActor
-		HasTForm = HasTransform(ActorProps)
-		if HasTForm == True:
-			TransformActor = GetTransform(MiscActor,False)
-		else:
-			bak = GetAttachScene(MiscActor,OuterName,umap)
-			if bak == None:
-				continue
-			TransformActor = GetTransform(bak,False)
-		if TransformActor == None:
-			continue
-		ActorType = MiscActor["Type"]
-		if ActorType in SceneComps:
-			IsSceneComp = True
-	#######SetPositionInWorld###########
-			 ########SetLightningTypes#######
-		ActorTypeNew = ActorType.lower().replace("component","")
-		if IsSceneComp == True:
-			TypeSceneComp = ActorType.replace("Component","Actor")
-			if ActorType == "SceneCaptureComponent2D":
-				TypeSceneComp = "SceneCapture2D"
-			if ActorType == "SphereReflectionCaptureComponent":
-				TypeSceneComp = "SphereReflectionCapture"
-			if ActorType == "BoxComponent":
-				TypeSceneComp = "ValActor"
-			Actor = eval(f'unreal.{TypeSceneComp}')
-			ActorTypeEval = Actor 
-			########SpawnLightAndGetReferenceForComp#######
-		SpawnActor = unreal.EditorLevelLibrary.spawn_actor_from_class(Actor, TransformActor.translation, TransformActor.rotation.rotator())
-		SpawnActor.set_folder_path(f'Misc/{ActorTypeNew}s')
-		SpawnActor.set_actor_scale3d(TransformActor.scale3d)
-		ActorTypeEval = SpawnActor
-		if IsSceneComp == False:
-			if ActorType == "BP_BlockingVolume_C":
-				ActorTypeNew = "blocking_volume"
-			ActorTypeEval = eval(f'SpawnActor.create_{ActorTypeNew}_component()')
-		else:
-			if TypeSceneComp == "TextRenderActor":
-				ActorTypeEval = SpawnActor.text_render
-			if TypeSceneComp == "CameraActor":
-				ActorTypeEval = SpawnActor.camera_component
-			if TypeSceneComp == "CineCameraActor":
-				ActorTypeEval = SpawnActor.camera_component 
-			if ActorType == "SceneCaptureComponent2D":
-				ActorTypeEval = SpawnActor.capture_component2d
-			if ActorType == "SphereReflectionCaptureComponent":
-				ActorTypeEval = SpawnActor.capture_component
-
-
-		SpawnActor.set_actor_label(OuterName)
-		if ActorType  == "TriggerVolume":
-			continue
-		if ActorType == "BP_BlockingVolume_C":
-			PropRight = GetBlockingMesh(obj,OuterName,umap)
-			PropRightProps = PropRight["Properties"]
-			PathToGo = ConvertToLoadableUE(PropRightProps["StaticMesh"],"StaticMesh ")
-			MeshToLoad = unreal.load_asset(PathToGo)
-			ActorTypeEval.set_static_mesh(MeshToLoad)
-			ActorTypeEval = SpawnActor
-		Comp = ActorTypeEval
-		SetAllSettings(ActorProps,Comp)
 def SetSMSettings():
 	OBJPath = Seting.selected_map.objects_path
 	### first normal mats #######
@@ -529,7 +413,7 @@ def SetSMSettings():
 				LMRes = Props["LightMapResolution"]
 			if HasKey("LightMapCoordinateIndex",Props):
 				LmCoord = Props["LightMapCoordinateIndex"]
-			MeshToLoad = unreal.load_asset(f"/Game/Meshes/All/{Name}")
+			MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Name}")
 			if (MeshToLoad):
 				CastSM = unreal.StaticMesh.cast(MeshToLoad)
 				CastSM.set_editor_property("light_map_coordinate_index", LmCoord)
@@ -540,15 +424,13 @@ def SetSMSettings():
 
 
 def SetAllSettings(asset,Comp):
-	blackmisc = ["currentfocusdistance","CachedMaxDrawDistance","OnComponentBeginOverlap","Mobility"]
+	blackmisc = ["CachedMaxDrawDistance","OnComponentBeginOverlap","Mobility"]
 	for Setting in asset:
 		bHasIt = HasSetting(Setting,Comp,blackmisc)
 		if bHasIt == True:
 			ActorSetting = asset[Setting]
 			if Setting in blackmisc:
 				continue
-			if Setting == "OrthoWidth":
-				Setting = "ortho_width"
 			PropSet = Comp.get_editor_property(Setting)
 			classname = GetClassName(PropSet)
 			if type(ActorSetting) == int or type(ActorSetting) == float or type(ActorSetting) == bool :
@@ -590,69 +472,44 @@ def SetAllSettings(asset,Comp):
 def SetLightmassSetting(ActorSetting,Evalu):
 	Set = eval(f'unreal.{Evalu}()')
 	for val in ActorSetting:
-		if val == "DiffuseBoost":
-			Set.set_editor_property("diffuse_boost",ActorSetting[val])
-		if val == "bCastShadowAsMasked":
-			Set.set_editor_property("cast_shadow_as_masked",ActorSetting[val])
-		if val == "ExportResolutionScale":
-			Set.set_editor_property("export_resolution_scale",ActorSetting[val])
-		if val == "IndirectLightingSaturation":
-			Set.set_editor_property("indirect_lighting_saturation",ActorSetting[val])
-		if val == "LightSourceAngle":
-			Set.set_editor_property("light_source_angle",ActorSetting[val])
-		if val == "ShadowExponent":
-			Set.set_editor_property("shadow_exponent",ActorSetting[val])
-		if val == "bUseAreaShadowsForStationaryLight":
-			Set.set_editor_property("use_area_shadows_for_stationary_light",ActorSetting[val])
-		if val == "DiffuseBoost":
-			Set.set_editor_property("diffuse_boost",ActorSetting[val])
-		if val == "EmissiveBoost":
-			Set.set_editor_property("emissive_boost",ActorSetting[val])
-		if val == "FullyOccludedSamplesFraction":
-			Set.set_editor_property("fully_occluded_samples_fraction",ActorSetting[val])
-		if val == "bShadowIndirectOnly":
-			Set.set_editor_property("shadow_indirect_only",ActorSetting[val])
-		if val == "bUseEmissiveForStaticLighting":
-			Set.set_editor_property("use_emissive_for_static_lighting",ActorSetting[val])
-		if val == "bUseTwoSidedLighting":
-			Set.set_editor_property("use_two_sided_lighting",ActorSetting[val])
-		if val == "bUseVertexNormalForHemisphereGather":
-			Set.set_editor_property("use_vertex_normal_for_hemisphere_gather",ActorSetting[val])
-		return Set
+		if val == "bCastShadowAsTranslucent" or val == "bOverrideCastShadowAsTranslucent":
+			continue
+		num = 1
+		if val.startswith("b"):
+			num = 2
+		newstr = re.sub('([A-Z])', r'_\1', val)
+		Set.set_editor_property(newstr[num:len(newstr)].lower(),ActorSetting[val])
+	return Set
 
 def ImportDecal(DecalData):
-	Transform = GetTransform(DecalData,False)
-	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,Transform.translation,Transform.rotation.rotator())
+	ActorInfo = ActorDefs(DecalData)
+	if ActorInfo.transform == False:
+		return
+	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,ActorInfo.transform.translation,ActorInfo.transform.rotation.rotator())
 	DecActor.set_folder_path(f'Decals')
-	DecActor.set_actor_scale3d(Transform.scale3d)
+	DecActor.set_actor_scale3d(ActorInfo.transform.scale3d)
 	DecalComponent = DecActor.decal
 	DecalMat = SetDecalMaterial(Settings, DecalData)
 	DecalComponent.set_decal_material(DecalMat)
 	BlacklistDecal =  ['DecalMaterial','LightColorType','CachedVertexFogIntensityFromVolumes','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
-	for propName,PropValue in DecalData["Properties"].items():
+	for propName,PropValue in ActorInfo.props.items():
 		if propName not in BlacklistDecal:
 			SetAllSettings(DecalData,DecalComponent)
 def ImportLights(OBJData, ArrObjsImport):
-	ActualData = OBJData
-	LightningType = ActualData["Type"]
-	LightningProps = ActualData["Properties"]
-	LightningOuter = ActualData["Outer"]
-	LightningActualName = ActualData["Name"]
-	if HasTransform(LightningProps) == False:
-		attachscene = GetAttachScene(ActualData,LightningOuter,ArrObjsImport)
-		ActualData = attachscene
-	if LightningType == "SphereReflectionCaptureComponent":
-		if HasKey("Cubemap",LightningProps) == False:
+	ActorInfo = ActorDefs(OBJData)
+	if ActorInfo.type == "SphereReflectionCaptureComponent":
+		if HasKey("Cubemap",ActorInfo.props) == False:
 			return
-	TransformLights = GetTransform(ActualData,False)
 	PostProcessSettings = []
-	LightTypeNoComp = LightningType.replace("Component","")
+	LightTypeNoComp = ActorInfo.type.replace("Component","")
 	LightType = eval(f'unreal.{LightTypeNoComp}')
 			########SpawnLightAndGetReferenceForComp#######
-	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, TransformLights.translation, TransformLights.rotation.rotator())
+	if ActorInfo.transform == False:
+		ActorInfo.transform = GetAttachScene(OBJData,ActorInfo.outer,ArrObjsImport)
+	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, ActorInfo.transform.translation, ActorInfo.transform.rotation.rotator())
 	LightActor.set_folder_path(f'Lights/{LightTypeNoComp}')
-	LightActor.set_actor_label(LightningActualName)
-	LightActor.set_actor_scale3d(TransformLights.scale3d )
+	LightActor.set_actor_label(ActorInfo.name)
+	LightActor.set_actor_scale3d(ActorInfo.transform.scale3d )
 	if hasattr(LightActor,"light_component"):
 		CompToUse = LightActor.light_component
 	elif  hasattr(LightActor,"portal_component"):
@@ -672,12 +529,12 @@ def ImportLights(OBJData, ArrObjsImport):
 	#Figure out Mobility
 	Mobility = unreal.ComponentMobility.STATIC
 	LightActor.modify()
-	if HasKey("Settings",LightningProps) == True:
-		PostProcessSettings = LightningProps["Settings"]
+	if HasKey("Settings",ActorInfo.props) == True:
+		PostProcessSettings = ActorInfo.props["Settings"]
 		SetPostProcessSettings(PostProcessSettings,CompToUse)
-	for Setting in LightningProps:
-		LightSettingType = type(LightningProps[Setting])
-		LightSetting = LightningProps[Setting]
+	for Setting in ActorInfo.props:
+		LightSettingType = type(ActorInfo.props[Setting])
+		LightSetting = ActorInfo.props[Setting]
 				#if Setting == "ReflectionSourceType":
 					#continue
 		if Setting == "IESTexture":
@@ -692,16 +549,13 @@ def ImportLights(OBJData, ArrObjsImport):
 			CompToUse.set_editor_property('fog_inscattering_luminance',Colorized)
 		if Setting == "Mobility":
 			CompToUse.set_editor_property('Mobility',Mobility)
-	SetAllSettings(LightningProps,CompToUse)
+	SetAllSettings(ActorInfo.props,CompToUse)
 
 
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	map_object = None
 	test = []
 	objectsToImport = filter_objects(umap_data)
-	if COUNT != 0:
-		objectsToImport = objectsToImport[:COUNT]
-	start_time = time.time()
 	for objectIndex, object_data in enumerate(objectsToImport):
 		objectIndex = f"{objectIndex:03}"
 		object_type = get_object_type(object_data)
@@ -716,8 +570,6 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	do_import_tasks(AllMeshes,AllTasks,False)
 	if Seting.import_Mesh == True:
 		SpawnMeshesInMap(umap_data,settings,umap_name)
-	if Seting.import_Misc == True:
-		SpawnMiscObject(umap_data,umap_data)
 def LevelStreamingStuff():
 	world = unreal.EditorLevelLibrary.get_editor_world()
 	for j in AllLevelPaths:
@@ -738,21 +590,24 @@ def SetPostProcessSettings(AllSettings,Comp):
 
 def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)
-	startpath = f"/Game/Maps/{newmap}/{mapname}"
+	startpath = f"/Game/ValorantContent/Maps/{newmap}/{mapname}"
 	bLoaded =unreal.load_asset(startpath)
 	SubSystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 	unreal.LevelEditorSubsystem.new_level(SubSystem,startpath)
 	AllLevelPaths.append(startpath)
+def GetOverrideVertexColor(data):
+	vtxarray = []
+	Lod = data["LODData"]
+	for itLod in Lod:
+		if HasKey("OverrideVertexColors",itLod):
+			DataToConvert = itLod["OverrideVertexColors"]["Data"]
+			for rgba_hex in DataToConvert:
+				Color = unreal.BPFL.return_from_hex(rgba_hex)
+				vtxarray.append(Color)
+	return vtxarray
 def SpawnMeshesInMap(data,set,mapname):
-	AllAssets = AssetRegistry.get_assets_by_path('/Game/Meshes/All/')
-	for j in AllAssets:
-		Asset = j.get_asset()
-		NameFull = Asset.get_full_name()
-		if "MaterialInstanceConstant " in NameFull:
-			Name = NameFull.replace("MaterialInstanceConstant ", "")
-			ActualName = ReturnFormattedString(Name,".")
-			AllLoadableMaterials[f"{ActualName}"] = NameFull
 	for j in data:
+		OvrVertexes = []
 		object_type = get_object_type(j)
 		if object_type == "mesh":
 			HasVCol = False
@@ -766,39 +621,30 @@ def SpawnMeshesInMap(data,set,mapname):
 					continue
 			ObjectProps = ActualData["Properties"]
 			if HasKey("StaticMesh",ObjectProps):
-				PathToGo = ConvertToLoadableUE(ObjectProps["StaticMesh"],"StaticMesh ")
+				PathToGo = ConvertToLoadableUE(ObjectProps["StaticMesh"],"StaticMesh ","Meshes")
 			if HasTransform(ObjectProps) == False:
 				LocalData = GetAttachScene(j,NameProp,data)
-			Transform = GetTransform(LocalData,False)
+			Transform = GetTransform(ActualData["Properties"])
 			if Transform == None:
 				continue
 			SMActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.ValActor,Transform.translation,Transform.rotation.rotator())
+			SMActor.set_actor_label(NameProp)
 			SMActor.set_actor_scale3d(Transform.scale3d)
 			MeshToLoad = unreal.load_asset(PathToGo)
-			OvrVertexes = []
 			PathOriginal = GetActualPath(ObjectProps["StaticMesh"])
 			if HasKey("LODData",ActualData):
-				Lod = ActualData["LODData"]
-				for itLod in Lod:
-					if HasKey("OverrideVertexColors",itLod):
-						DataToConvert = itLod["OverrideVertexColors"]["Data"]
-						for rgba_hex in DataToConvert:
-							testbk = []
-							Color = unreal.BPFL.return_from_hex(rgba_hex)
-							OvrVertexes.append(Color)
-							HasVCol = True
+				OvrVertexes = GetOverrideVertexColor(ActualData)
 			if map_object.is_instanced():
 				instance_data = ActualData["PerInstanceSMData"]
 				Instance = SMActor.create_instance_component(MeshToLoad)
 				SMActor.set_folder_path(f'Meshes/Instanced')
-				SMActor.set_actor_label(NameProp)
-				for j in instance_data:
-					Trans = GetTransform(j,True)
+				for inst in instance_data:
+					Trans = GetTransform(inst)
 					if Trans == None:
 						continue
 					Transform = unreal.Transform(location=Trans.translation, rotation=Trans.rotation.rotator(), scale=Trans.scale3d)
 					Instance.add_instance(Transform)
-				if(HasVCol == True):
+				if len(OvrVertexes) > 0:
 					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 			else:
 				Instance = SMActor.create_static_component(MeshToLoad)
@@ -806,9 +652,8 @@ def SpawnMeshesInMap(data,set,mapname):
 				if mapname.endswith("_VFX"):
 					FolderName = 'VFX/Meshes'
 				SMActor.set_folder_path(FolderName)
-				if(HasVCol == True):
+				if len(OvrVertexes) > 0:
 					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
-				SMActor.set_actor_label(NameProp)
 			SetAllSettings(ObjectProps,Instance)
 			if HasKey("OverrideMaterials",ObjectProps):
 				MatOver = GetMaterialToOverride(ActualData)
@@ -908,3 +753,5 @@ def import_map(Setting):
 	if Seting.import_sublevel == True:
 		LevelStreamingStuff()
 	SetSMSettings()
+	winsound.Beep(18000, 100)
+

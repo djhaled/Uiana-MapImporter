@@ -3,7 +3,6 @@ from pathlib import Path
 from mods.liana_main import *
 parser = argparse.ArgumentParser()
 parser.add_argument('ImportSubLevels',type=int,help='ImportSubLevels')
-parser.add_argument('ImportMisc',type=int,help='ImportMisc')
 parser.add_argument('ImportMesh',type=int,help='ImportMesh')
 parser.add_argument('ImportMaterial',type=int,help='ImportMaterial')
 parser.add_argument('ImportDecal',type=int,help='ImportDecal')
@@ -17,7 +16,6 @@ args = parser.parse_args()
 print(args.MapName)
 class UeSettings:
 	bImportMaterial = bool(args.ImportMaterial)
-	bImportMisc = bool(args.ImportMisc)
 	bImportMesh = bool(args.ImportMesh)
 	bImportDecal = bool(args.ImportDecal)
 	bImportLights = bool(args.ImportLights)

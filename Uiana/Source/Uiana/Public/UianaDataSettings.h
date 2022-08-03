@@ -31,8 +31,6 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		TEnumAsByte<WeaponRole> Map;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
-		bool ImportMisc;
-	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		bool ImportMeshes;
 	UPROPERTY(config, EditAnywhere, Category = "SubLevels")
 		bool UseSubLevels;

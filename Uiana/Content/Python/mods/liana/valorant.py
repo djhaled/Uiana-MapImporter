@@ -7,8 +7,7 @@ def filter_umap(umap_data: dict) -> list:
 	umap_filtered = list()
 
 	mesh_types = ["staticmesh", "staticmeshcomponent", "instancedstaticmeshcomponent", "hierarchicalinstancedstaticmeshcomponent"]
-	gen_types = ['pointlightcomponent',"postprocessvolume" ,"culldistancevolume","lightmasscharacterindirectdetailvolume","precomputedvisibilityvolume",'rectlightcomponent', 'spotlightcomponent', 'skylightcomponent',  'scenecapturecomponentcube',"lightmassimportancevolume","billboardcomponent", 'directionallightcomponent', 'exponentialheightfogcomponent', 'lightmassportalcomponent', 'spherereflectioncapturecomponent']
-	misc_types = ["capsulecomponent","bp_blockingvolume_c","killzvolume","brushcomponent","levelsequenceactor","targetpoint","triggervolume","scenecomponent","textrendercomponent","cameracomponent","cinecameracomponent","scenecapturecomponent2d","boxcomponent"]
+	gen_types = ['pointlightcomponent',"postprocessvolume" ,"culldistancevolume","scenecomponent","lightmasscharacterindirectdetailvolume","brushcomponent","precomputedvisibilityvolume",'rectlightcomponent', 'spotlightcomponent', 'skylightcomponent',  'scenecapturecomponentcube',"lightmassimportancevolume","billboardcomponent", 'directionallightcomponent', 'exponentialheightfogcomponent', 'lightmassportalcomponent', 'spherereflectioncapturecomponent']
 	object_types = []
 	decal_types = ["decalcomponent"]
 
@@ -22,8 +21,6 @@ def filter_umap(umap_data: dict) -> list:
 						umap_filtered.append(obj)
 
 		if ObjType.lower() in gen_types:
-			umap_filtered.append(obj)
-		if ObjType.lower() in misc_types:
 			umap_filtered.append(obj)
 		if ObjType.lower() in decal_types:
 			umap_filtered.append(obj)
@@ -71,11 +68,8 @@ def get_object_type(model_data: dict) -> str:
 	lights = ["PointLightComponent","PostProcessVolume","PrecomputedVisibilityVolume","CullDistanceVolume", "RectLightComponent","LightmassCharacterIndirectDetailVolume", "SpotLightComponent","SkyLightComponent","LightmassImportanceVolume","SceneCaptureComponentCube","SphereReflectionCaptureComponent","DirectionalLightComponent","ExponentialHeightFogComponent","LightmassPortalComponent"]
 	meshes = ["StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent"]
 	decals = ["DecalComponent"]
-	misc_types = ["CapsuleComponent","BP_BlockingVolume_C","LevelSequenceActor","KillZVolume","TargetPoint","TriggerVolume","TextRenderComponent","CameraComponent","CineCameraComponent","BillboardComponent","SceneCaptureComponent2D","BoxComponent"]
 	if model_data["Type"] in meshes:
 		return "mesh"
-	if model_data["Type"] in misc_types:
-		return "misc"
 	if model_data["Type"] in lights:
 		return "light"
 	if model_data["Type"] in decals:

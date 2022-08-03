@@ -6,7 +6,6 @@ from subprocess import run
 from collections.abc import Iterable
 import time
 import unreal
-start_time = time.time()
 SELECTIVE_OBJECTS = []
 projectpath = unreal.Paths.project_plugins_dir()
 newpath = projectpath + 'Uiana/Content/Python/assets/umapTYPE.json'
@@ -69,6 +68,7 @@ def ImportShader(Shader):
 	BaseShader = unreal.load_asset(f'/Uiana/Materials/{Shader}')
 	return BaseShader
 
+
 def import_shaders():
 	BaseShader = unreal.load_asset('/Uiana/Materials/ValoOpaqueMasterNEW')
 	return BaseShader
@@ -80,21 +80,19 @@ def ConvertToLoadableMaterial(Mesh,Type):
 	typestring = str(Type)
 	NewName = Mesh.replace(f'{Type}', "")
 	return NewName
-def ConvertToLoadableUE(Mesh,Type):
+def ConvertToLoadableUE(Mesh,Type,ActualType):
 	if Mesh == None:
 		return None
 	Name = Mesh["ObjectName"]
 	typestring = str(Type)
 	NewName = Name.replace(f'{Type}', "")
-	PathToGo = f'/Game/Meshes/All/{NewName}'
+	PathToGo = f'/Game/ValorantContent/{ActualType}/{NewName}'
 	return PathToGo
-def GetTransform(Prop,bIsInstanced):
-	if HasKey("Properties",Prop) == False and bIsInstanced == False:
-		return None
-	if bIsInstanced == False:
-		Props = Prop["Properties"]
-	else:
-		Props = Prop
+def GetTransform(Prop):
+	bIsInstanced = False
+	Props = Prop
+	if HasKey("OffsetLocation",Props):
+		bIsInstanced = True
 	if HasKey("RelativeLocation",Props) or HasKey("OffsetLocation",Props) :
 		if bIsInstanced == True:
 			Location =  Props["OffsetLocation"]
@@ -102,7 +100,6 @@ def GetTransform(Prop,bIsInstanced):
 			Location =  Props["RelativeLocation"]
 		LocationUnreal = unreal.Vector(Location["X"],Location["Y"],Location["Z"])
 	else:
-		#Location = {'X': 1.0, 'Y': 1.0, 'Z': 1.0}
 		LocationUnreal = unreal.Vector(0.0,0.0,0.0)
 
 	if HasKey("RelativeScale3D",Props):
@@ -110,18 +107,10 @@ def GetTransform(Prop,bIsInstanced):
 		ScaleUnreal = unreal.Vector(Scale["X"],Scale["Y"],Scale["Z"])
 	else:
 		ScaleUnreal = unreal.Vector(1.0,1.0,1.0)
-		#Scale = {'X': 1.0, 'Y': 1.0, 'Z': 1.0}
 	if HasKey("RelativeRotation",Props):
 		Rotation = Props["RelativeRotation"]
-		#### Z = Yaw
-		RotYaw = Rotation["Yaw"]
-		#### Y = Pitch
-		RotPitch = Rotation["Pitch"]
-		#### X == Roll
-		RotRoll = Rotation["Roll"]
-		RotationUnreal = unreal.Rotator(RotRoll,RotPitch,RotYaw)
+		RotationUnreal = unreal.Rotator(Rotation["Roll"],Rotation["Pitch"],Rotation["Yaw"])
 	else:
-		Rotation = {'Yaw': 0.0, 'Pitch': 0.0, 'Roll': 0.0}
 		RotationUnreal = unreal.Rotator(0.0,0.0,0.0)
 	Trans = unreal.Transform(LocationUnreal, RotationUnreal, ScaleUnreal)
 	return Trans
@@ -167,6 +156,8 @@ def HasTransform(prop):
 		bFactualBool = True
 	if HasKey("RelativeScale3D",prop):
 		bFactualBool = True
+	if bFactualBool == True:
+		return GetTransform(prop)
 	return bFactualBool
 def GetInitialName(ka):
 	slash = ka.find('_')
@@ -348,7 +339,7 @@ def GetAttachScene(obj,OuterName,umapfile):
 			outer = j["Name"]
 		#print(f'OuterName trying to find is {OuterName} and current outer is {outer} // also tipo is {tipo}')
 		if outer == OuterName and tipo in types:
-			return j
+			return HasTransform(j["Properties"])
 	#exit()
 
 def IsBlockingVolume(obj,OuterName,umapfile):
@@ -416,7 +407,6 @@ class Settings:
 		self.paks_path = UESet.PPakFolder
 		self.import_decals = UESet.bImportDecal
 		self.import_lights = UESet.bImportLights
-		self.import_Misc = UESet.bImportMisc
 		self.import_Mesh = UESet.bImportMesh
 		self.import_materials = UESet.bImportMaterial
 		self.import_sublevel = UESet.bImportSubLevels
@@ -512,3 +502,11 @@ class Map:
 		self.scenes_path = self.folder_path.joinpath("scenes")
 		self.umaps_path = self.folder_path.joinpath("umaps")
 		create_folders(self)
+
+class ActorDefs():
+	def __init__(self,Actor):
+	    self.name = Actor["Name"]
+	    self.type = Actor["Type"]
+	    self.props = Actor["Properties"]
+	    self.outer = Actor["Outer"]
+	    self.transform = HasTransform(self.props)

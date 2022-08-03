@@ -125,7 +125,6 @@ void FUianaModule::PluginButtonClicked()
 
 FReply FUianaModule::ExecuteFunction()
 {
-	bool ImportMisc = Stun->ImportMisc;
 	bool ImportMesh = Stun->ImportMeshes;
 	bool ImportMat = Stun->ImportMaterials;
 	bool ImportDecal = Stun->ImportDecals;
@@ -138,7 +137,6 @@ FReply FUianaModule::ExecuteFunction()
 	Stun->SaveConfig();
 	TArray< FStringFormatArg > args;
 	args.Add(FStringFormatArg(ImportSubLevels));
-	args.Add(FStringFormatArg(ImportMisc));
 	args.Add(FStringFormatArg(ImportMesh));
 	args.Add(FStringFormatArg(ImportMat));
 	args.Add(FStringFormatArg(ImportDecal));
@@ -147,7 +145,7 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(ExportPath));
 	args.Add(FStringFormatArg(PakFolder));
 	args.Add(FStringFormatArg(CurrentPath));
-	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\" \"{9}\""), args);
+	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
 	GEngine->Exec(NULL, TCharCommand);
 	return FReply::Handled();

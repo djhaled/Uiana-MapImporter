@@ -6,7 +6,6 @@ UUianaDataSettings::UUianaDataSettings(const FObjectInitializer& ObjectInitializ
 	ExportFolder.Path = "C:/Exports";
 	PaksFolder.Path = "C:/Riot Games/VALORANT/live/ShooterGame/Content/Paks";
 	Map = Ascent;
-	ImportMisc = false;
 	ImportMeshes = true;
 	ImportMaterials = true;
 	ImportDecals = false;
