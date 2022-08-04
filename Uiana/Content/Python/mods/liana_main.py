@@ -259,6 +259,7 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 			if prop_name not in BasePropsBlacklist:
 				BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
 				BasePropOverride.set_editor_property(prop_name, prop_value)
+	
 	if "StaticParameters" in mat_props:
 		if "StaticSwitchParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticSwitchParameters"]:
@@ -276,14 +277,12 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
 			SetMaterialScalarValue(UEMat,param_name,param_value)
+
 	if "VectorParameterValues" in mat_props:
 		for param in mat_props["VectorParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
 			SetMaterialVectorValue(UEMat,param_name,get_rgb(param_value))
-			if "Emissive Mult" == param_name:
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Emissive',True)
-
 
 def get_scalar_value(mat_props, s_param_name):
 	if "ScalarParameterValues" in mat_props:
@@ -324,24 +323,20 @@ def SetTextures(mat_props: dict, MatRef):
 				continue
 			if "rgba" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'RGBA', ImportedTexture)
-			if "diffuse" == param_name or "albedo" == param_name :
+			if "diffuse" == param_name or "albedo" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustDiffuse',True)
-			if "diffuse a" == param_name  or "texture a" == param_name :
+			if "diffuse a" == param_name  or "texture a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use B',False)
 			if "diffuse b" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
 			if "mra" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA', ImportedTexture)
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustMRA',True)
 			if  "mra a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA A', ImportedTexture)
 			if "mra b" == param_name :
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA B', ImportedTexture)
 			if "normal" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Normal', ImportedTexture)
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustNormal',True)
 			if  "texture a normal" == param_name or "normal a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture A Normal', ImportedTexture)
 			if "normal b" == param_name or "texture b normal" == param_name:
@@ -352,6 +347,31 @@ def SetTextures(mat_props: dict, MatRef):
 			if "mask" in param_name or "rgba" in param_name:
 				pass
 
+	#if "Use Vertex Color" in mat_props["StaticParameters"]:
+	#	unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use Vertex Color',True)
+
+	#if "Emissive Mult" in mat_props["VectorParameterValues"]:
+	#	unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'UseEmissive',True)
+
+	#if "diffuse a" in mat_props["TextureParameterValues"] or "texture a" in mat_props["TextureParameterValues"]:
+	#	if "diffuse b" not in mat_props["TextureParameterValues"]:
+	#			unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuseA',True)
+
+	#if "mra a" in mat_props["TextureParameterValues"]:
+	#	if "mra b" not in mat_props["TextureParameterValues"]:
+	#		unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMraA',True)
+
+	#if "normal a" in mat_props["TextureParameterValues"]:
+	#	if "normal b" not in mat_props["TextureParameterValues"]:
+	#		unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormalA',True)
+
+	#if "diffuse" in mat_props["TextureParameterValues"]:
+		#unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustDiffuse',True)
+	#if "mra" in mat_props["TextureParameterValues"]:
+		#unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustMRA',True)
+	#if "normal" in mat_props["TextureParameterValues"]:
+		#unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'HasJustNormal',True)
+	
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 
 def SetSMSettings():
