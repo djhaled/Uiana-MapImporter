@@ -20,7 +20,7 @@ AllLevelPaths = []
 file = "snd.mp3"
 AssetTools = unreal.AssetToolsHelpers.get_asset_tools()
 start_time = time.time()
-BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
+#BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
 def GetMaterialToOverride(Data):
 	Props = Data["Properties"]
 	MaterialArray = []
@@ -42,10 +42,7 @@ def GetMaterialToOverride(Data):
 	return MaterialArray
 
 def bIsDefaultEnv(asset):
-	if asset in BaseEnv:
-		return "BaseEnv_MAT_V4"
-	else:
-		return None
+	return "BaseEnv_MAT_V4"
 
 def extract_assets(settings: Settings):
 	if settings.assets_path.joinpath("exported.yo").exists():
@@ -214,8 +211,8 @@ def SetDecalMaterial(Set,MapObject):
 def ReturnParent(parentName):
 	rformPar =parentName.rfind(' ') + 1
 	ActualName = parentName[rformPar:len(parentName)]
-	DefEnv = bIsDefaultEnv(ActualName)
-	if DefEnv != None:
+	DefEnv = ImportShader(ActualName)
+	if DefEnv == None:
 		ParentName = "BaseEnv_MAT_V4"
 	else:
 		ParentName = ActualName
@@ -775,6 +772,8 @@ def import_map(Setting):
 	global Seting
 	Seting = settings
 	umap_json_paths = get_map_assets(Seting)
+	if Seting.import_sublevel == False:
+		CreateNewLevel("Map")
 	ClearLevel()
 	#  Check if the game files are exported
 	######### export all textures before ###########
