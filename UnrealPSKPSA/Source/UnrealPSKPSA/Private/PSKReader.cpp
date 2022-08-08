@@ -27,7 +27,7 @@ bool PSKReader::Read()
 			Vertices.SetNum(DataCount);
 			for (auto i = 0; i < DataCount; i++)
 			{
-				Ar.read(reinterpret_cast<char*>(&Vertices[i]), sizeof(FVector3f));
+				Ar.read(reinterpret_cast<char*>(&Vertices[i]), sizeof(FVector));
 			}
 		}
 		else if (CHUNK("VTXW0000"))
@@ -82,7 +82,7 @@ bool PSKReader::Read()
 			Normals.SetNum(DataCount);
 			for (auto i = 0; i < DataCount; i++)
 			{
-				Ar.read(reinterpret_cast<char*>(&Normals[i]), sizeof(FVector3f));
+				Ar.read(reinterpret_cast<char*>(&Normals[i]), sizeof(FVector));
 			}
 		}
 		else if (CHUNK("VERTEXCOLOR"))
@@ -95,11 +95,11 @@ bool PSKReader::Read()
 		}
 		else if (CHUNK("EXTRAUVS"))
 		{
-			TArray<FVector2f> UVData;
+			TArray<FVector2D> UVData;
 			UVData.SetNum(DataCount);
 			for (auto i = 0; i < DataCount; i++)
 			{
-				Ar.read(reinterpret_cast<char*>(&UVData[i]), sizeof(FVector2f));
+				Ar.read(reinterpret_cast<char*>(&UVData[i]), sizeof(FVector2D));
 			}
 
 			ExtraUVs.Add(UVData);
@@ -113,8 +113,8 @@ bool PSKReader::Read()
 				Ar.read(reinterpret_cast<char*>(&Bones[i].Flags), sizeof(int));
 				Ar.read(reinterpret_cast<char*>(&Bones[i].NumChildren), sizeof(int));
 				Ar.read(reinterpret_cast<char*>(&Bones[i].ParentIndex), sizeof(int));
-				Ar.read(reinterpret_cast<char*>(&Bones[i].BonePos.Orientation), sizeof(FQuat4f));
-				Ar.read(reinterpret_cast<char*>(&Bones[i].BonePos.Position), sizeof(FVector3f));
+				Ar.read(reinterpret_cast<char*>(&Bones[i].BonePos.Orientation), sizeof(FQuat));
+				Ar.read(reinterpret_cast<char*>(&Bones[i].BonePos.Position), sizeof(FVector));
 	            	
 				Ar.read(reinterpret_cast<char*>(&Bones[i].BonePos.Length), sizeof(float));
 				Ar.read(reinterpret_cast<char*>(&Bones[i].BonePos.XSize), sizeof(float));

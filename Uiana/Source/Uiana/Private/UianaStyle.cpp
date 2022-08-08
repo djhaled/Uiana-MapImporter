@@ -6,9 +6,11 @@
 #include "Styling/SlateStyleRegistry.h"
 #include "Slate/SlateGameResources.h"
 #include "Interfaces/IPluginManager.h"
-#include "Styling/SlateStyleMacros.h"
+// #include "Styling/SlateStyleMacros.h"
 
 #define RootToContentDir Style->RootToContentDir
+// From SlateStyleMacros.h, which is UE5-specific
+#define IMAGE_BRUSH( RelativePath, ... ) FSlateImageBrush( RootToContentDir( RelativePath, TEXT(".png") ), __VA_ARGS__ )
 
 TSharedPtr<FSlateStyleSet> FUianaStyle::StyleInstance = nullptr;
 

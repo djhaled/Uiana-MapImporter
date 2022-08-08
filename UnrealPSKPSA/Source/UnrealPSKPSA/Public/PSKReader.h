@@ -44,8 +44,8 @@ struct VMaterial
 
 struct VJointPos
 {
-	FQuat4f Orientation;
-	FVector3f Position;
+	FQuat Orientation;
+	FVector Position;
 	float Length;
 	float XSize;
 	float YSize;
@@ -81,13 +81,13 @@ public:
 	bool bHasExtraUVs;
 
 	// PSKX
-	TArray<FVector3f> Vertices;
+	TArray<FVector> Vertices;
 	TArray<VVertex> Wedges;
 	TArray<VTriangle> Faces;
 	TArray<VMaterial> Materials;
-	TArray<FVector3f> Normals;
+	TArray<FVector> Normals;
 	TArray<FColor> VertexColors;
-	TArray<TArray<FVector2f>> ExtraUVs;
+	TArray<TArray<FVector2D>> ExtraUVs;
 
 	// PSK
 	TArray<VNamedBoneBinary> Bones;

@@ -36,7 +36,7 @@ public class Uiana : ModuleRules
 			{
 				"Projects",
 				"InputCore",
-				"EditorFramework",
+				// "EditorFramework",
 				"UnrealEd",
 				"ToolMenus",
 				"CoreUObject",

@@ -682,9 +682,14 @@ def LevelStreamingStuff():
 		unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
 		ReadableMapType = GetReadableUMapType(JAfterSlash)
 		if ReadableMapType == "LevelStreamingDynamic":
+			"""
 			SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
 			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
+			"""
+			level_editor = unreal.EditorLevelUtils()
+			level_vis = level_editor.get_current_level()
+			level_editor.set_level_visibility(level_vis, False, False)
 # ANCHOR: Functions
 def SetPostProcessSettings(AllSettings,Comp):
 	for Setting in AllSettings:
@@ -696,8 +701,10 @@ def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)
 	startpath = f"/Game/ValorantContent/Maps/{newmap}/{mapname}"
 	bLoaded =unreal.load_asset(startpath)
-	SubSystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
-	unreal.LevelEditorSubsystem.new_level(SubSystem,startpath)
+	# SubSystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+	level_lib = unreal.EditorLevelLibrary()
+	#unreal.LevelEditorSubsystem.new_level(SubSystem,startpath)
+	level_lib.new_level(startpath)
 	AllLevelPaths.append(startpath)
 def GetOverrideVertexColor(data):
 	vtxarray = []

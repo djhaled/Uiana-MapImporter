@@ -50,7 +50,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 			const auto Wedge = Reader->Wedges[Face.WedgeIndex[VtxIdx]];
 
 			RawMesh.WedgeIndices.Add(Wedge.PointIndex);
-			RawMesh.WedgeTexCoords[0].Add(FVector2f(Wedge.U, Wedge.V));
+			RawMesh.WedgeTexCoords[0].Add(FVector2D(Wedge.U, Wedge.V));
 
 			for (auto UVIdx = 0; UVIdx < Reader->ExtraUVs.Num(); UVIdx++)
 			{
@@ -58,7 +58,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 				RawMesh.WedgeTexCoords[UVIdx+1].Add(UV);
 			}
 
-			auto Normal = FVector3f::ZeroVector;
+			auto Normal = FVector::ZeroVector;
 
 			if (bHasNormals)
 			{
@@ -67,8 +67,8 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 			}
 
 			RawMesh.WedgeTangentZ.Add(Normal);
-			RawMesh.WedgeTangentY.Add(FVector3f::ZeroVector);
-			RawMesh.WedgeTangentX.Add(FVector3f::ZeroVector);
+			RawMesh.WedgeTangentY.Add(FVector::ZeroVector);
+			RawMesh.WedgeTangentX.Add(FVector::ZeroVector);
 
 			if (bHasVertexColors) RawMesh.WedgeColors.Add(FaceVertexColors[Wedge.PointIndex]);
 		}

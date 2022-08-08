@@ -21,9 +21,7 @@ public:
 	static void PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
 	static FColor ReturnFromHex(FString Beka);
-	static TMap<FVector3f, FColor> MakeHashmap(TArray<FVector3f> arr1, TArray<FColor> TestVtx);
-	static TArray<FColor> FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArray<FColor> BrokenVtxColorArray, TArray<FVector3f> ReaderVerts);
-	static TArray<FVector3f> ReturnCurrentVerts(UStaticMesh* Mesh);
-	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
-	static void ChangeProjectSettings();
+	static TMap<FVector, FColor> MakeHashmap(TArray<FVector> arr1, TArray<FColor> TestVtx);
+	static TArray<FColor> FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArray<FColor> BrokenVtxColorArray, TArray<FVector> ReaderVerts);
+	static TArray<FVector> ReturnCurrentVerts(UStaticMesh* Mesh);
 };

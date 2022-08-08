@@ -61,7 +61,7 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 			Wedge.MatIndex = PskWedge.MatIndex;
 			Wedge.VertexIndex = PskWedge.PointIndex;
 			Wedge.Color = Psk.bHasVertexColors ? PointVertexColors[PskWedge.PointIndex] : FColor::White;
-			Wedge.UVs[0] = FVector2f(PskWedge.U, PskWedge.V);
+			Wedge.UVs[0] = FVector2D(PskWedge.U, PskWedge.V);
 			for (auto UVIdx = 0; UVIdx < Psk.ExtraUVs.Num(); UVIdx++)
 			{
 				auto UV =  Psk.ExtraUVs[UVIdx][Face.WedgeIndex[VertexIndex]];
@@ -69,9 +69,9 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 			}
 			
 			Face.WedgeIndex[VertexIndex] = SkeletalMeshImportData.Wedges.Add(Wedge);
-			Face.TangentZ[VertexIndex] = Psk.bHasVertexNormals ? Psk.Normals[PskWedge.PointIndex] : FVector3f::ZeroVector;
-			Face.TangentY[VertexIndex] = FVector3f::ZeroVector;
-			Face.TangentX[VertexIndex] = FVector3f::ZeroVector;
+			Face.TangentZ[VertexIndex] = Psk.bHasVertexNormals ? Psk.Normals[PskWedge.PointIndex] : FVector::ZeroVector;
+			Face.TangentY[VertexIndex] = FVector::ZeroVector;
+			Face.TangentX[VertexIndex] = FVector::ZeroVector;
 
 			
 		}
@@ -89,9 +89,9 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 		Bone.ParentIndex = PskBone.ParentIndex == -1 ? INDEX_NONE : PskBone.ParentIndex;
 		
 		auto PskBonePos = PskBone.BonePos;
-		FTransform3f PskTransform;
-		PskTransform.SetLocation(FVector3f(PskBonePos.Position.X, -PskBonePos.Position.Y, PskBonePos.Position.Z));
-		PskTransform.SetRotation(FQuat4f(PskBonePos.Orientation.X, -PskBonePos.Orientation.Y, PskBonePos.Orientation.Z, PskBonePos.Orientation.W).GetNormalized());
+		FTransform PskTransform;
+		PskTransform.SetLocation(FVector(PskBonePos.Position.X, -PskBonePos.Position.Y, PskBonePos.Position.Z));
+		PskTransform.SetRotation(FQuat(PskBonePos.Orientation.X, -PskBonePos.Orientation.Y, PskBonePos.Orientation.Z, PskBonePos.Orientation.W).GetNormalized());
 
 		SkeletalMeshImportData::FJointPos BonePos;
 		BonePos.Transform = PskTransform;
@@ -137,7 +137,7 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 	auto SkeletalDepth = 0;
 	ProcessSkeleton(SkeletalMeshImportData, Skeleton, RefSkeleton, SkeletalDepth);
 
-	TArray<FVector3f> LODPoints;
+	TArray<FVector> LODPoints;
 	TArray<SkeletalMeshImportData::FMeshWedge> LODWedges;
 	TArray<SkeletalMeshImportData::FMeshFace> LODFaces;
 	TArray<SkeletalMeshImportData::FVertInfluence> LODInfluences;
@@ -177,13 +177,15 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 	BuildOptions.bRecomputeTangents = true;
 	BuildOptions.bUseMikkTSpace = true;
 	SkeletalMesh->GetLODInfo(0)->BuildSettings = BuildOptions;
-	SkeletalMesh->SetImportedBounds(FBoxSphereBounds(FBoxSphereBounds3f(FBox3f(SkeletalMeshImportData.Points))));
+	SkeletalMesh->SetImportedBounds(FBoxSphereBounds(FBoxSphereBounds(FBox(SkeletalMeshImportData.Points))));
 
 	auto& MeshBuilderModule = IMeshBuilderModule::GetForRunningPlatform();
 	const FSkeletalMeshBuildParameters SkeletalMeshBuildParameters(SkeletalMesh, GetTargetPlatformManagerRef().GetRunningTargetPlatform(), 0, false);
 	if (!MeshBuilderModule.BuildSkeletalMesh(SkeletalMeshBuildParameters))
 	{
-		SkeletalMesh->MarkAsGarbage();
+		// SkeletalMesh->MarkAsGarbage();
+		SkeletalMesh->BeginDestroy();
+		SkeletalMesh->FinishDestroy();
 		return nullptr;
 	}
 

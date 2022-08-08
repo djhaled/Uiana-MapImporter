@@ -5,7 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Actor.h"
-#include "VectorTypes.h"
+//#include "VectorTypes.h"
 #include "Engine/StaticMesh.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "Engine/World.h"
@@ -35,7 +35,7 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 		// get reader positions /////
 		const auto Reader = new PSKReader(FileName);
 		Reader->Read();
-		TArray<FVector3f> CurrentVerts = ReturnCurrentVerts(SM);
+		TArray<FVector> CurrentVerts = ReturnCurrentVerts(SM);
 		if (VtxColorsArray.Num() != CurrentVerts.Num())
 		{
 			FinalColors = FixBrokenMesh(SM,FileName,VtxColorsArray, Reader->Vertices);
@@ -49,7 +49,7 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 			for (auto vt : CurrentVerts)
 			{
 				vt.Y = -vt.Y;
-				auto idaa = FVector3f(vt);
+				auto idaa = FVector(vt);
 				auto finder = Hashmap.Find(idaa);
 				if (finder)
 				{
@@ -63,7 +63,7 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 		{
 			UE_LOG(LogTemp, Warning, TEXT("This one has wrong FinalColors %s"), *SM->GetName());
 		}
-		if (FinalColors.IsEmpty())
+		if (FinalColors.Num() == 0)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("This one has no  FinalColors %s"), *SM->GetName());
 			return;
@@ -81,10 +81,10 @@ FColor UBPFL::ReturnFromHex(FString Beka)
 	return FColor::FromHex(Beka);
 }
 
-TMap<FVector3f, FColor> UBPFL::MakeHashmap(TArray<FVector3f> arr1, TArray<FColor> TestVtx)
+TMap<FVector, FColor> UBPFL::MakeHashmap(TArray<FVector> arr1, TArray<FColor> TestVtx)
 {
 	//arr1 should be correct reader
-	TMap<FVector3f, FColor> FruitMap;
+	TMap<FVector, FColor> FruitMap;
 	FruitMap.Empty();
 	int idx = 0;
 	for (auto j : arr1)
@@ -96,7 +96,7 @@ TMap<FVector3f, FColor> UBPFL::MakeHashmap(TArray<FVector3f> arr1, TArray<FColor
 }
 
 
-TArray<FColor> UBPFL::FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArray<FColor> BrokenVtxColorArray,TArray<FVector3f> ReaderVerts)
+TArray<FColor> UBPFL::FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArray<FColor> BrokenVtxColorArray,TArray<FVector> ReaderVerts)
 {
 	TArray<FColor> LocalVtxColors;
 	// Get Actual Verts
@@ -113,16 +113,16 @@ TArray<FColor> UBPFL::FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArr
 	auto Hasher = MakeHashmap(ReaderVerts, BrokenVtxColorArray);
 	for (auto vt : CurrentVerticesPosition)
 	{
-		auto finder = Hasher.Find(FVector3f(vt));
+		auto finder = Hasher.Find(FVector(vt));
 		LocalVtxColors.Add(*finder);
 
 	}
 	return LocalVtxColors;
 }
 
-TArray<FVector3f> UBPFL::ReturnCurrentVerts(UStaticMesh* Mesh)
+TArray<FVector> UBPFL::ReturnCurrentVerts(UStaticMesh* Mesh)
 {
-	TArray<FVector3f> ReturnArray;
+	TArray<FVector> ReturnArray;
 	if (Mesh->GetRenderData()->LODResources.Num() > 0)
 	{
 		FPositionVertexBuffer* VertexBuffer = &Mesh->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
@@ -132,7 +132,7 @@ TArray<FVector3f> UBPFL::ReturnCurrentVerts(UStaticMesh* Mesh)
 			for (int32 Index = 0; Index < VertexCount; Index++)
 			{
 				//This is in the Static Mesh Actor Class, so it is location and tranform of the SMActor
-				const FVector3f Vertex = VertexBuffer->VertexPosition(Index);
+				const FVector Vertex = VertexBuffer->VertexPosition(Index);
 				//add to output FVector array
 				ReturnArray.Add(Vertex);
 			}
