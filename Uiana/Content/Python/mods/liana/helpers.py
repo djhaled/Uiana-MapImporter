@@ -91,27 +91,37 @@ def ConvertToLoadableUE(Mesh,Type,ActualType):
 	PathToGo = f'/Game/ValorantContent/{ActualType}/{NewName}'
 	return PathToGo
 def GetTransform(Prop):
+	TransformData = None
 	bIsInstanced = False
 	Props = Prop
-	if HasKey("OffsetLocation",Props):
+	if HasKey("TransformData",Props):
+		TransformData = Props["TransformData"]
 		bIsInstanced = True
-	if HasKey("RelativeLocation",Props) or HasKey("OffsetLocation",Props) :
-		if bIsInstanced == True:
-			Location =  Props["OffsetLocation"]
+	if HasKey("RelativeLocation",Props) or HasKey("OffsetLocation",Props) or HasKey("Translation",TransformData) :
+		if bIsInstanced:
+			Location = TransformData["Translation"]
 		else:
 			Location =  Props["RelativeLocation"]
 		LocationUnreal = unreal.Vector(Location["X"],Location["Y"],Location["Z"])
 	else:
 		LocationUnreal = unreal.Vector(0.0,0.0,0.0)
 
-	if HasKey("RelativeScale3D",Props):
-		Scale =  Props["RelativeScale3D"]
-		ScaleUnreal = unreal.Vector(Scale["X"],Scale["Y"],Scale["Z"])
+	if HasKey("RelativeScale3D",Props) or HasKey("Scale3D",TransformData):
+		if bIsInstanced:
+			Scale =  TransformData["Scale3D"]
+			ScaleUnreal = unreal.Vector(Scale["X"],Scale["Y"],Scale["Z"])
+		else:
+			Scale =  Props["RelativeScale3D"]
+			ScaleUnreal = unreal.Vector(Scale["X"],Scale["Y"],Scale["Z"])
 	else:
 		ScaleUnreal = unreal.Vector(1.0,1.0,1.0)
-	if HasKey("RelativeRotation",Props):
-		Rotation = Props["RelativeRotation"]
-		RotationUnreal = unreal.Rotator(Rotation["Roll"],Rotation["Pitch"],Rotation["Yaw"])
+	if HasKey("RelativeRotation",Props) or HasKey("Rotation",TransformData):
+		if bIsInstanced:
+			Rotation = TransformData["Rotation"]
+			RotationUnreal = unreal.Quat(Rotation["X"],Rotation["Y"],Rotation["Z"],Rotation["W"]).rotator()
+		else:
+			Rotation = Props["RelativeRotation"]
+			RotationUnreal = unreal.Rotator(Rotation["Roll"],Rotation["Pitch"],Rotation["Yaw"])
 	else:
 		RotationUnreal = unreal.Rotator(0.0,0.0,0.0)
 	Trans = unreal.Transform(LocationUnreal, RotationUnreal, ScaleUnreal)
@@ -158,7 +168,7 @@ def HasTransform(prop):
 		bFactualBool = True
 	if HasKey("RelativeScale3D",prop):
 		bFactualBool = True
-	if bFactualBool == True:
+	if bFactualBool :
 		return GetTransform(prop)
 	return bFactualBool
 def GetInitialName(ka):
@@ -507,8 +517,8 @@ class Map:
 
 class ActorDefs():
 	def __init__(self,Actor):
-	    self.name = Actor["Name"]
-	    self.type = Actor["Type"]
-	    self.props = Actor["Properties"]
-	    self.outer = Actor["Outer"]
-	    self.transform = HasTransform(self.props)
+		self.name = Actor["Name"]
+		self.type = Actor["Type"]
+		self.props = Actor["Properties"]
+		self.outer = Actor["Outer"]
+		self.transform = HasTransform(self.props)

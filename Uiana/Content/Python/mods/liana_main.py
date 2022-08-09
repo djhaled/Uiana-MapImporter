@@ -78,7 +78,7 @@ def do_import_tasks(Meshes,tasks,bTexture):
 	AssetTools.import_asset_tasks(tasks)
 	# if Meshes is not None:
 	# 	for t in Meshes:
-	# 		if Seting.import_materials == True:
+	# 		if Seting.import_materials :
 	# 			set_materials(Settings,t,False)
 			# else:
 			# 	pass
@@ -421,7 +421,7 @@ def SetAllSettings(asset,Comp):
 	blackmisc = ["CachedMaxDrawDistance","OnComponentBeginOverlap","Mobility"]
 	for Setting in asset:
 		bHasIt = HasSetting(Setting,Comp,blackmisc)
-		if bHasIt == True:
+		if bHasIt :
 			ActorSetting = asset[Setting]
 			if Setting in blackmisc:
 				continue
@@ -513,7 +513,7 @@ def ImportLights(OBJData, ArrObjsImport):
 	#Figure out Mobility
 	Mobility = unreal.ComponentMobility.STATIC
 	LightActor.modify()
-	if HasKey("Settings",ActorInfo.props) == True:
+	if HasKey("Settings",ActorInfo.props) :
 		PostProcessSettings = ActorInfo.props["Settings"]
 		SetPostProcessSettings(PostProcessSettings,CompToUse)
 	for Setting in ActorInfo.props:
@@ -561,7 +561,7 @@ def SpawnMeshesInMap(data,set,mapname):
 			NameProp = ActualData["Outer"]
 			if HasKey("Template",ActualData):
 				bIsBlocking = IsBlockingVolume(j,NameProp,data)
-				if bIsBlocking == True:
+				if bIsBlocking :
 					continue
 			ObjectProps = ActualData["Properties"]
 			if HasKey("StaticMesh",ObjectProps):
@@ -600,6 +600,8 @@ def SpawnMeshesInMap(data,set,mapname):
 					unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 			SetAllSettings(ObjectProps,Instance)
 			if HasKey("OverrideMaterials",ObjectProps):
+				if Seting.import_materials == False:
+					continue
 				MatOver = GetMaterialToOverride(ActualData)
 				if MatOver != None:
 					Instance.set_editor_property('override_materials',MatOver) 
@@ -612,7 +614,7 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	for objectIndex, object_data in enumerate(objectsToImport):
 		objectIndex = f"{objectIndex:03}"
 		object_type = get_object_type(object_data)
-		if object_type == "mesh" and Seting.import_Mesh == True:
+		if object_type == "mesh" and Seting.import_Mesh :
 			#if "Lighting" not in umap_name:
 			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name)
 			imported_object = import_object(map_object=map_object, object_index=objectIndex)
@@ -621,7 +623,7 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 		if object_type == "light" and settings.import_lights:
 			ImportLights(object_data,objectsToImport)
 	do_import_tasks(AllMeshes,AllTasks,False)
-	if Seting.import_Mesh == True:
+	if Seting.import_Mesh :
 		SpawnMeshesInMap(umap_data,settings,umap_name)
 def LevelStreamingStuff():
 	world = unreal.EditorLevelLibrary.get_editor_world()
@@ -796,7 +798,7 @@ def import_map(Setting):
 	ClearLevel()
 	#  Check if the game files are exported
 	######### export all textures before ###########
-	if (Seting.import_materials == True):
+	if (Seting.import_materials ):
 		ExportAllTextures()
 		ExportAllMaterials()
 	###### above takes 0.09 might fix #######
@@ -804,12 +806,12 @@ def import_map(Setting):
 	for index, umap_json_path in reversed(list(enumerate(umap_json_paths))):
 		umap_data = read_json(umap_json_path)
 		umap_name = umap_json_path.stem
-		if Seting.import_sublevel == True:
+		if Seting.import_sublevel :
 			CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
-		if Seting.import_sublevel == True:
+		if Seting.import_sublevel :
 			unreal.EditorLevelLibrary.save_current_level()
-	if Seting.import_sublevel == True:
+	if Seting.import_sublevel :
 		LevelStreamingStuff()
 	SetSMSettings()
 	print("--- %s seconds ---" % (time.time() - start_time))
