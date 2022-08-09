@@ -314,11 +314,6 @@ def SetTextures(mat_props: dict, MatRef):
 	ImportedTexture = None
 	if (HasKey("TextureParameterValues",mat_props) == False):
 		return
-	if HasKey("VectorParameterValues",mat_props):
-		vector_name = []
-		for VectorParam in mat_props["VectorParameterValues"]:
-		    param_name = VectorParam['ParameterInfo']['Name'].lower()
-		    vector_name.append(param_name)
 	
 	for param in mat_props["TextureParameterValues"]:
 		vector_name = []
@@ -336,58 +331,76 @@ def SetTextures(mat_props: dict, MatRef):
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'RGBA', ImportedTexture)
 			if "diffuse" == param_name or "albedo" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
-				if "diffuse a" != param_name  or "texture a" != param_name:
-					if "diffuse b" != param_name  and "texture b" != param_name:
-						if "layer b tint" not in vector_name or "layer a tint" not in vector_name:
-							unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuse',True)
 			if "diffuse a" == param_name  or "texture a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
-				if param_name != "diffuse":
-					if param_name != "diffuse b":
-						if "layer b tint" not in vector_name:
-							unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuseA',True)
 			if "diffuse b" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
-				if param_name != "diffuse":
-					if param_name != "diffuse a":
-						if "layer a tint" not in vector_name:
-							unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuseB',True)
 			if "mra" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA', ImportedTexture)
-				if param_name != "mra a":
-					if param_name != "mra b":
-						unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMRA',True)
 			if  "mra a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA A', ImportedTexture)
-				if param_name != "mra":
-					if param_name != "mra b":
-						unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMraA',True)
 			if "mra b" == param_name :
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA B', ImportedTexture)
-				if param_name != "mra":
-					if param_name != "mra a":
-						unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMraB',True)
 			if "normal" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Normal', ImportedTexture)
-				if param_name != "normal b" and "texture b normal" != param_name:
-					if param_name != "normal a" and "texture a normal" != param_name:
-						unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormal',True)
 			if  "texture a normal" == param_name or "normal a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture A Normal', ImportedTexture)
-				if "normal" != param_name:
-					if param_name != "normal b" and "texture b normal" != param_name:
-						unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormalA',True)
 			if "normal b" == param_name or "texture b normal" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture B Normal', ImportedTexture)
-				if "normal" != param_name:
-					if param_name != "normal a" and "texture a normal" != param_name:
-						unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormalB',True)
 				pass
 			if "mask" in param_name or "Mask Textuer" in param_name or "Mask Texture" in param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Mask Textuer', ImportedTexture)
 			if "mask" in param_name or "rgba" in param_name:
 				pass
-	
+
+	if HasKey("VectorParameterValues",mat_props):
+		vector_name = []
+		for VectorParam in mat_props["VectorParameterValues"]:
+		    param_name = VectorParam['ParameterInfo']['Name'].lower()
+		    vector_name.append(param_name)
+
+	if HasKey("TextureParameterValues",mat_props):
+		texture_name = []
+		for TextureParam in mat_props["TextureParameterValues"]:
+		    param_name = TextureParam['ParameterInfo']['Name'].lower()
+		    texture_name.append(param_name)
+
+	if "diffuse" in texture_name or "albedo" in texture_name:
+		if "diffuse a" not in texture_name and "texture a" not in texture_name:
+			if "diffuse b" not in texture_name and "texture b" not in texture_name:
+				if "layer b tint" not in vector_name and "layer a tint" not in vector_name:
+					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuse',True)
+	if "diffuse" not in texture_name and "albedo" not in texture_name:
+		if "diffuse a" in texture_name:
+			if "diffuse b" not in texture_name:
+				if "layer b tint" not in vector_name:
+					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuseA',True)
+		if "diffuse b" in texture_name:
+			if "diffuse a" not in texture_name:
+				if "layer a tint" not in vector_name:
+					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuseB',True)
+	if "mra" in texture_name:
+		if "mra a" not in texture_name and "mra b" not in texture_name:
+			unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMRA',True)
+	if "mra" not in texture_name:
+		if "mra a" in texture_name:
+			if "mra b" not in texture_name:
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMraA',True)
+		if "mra b" in texture_name:
+			if "mra a" not in texture_name:
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMraB',True)
+	if "normal" in texture_name:
+		if "normal a" not in texture_name and "texture a normal" not in texture_name:
+			if "normal b" not in texture_name and "texture b normal" not in texture_name:
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormal',True)
+	if "normal" not in texture_name:
+		if "normal a" or "texture a normal" in texture_name:
+			if "normal b" and "texture b normal" not in texture_name:
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormalA',True)
+		if "normal b" or "texture b normal" in texture_name:
+			if "normal a" and "texture a normal" not in texture_name:
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormalB',True)
+
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 
 def SetSMSettings():
