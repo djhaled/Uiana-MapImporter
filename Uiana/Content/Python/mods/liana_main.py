@@ -264,10 +264,6 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 			for param in mat_props["StaticParameters"]["StaticSwitchParameters"]:
 				param_name = param["ParameterInfo"]["Name"].lower()
 				param_value = param["Value"]
-				if param_name == "Use Vertex Color":                                                                                              ####
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Vertex Color',True)
-				if param_name == "Use Alpha As Emissive":                                                                                              ####
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Alpha As Emissive',True)
 				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, param_name,bool(param_value))
 		if "StaticComponentMaskParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
@@ -285,8 +281,6 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 		for param in mat_props["VectorParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
-			if param_name == "Emissive Mult":                                                                                              ####
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Emissive',True)
 			SetMaterialVectorValue(UEMat, param_name,get_rgb(param_value))
 
 def get_scalar_value(mat_props, s_param_name):
@@ -355,6 +349,15 @@ def SetTextures(mat_props: dict, MatRef):
 			if "mask" in param_name or "rgba" in param_name:
 				pass
 
+#Section Master Material StaticSwitches (will probably be changed later)
+
+	#if HasKey("StaticParameters",mat_props):
+	#	if "StaticSwitchParameters" in mat_props["StaticParameters"]:
+	#		static_name = []
+	#		for StaticParam in mat_props["StaticParameters"]["StaticSwitchParameters"]:
+	#			param_name = StaticParam["ParameterInfo"]["Name"].lower()
+	#			static_name.append(param_name)
+
 	if HasKey("VectorParameterValues",mat_props):
 		vector_name = []
 		for VectorParam in mat_props["VectorParameterValues"]:
@@ -366,6 +369,7 @@ def SetTextures(mat_props: dict, MatRef):
 		for TextureParam in mat_props["TextureParameterValues"]:
 		    param_name = TextureParam['ParameterInfo']['Name'].lower()
 		    texture_name.append(param_name)
+
 
 	if "diffuse" in texture_name or "albedo" in texture_name:
 		if "diffuse a" not in texture_name and "texture a" not in texture_name:
@@ -402,6 +406,13 @@ def SetTextures(mat_props: dict, MatRef):
 		if "normal b" or "texture b normal" in texture_name:
 			if "normal a" and "texture a normal" not in texture_name:
 				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormalB',True)
+
+	#if "use vertex color" in static_name:
+	#	unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use Vertex Color',True)
+	#if "use alpha as emissive" in static_name:
+	#	unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use Alpha As Emissive',True)
+	if "emissive mult" in vector_name:
+		unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use Emissive',True)
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 
