@@ -854,6 +854,7 @@ def ExportAllMaterials():
 
 
 def import_map(Setting):
+	unreal.BPFL.change_project_settings()
 	AllLevelPaths.clear()
 	settings = Settings(Setting)
 	global Seting
