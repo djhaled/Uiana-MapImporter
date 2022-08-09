@@ -285,6 +285,8 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 		for param in mat_props["VectorParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
+			if param_name == "Emissive Mult":                                                                                              ####
+					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Emissive',True)
 			SetMaterialVectorValue(UEMat, param_name,get_rgb(param_value))
 
 def get_scalar_value(mat_props, s_param_name):
