@@ -24,8 +24,6 @@ class UIANA_API UUianaDataSettings : public UObject
 	GENERATED_BODY()
 public:
 	UUianaDataSettings(const FObjectInitializer& ObjectInitializer);
-	UPROPERTY(config, EditAnywhere, Category = "Dont change if you don't know what it is")
-		FString AesKey;
 	UPROPERTY(config, EditAnywhere, Category = "Settings Folders", meta = (RelativeToGameContentDir, ContentDir))
 		FDirectoryPath ExportFolder;
 	UPROPERTY(config, EditAnywhere, Category = "Settings Folders", meta = (RelativeToGameContentDir, ContentDir))
@@ -33,9 +31,9 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		TEnumAsByte<WeaponRole> Map;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
-		bool ImportMisc;
-	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		bool ImportMeshes;
+	UPROPERTY(config, EditAnywhere, Category = "SubLevels")
+		bool UseSubLevels;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		bool ImportMaterials;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
