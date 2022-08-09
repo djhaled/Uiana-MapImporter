@@ -127,8 +127,7 @@ def GetTransform(Prop):
 	else:
 		RotationUnreal = unreal.Rotator(0.0,0.0,0.0)
 	Trans = unreal.Transform(LocationUnreal, RotationUnreal, ScaleUnreal)
-	if bIsInstanced:
-		Trans.set_editor_property("rotation",Quat)
+	Trans.set_editor_property("rotation",Quat)
 	return Trans
 def HasKey(key,array):
 	if array == None:

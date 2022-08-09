@@ -140,4 +140,13 @@ TArray<FVector3f> UBPFL::ReturnCurrentVerts(UStaticMesh* Mesh)
 	return ReturnArray;
 }
 
+void UBPFL::ChangeProjectSettings()
+{
+	URendererSettings* Settings = GetMutableDefault<URendererSettings>();
+	Settings->DefaultLightUnits = ELightUnits::Unitless;
+	Settings->DynamicGlobalIllumination = EDynamicGlobalIlluminationMethod::None;
+	Settings->Reflections == EReflectionMethod::None;
+	Settings->SaveConfig();
+}
+
 
