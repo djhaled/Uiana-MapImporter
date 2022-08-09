@@ -94,6 +94,7 @@ def GetTransform(Prop):
 	TransformData = None
 	bIsInstanced = False
 	Props = Prop
+	Quat = unreal.Quat()
 	if HasKey("TransformData",Props):
 		TransformData = Props["TransformData"]
 		bIsInstanced = True
@@ -118,13 +119,16 @@ def GetTransform(Prop):
 	if HasKey("RelativeRotation",Props) or HasKey("Rotation",TransformData):
 		if bIsInstanced:
 			Rotation = TransformData["Rotation"]
-			RotationUnreal = unreal.Quat(Rotation["X"],Rotation["Y"],Rotation["Z"],Rotation["W"]).rotator()
+			Quat = unreal.Quat(Rotation["X"],Rotation["Y"],Rotation["Z"],Rotation["W"])
+			RotationUnreal = unreal.Rotator(0.0,0.0,0.0)
 		else:
 			Rotation = Props["RelativeRotation"]
 			RotationUnreal = unreal.Rotator(Rotation["Roll"],Rotation["Pitch"],Rotation["Yaw"])
 	else:
 		RotationUnreal = unreal.Rotator(0.0,0.0,0.0)
 	Trans = unreal.Transform(LocationUnreal, RotationUnreal, ScaleUnreal)
+	if bIsInstanced:
+		Trans.set_editor_property("rotation",Quat)
 	return Trans
 def HasKey(key,array):
 	if array == None:
