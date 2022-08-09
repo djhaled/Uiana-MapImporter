@@ -578,7 +578,7 @@ def ImportLights(OBJData, ArrObjsImport):
 			CompToUse.set_editor_property('LightColor',Colorized)
 		if Setting == "FogInscatteringColor":
 			Colorized = unreal.LinearColor(r=LightSetting['R'], g=LightSetting['G'], b=LightSetting['B'], a=LightSetting['A'])
-			CompToUse.set_editor_property('fog_inscattering_luminance',Colorized)
+			CompToUse.set_editor_property('fog_inscattering_color',Colorized)
 		if Setting == "Mobility":
 			CompToUse.set_editor_property('Mobility',Mobility)
 	SetAllSettings(ActorInfo.props,CompToUse)
