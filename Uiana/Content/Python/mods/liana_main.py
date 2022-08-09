@@ -1,4 +1,4 @@
-
+b
 import os
 from os.path import exists
 import re
@@ -338,7 +338,7 @@ def SetTextures(mat_props: dict, MatRef):
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
 				if "diffuse a" != param_name  and "texture a" != param_name:
 					if "diffuse b" != param_name  and "texture b" != param_name:
-						if "layer b tint" in vector_name and "layer a tint"in vector_name:
+						if "layer b tint" not in vector_name and "layer a tint" not in vector_name:
 							unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuse',True)
 			if "diffuse a" == param_name  or "texture a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
