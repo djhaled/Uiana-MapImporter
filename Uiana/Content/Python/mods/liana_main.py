@@ -379,7 +379,7 @@ def SetTextures(mat_props: dict, MatRef):
 		    param_name = TextureParam['ParameterInfo']['Name'].lower()
 		    texture_name.append(param_name)
 
-	set_mi_param = unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value
+	set_mi_param = unreal.BPFL.set_static_switch_parameter_value
 
 	if "diffuse" in texture_name or "albedo" in texture_name:	
 		if "diffuse a" not in texture_name and "texture a" not in texture_name:
@@ -418,10 +418,10 @@ def SetTextures(mat_props: dict, MatRef):
 				set_mi_param(MatRef, 'OnlyNormalB',True)
 
 	if "mra" in texture_name or "mra a" in texture_name or "mra b" in texture_name:		
-		unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use AO color',True)
+		unreal.BPFL.set_static_switch_parameter_value(MatRef, 'Use AO color',True)
 
 	if "emissive mult" in vector_name:
-		unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use Emissive',True)
+		unreal.BPFL.set_static_switch_parameter_value(MatRef, 'Use Emissive',True)
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 

@@ -10,6 +10,7 @@
 #include "KismetProceduralMeshLibrary.h"
 #include "Engine/World.h"
 #include "StaticMeshDescription.h"
+#include "Materials/MaterialInstance.h"
 #include "PSKReader.h"
 #include "Engine/RendererSettings.h"
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
@@ -81,6 +82,21 @@ FColor UBPFL::ReturnFromHex(FString Beka)
 	return FColor::FromHex(Beka);
 }
 
+// Copied from https://qiita.com/EGJ-Kaz_Okada/items/4fd6db895b398893cbbb
+void UBPFL::SetStaticSwitchParameterValue(UMaterialInstance* Instance, FName ParameterName, bool Value)
+{
+	FStaticParameterSet StaticParameters = Instance->GetStaticParameters();
+	for (auto& SwitchParameter : StaticParameters.StaticSwitchParameters)
+	{
+		if (SwitchParameter.ParameterInfo.Name == ParameterName)
+		{
+			SwitchParameter.Value = Value;
+			break;;
+		}
+	}
+	Instance->UpdateStaticPermutation(StaticParameters);
+}
+
 TMap<FVector, FColor> UBPFL::MakeHashmap(TArray<FVector> arr1, TArray<FColor> TestVtx)
 {
 	//arr1 should be correct reader
@@ -148,4 +164,3 @@ void UBPFL::ChangeProjectSettings()
 	Settings->Reflections == EReflectionMethod::None;
 	Settings->SaveConfig();
 }
-

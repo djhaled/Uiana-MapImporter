@@ -18,6 +18,8 @@ class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
+	static void SetStaticSwitchParameterValue(UMaterialInstance* Instance, FName ParameterName, bool Value);
+	UFUNCTION(BlueprintCallable, Category = VertexPainting)
 	static void PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
 	static FColor ReturnFromHex(FString Beka);
