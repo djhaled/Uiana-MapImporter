@@ -265,16 +265,16 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 				param_name = param["ParameterInfo"]["Name"].lower()
 				param_value = param["Value"]
 				if param_name == "Use Vertex Color":                                                                                              ####
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Vertex Color',True)
+					unreal.BPFL.set_static_switch_parameter_value(UEMat, 'Use Vertex Color',True)
 				if param_name == "Use Alpha As Emissive":                                                                                              ####
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Alpha As Emissive',True)
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, param_name,bool(param_value))
+					unreal.BPFL.set_static_switch_parameter_value(UEMat, 'Use Alpha As Emissive',True)
+				unreal.BPFL.set_static_switch_parameter_value(UEMat, param_name,bool(param_value))
 		if "StaticComponentMaskParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
 				listosa = ["R","G","B"]
 				for pa in listosa:
 					value = param[pa]
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, pa,bool(value))
+					unreal.BPFL.set_static_switch_parameter_value(UEMat, pa,bool(value))
 	if "ScalarParameterValues" in mat_props:
 		for param in mat_props["ScalarParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
