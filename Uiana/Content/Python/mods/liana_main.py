@@ -687,9 +687,11 @@ def LevelStreamingStuff():
 			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
 			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
 			"""
-			level_editor = unreal.EditorLevelUtils()
-			level_vis = level_editor.get_current_level()
-			level_editor.set_level_visibility(level_vis, False, False)
+			world = unreal.EditorLevelLibrary.get_editor_world()
+			level_utils = unreal.EditorLevelUtils()
+			levels = level_utils.get_levels(world)
+			level = levels[0] if len(levels) else None
+			level_utils.set_level_visibility(level, False, False)
 # ANCHOR: Functions
 def SetPostProcessSettings(AllSettings,Comp):
 	for Setting in AllSettings:
