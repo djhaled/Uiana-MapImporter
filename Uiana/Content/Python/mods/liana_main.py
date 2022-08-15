@@ -338,7 +338,6 @@ def SetTextures(mat_props: dict, MatRef):
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
 			if "diffuse a" == param_name  or "texture a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
-				if param_name != "diffuse":
 			if "diffuse b" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
 			if "mra" == param_name:
@@ -351,7 +350,7 @@ def SetTextures(mat_props: dict, MatRef):
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Normal', ImportedTexture)
 			if  "texture a normal" == param_name or "normal a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture A Normal', ImportedTexture)
-			if "texture b normal" == param_name or "normal b" == param_name:
+			if "normal b" == param_name or "texture b normal" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture B Normal', ImportedTexture)
 				pass
 			if "mask" in param_name or "Mask Textuer" in param_name or "Mask Texture" in param_name:
@@ -359,15 +358,14 @@ def SetTextures(mat_props: dict, MatRef):
 			if "mask" in param_name or "rgba" in param_name:
 				pass
 
-
 #Section Master Material StaticSwitches (will probably be changed later)
 
-#	if HasKey("StaticParameters",mat_props):
-#		if "StaticSwitchParameters" in mat_props["StaticParameters"]:
-#			static_name = []
-#			for StaticParam in mat_props["StaticParameters"]["StaticSwitchParameters"]:
-#				param_name = StaticParam["ParameterInfo"]["Name"].lower()
-#				static_name.append(param_name)
+	#if HasKey("StaticParameters",mat_props):
+	#	if "StaticSwitchParameters" in mat_props["StaticParameters"]:
+	#		static_name = []
+	#		for StaticParam in mat_props["StaticParameters"]["StaticSwitchParameters"]:
+	#			param_name = StaticParam["ParameterInfo"]["Name"].lower()
+	#			static_name.append(param_name)
 
 	if HasKey("VectorParameterValues",mat_props):
 		vector_name = []
@@ -381,47 +379,64 @@ def SetTextures(mat_props: dict, MatRef):
 		    param_name = TextureParam['ParameterInfo']['Name'].lower()
 		    texture_name.append(param_name)
 
+	set_mi_param = unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value
 
-	if "diffuse" in texture_name or "albedo" in texture_name:
+	if "diffuse" in texture_name or "albedo" in texture_name:	
 		if "diffuse a" not in texture_name and "texture a" not in texture_name:
 			if "diffuse b" not in texture_name and "texture b" not in texture_name:
 				if "layer b tint" not in vector_name and "layer a tint" not in vector_name:
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuse',True)
+					set_mi_param(MatRef, 'OnlyDiffuse',True)
 	if "diffuse" not in texture_name and "albedo" not in texture_name:
 		if "diffuse a" in texture_name:
 			if "diffuse b" not in texture_name:
 				if "layer b tint" not in vector_name:
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuseA',True)
+					set_mi_param(MatRef, 'OnlyDiffuseA',True)
 		if "diffuse b" in texture_name:
 			if "diffuse a" not in texture_name:
 				if "layer a tint" not in vector_name:
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyDiffuseB',True)
+					set_mi_param(MatRef, 'OnlyDiffuseB',True)
 	if "mra" in texture_name:
 		if "mra a" not in texture_name and "mra b" not in texture_name:
-			unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMRA',True)
+			set_mi_param(MatRef, 'OnlyMRA',True)
 	if "mra" not in texture_name:
 		if "mra a" in texture_name:
 			if "mra b" not in texture_name:
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMraA',True)
+				set_mi_param(MatRef, 'OnlyMraA',True)
 		if "mra b" in texture_name:
 			if "mra a" not in texture_name:
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyMraB',True)
+				set_mi_param(MatRef, 'OnlyMraB',True)
 	if "normal" in texture_name:
 		if "normal a" not in texture_name and "texture a normal" not in texture_name:
 			if "normal b" not in texture_name and "texture b normal" not in texture_name:
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormal',True)
+				set_mi_param(MatRef, 'OnlyNormal',True)
 	if "normal" not in texture_name:
 		if "normal a" or "texture a normal" in texture_name:
 			if "normal b" and "texture b normal" not in texture_name:
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormalA',True)
+				set_mi_param(MatRef, 'OnlyNormalA',True)
 		if "normal b" or "texture b normal" in texture_name:
 			if "normal a" and "texture a normal" not in texture_name:
-				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'OnlyNormalB',True)
+				set_mi_param(MatRef, 'OnlyNormalB',True)
+
+	if "mra" in texture_name or "mra a" in texture_name or "mra b" in texture_name:		
+		unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use AO color',True)
 
 	if "emissive mult" in vector_name:
 		unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(MatRef, 'Use Emissive',True)
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
+
+def SetTextureCompression():
+
+	tex_class = ["Texture2D"]
+	texture_assets = unreal.AssetRegistry.get_assets.class_names(tex_class)
+	suffix_patterns = ["_MRA", "_MRAE"]
+	for asset in texture_assets:
+			for pattern in suffix_patterns:
+				if unreal.StringLibary.contains(asset, pattern):
+					asset_obj = unreal.EditorAssetLibrary.load_asset(asset)
+					asset_obj.set_editor_porperty("sRGB", False)
+					asset_obj.set_editor_property("CompressionSettings", unreal.TextureCompressionSettings.TC_MASKS)
+
 
 def SetSMSettings():
 	OBJPath = Seting.selected_map.objects_path

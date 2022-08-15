@@ -11,6 +11,7 @@
 #include "Engine/World.h"
 #include "StaticMeshDescription.h"
 #include "PSKReader.h"
+#include "Engine/RendererSettings.h"
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
 {
 	TArray<FColor> FinalColors;
