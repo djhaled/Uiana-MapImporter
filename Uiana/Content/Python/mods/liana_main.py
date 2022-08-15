@@ -742,8 +742,10 @@ def import_object(map_object: MapObject,  object_index: int):
 	master_object = None
 
 	if Path(map_object.model_path).exists():
+		print("Imported {}".format(map_object.model_path))
 		master_object = get_object(map_object, object_index)
-
+	else:
+		print("Incorrect path {}".format(map_object.model_path))
 		
 
 
