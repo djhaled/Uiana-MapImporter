@@ -150,10 +150,8 @@ def get_map_assets(settings: Settings):
 			model_name = model.stem
 			# save json
 			save_json(model.__str__(), model_json)
-
 			# get object materials
 			model_materials = get_object_materials(model_json)
-
 			# get object textures
 			# ...
 

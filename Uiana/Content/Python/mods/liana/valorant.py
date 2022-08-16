@@ -80,10 +80,10 @@ def get_object_type(model_data: dict) -> str:
 def get_object_materials(model_json: dict):
 	# model_json = _common.read_json(model)
 	model_materials = list()
-
-	if "Properties" in model_json:
-		if "StaticMaterials" in model_json["Properties"]:
-			for mat in model_json["Properties"]["StaticMaterials"]:
+	for objm in model_json:
+		if objm["Type"] == "StaticMesh":
+			StaticMat = objm["Properties"]["StaticMaterials"]
+			for mat in StaticMat:
 				if mat is not None and "MaterialInterface" in mat:
 					if mat["MaterialInterface"] is not None:
 						material = mat["MaterialInterface"]
