@@ -328,6 +328,7 @@ def SetTextures(mat_props: dict, MatRef):
 		if "diffuse b low" not in param_name:
 			if Path(tex_local_path).exists():
 				ImportedTexture = unreal.load_asset(f'/Game/ValorantContent/Textures/{tex_name}.{tex_name}')
+				texcast = unreal.Texture2D.cast(ImportedTexture)
 			if ImportedTexture == None:
 				continue
 			if "rgba" == param_name:
@@ -339,10 +340,16 @@ def SetTextures(mat_props: dict, MatRef):
 			if "diffuse b" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
 			if "mra" == param_name:
+				texcast.set_editor_property("srgb", False)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA', ImportedTexture)
 			if  "mra a" == param_name:
+				texcast.set_editor_property("srgb", False)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA A', ImportedTexture)
 			if "mra b" == param_name :
+				texcast.set_editor_property("srgb", False)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA B', ImportedTexture)
 			if "normal" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Normal', ImportedTexture)
@@ -423,17 +430,6 @@ def SetTextures(mat_props: dict, MatRef):
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 
-def SetTextureCompression():
-
-	tex_class = ["Texture2D"]
-	texture_assets = unreal.AssetRegistry.get_assets.class_names(tex_class)
-	suffix_patterns = ["_MRA", "_MRAE"]
-	for asset in texture_assets:
-			for pattern in suffix_patterns:
-				if unreal.StringLibary.contains(asset, pattern):
-					asset_obj = unreal.EditorAssetLibrary.load_asset(asset)
-					asset_obj.set_editor_porperty("sRGB", False)
-					asset_obj.set_editor_property("CompressionSettings", unreal.TextureCompressionSettings.TC_MASKS)
 
 
 def SetSMSettings():
