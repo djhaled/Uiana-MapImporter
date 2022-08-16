@@ -147,6 +147,7 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(CurrentPath));
 	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
+	UE_LOG(LogSlate, Log, TEXT("Python CMD: %s"), TCharCommand);
 	GEngine->Exec(NULL, TCharCommand);
 	return FReply::Handled();
 }

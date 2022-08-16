@@ -160,7 +160,7 @@ void UBPFL::ChangeProjectSettings()
 {
 	URendererSettings* Settings = GetMutableDefault<URendererSettings>();
 	Settings->DefaultLightUnits = ELightUnits::Unitless;
-	Settings->DynamicGlobalIllumination = EDynamicGlobalIlluminationMethod::None;
-	Settings->Reflections == EReflectionMethod::None;
+	// Settings->DynamicGlobalIllumination = EDynamicGlobalIlluminationMethod::None;
+	// Settings->Reflections == EReflectionMethod::None;
 	Settings->SaveConfig();
 }

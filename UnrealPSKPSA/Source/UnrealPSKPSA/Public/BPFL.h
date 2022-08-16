@@ -26,4 +26,6 @@ public:
 	static TMap<FVector, FColor> MakeHashmap(TArray<FVector> arr1, TArray<FColor> TestVtx);
 	static TArray<FColor> FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArray<FColor> BrokenVtxColorArray, TArray<FVector> ReaderVerts);
 	static TArray<FVector> ReturnCurrentVerts(UStaticMesh* Mesh);
+	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
+	static void ChangeProjectSettings();
 };
