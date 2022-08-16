@@ -33,7 +33,7 @@ def GetMaterialToOverride(Data):
 		matname = mat["ObjectName"]
 		CheckLoaded = ReturnObjectName(matname)
 		if CheckLoaded == "Stone_M2_Steps_MI1":
-		    CheckLoaded =  "Stone_M2_Steps_MI"
+			CheckLoaded =  "Stone_M2_Steps_MI"
 		if "MaterialInstanceDynamic" in CheckLoaded:
 			MaterialArray.append(None)
 			continue
@@ -146,10 +146,8 @@ def get_map_assets(settings: Settings):
 			path=settings.selected_map.objects_path.__str__(), extension=".json")
 		model: Path
 		for model in models:
-
-			model_json = read_json(model)[2]
+			model_json = read_json(model)
 			model_name = model.stem
-
 			# save json
 			save_json(model.__str__(), model_json)
 
@@ -317,8 +315,8 @@ def SetTextures(mat_props: dict, MatRef):
 	if HasKey("VectorParameterValues",mat_props):
 		vector_name = []
 		for VectorParam in mat_props["VectorParameterValues"]:
-		    param_name = VectorParam['ParameterInfo']['Name'].lower()
-		    vector_name.append(param_name)
+			param_name = VectorParam['ParameterInfo']['Name'].lower()
+			vector_name.append(param_name)
 	
 	for param in mat_props["TextureParameterValues"]:
 		vector_name = []
@@ -370,14 +368,14 @@ def SetTextures(mat_props: dict, MatRef):
 	if HasKey("VectorParameterValues",mat_props):
 		vector_name = []
 		for VectorParam in mat_props["VectorParameterValues"]:
-		    param_name = VectorParam['ParameterInfo']['Name'].lower()
-		    vector_name.append(param_name)
+			param_name = VectorParam['ParameterInfo']['Name'].lower()
+			vector_name.append(param_name)
 
 	if HasKey("TextureParameterValues",mat_props):
 		texture_name = []
 		for TextureParam in mat_props["TextureParameterValues"]:
-		    param_name = TextureParam['ParameterInfo']['Name'].lower()
-		    texture_name.append(param_name)
+			param_name = TextureParam['ParameterInfo']['Name'].lower()
+			texture_name.append(param_name)
 
 	set_mi_param = unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value
 
@@ -446,20 +444,35 @@ def SetSMSettings():
 		Join = OBJPath.joinpath(j)
 		ObjJson = read_json(Join)
 		sm = ObjJson
-		if sm["Type"] == "StaticMesh":
-			Props = sm["Properties"]
-			Name = sm["Name"]
-			LmCoord = 0
-			LMRes = 256
-			if HasKey("LightMapResolution",Props):
-				LMRes = Props["LightMapResolution"]
-			if HasKey("LightMapCoordinateIndex",Props):
-				LmCoord = Props["LightMapCoordinateIndex"]
-			MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Name}")
-			if (MeshToLoad):
-				CastSM = unreal.StaticMesh.cast(MeshToLoad)
-				CastSM.set_editor_property("light_map_coordinate_index", LmCoord)
-				CastSM.set_editor_property("light_map_resolution", LMRes)
+		for sm in ObjJson:
+			if HasKey("Outer",sm):
+				Outer = sm["Outer"]
+			if sm["Type"] == "StaticMesh":
+				Props = sm["Properties"]
+				Name = sm["Name"]
+				LmCoord = 0
+				LMRes = 256
+				if HasKey("LightMapResolution",Props):
+					LMRes = Props["LightMapResolution"]
+				if HasKey("LightMapCoordinateIndex",Props):
+					LmCoord = Props["LightMapCoordinateIndex"]
+				MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Name}")
+				if (MeshToLoad):
+					CastSM = unreal.StaticMesh.cast(MeshToLoad)
+					CastSM.set_editor_property("light_map_coordinate_index", LmCoord)
+					CastSM.set_editor_property("light_map_resolution", LMRes)
+			if sm["Type"] == "BodySetup":
+				PropsBody = sm["Properties"]
+				if HasKey("CollisionTraceFlag",PropsBody):
+					ColTrace = re.sub('([A-Z])', r'_\1', PropsBody["CollisionTraceFlag"])
+					MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Outer}")
+					if (MeshToLoad):
+						CastSM = unreal.StaticMesh.cast(MeshToLoad)
+						BSetup =  CastSM.get_editor_property("body_setup")
+						strcollision = 'CTF_' + ColTrace[8:len(ColTrace)].upper()
+						BSetup.set_editor_property("collision_trace_flag", eval(f'unreal.CollisionTraceFlag.{strcollision}'))
+						CastSM.set_editor_property("body_setup", BSetup)
+
 
 
 
