@@ -68,7 +68,8 @@ def get_object_type(model_data: dict) -> str:
 	lights = ["PointLightComponent","PostProcessVolume","PrecomputedVisibilityVolume","CullDistanceVolume", "RectLightComponent","LightmassCharacterIndirectDetailVolume", "SpotLightComponent","SkyLightComponent","LightmassImportanceVolume","SceneCaptureComponentCube","SphereReflectionCaptureComponent","DirectionalLightComponent","ExponentialHeightFogComponent","LightmassPortalComponent"]
 	meshes = ["StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent"]
 	decals = ["DecalComponent"]
-	if model_data["Type"] in meshes:
+	blueprint = ["SceneComponent"]
+	if model_data["Type"] in meshes and HasKeyzin("StaticMesh",model_data["Properties"]):
 		return "mesh"
 	if model_data["Type"] in lights:
 		return "light"

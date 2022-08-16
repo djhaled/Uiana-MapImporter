@@ -614,10 +614,12 @@ def SpawnMeshesInMap(data,set,mapname):
 			ObjectProps = ActualData["Properties"]
 			if HasKey("StaticMesh",ObjectProps):
 				PathToGo = ConvertToLoadableUE(ObjectProps["StaticMesh"],"StaticMesh ","Meshes")
-			if HasTransform(ObjectProps) == False:
-				LocalData = GetAttachScene(j,NameProp,data)
+			else:
+				continue
 			Transform = GetTransform(ActualData["Properties"])
-			if Transform == None:
+			if HasTransform(ObjectProps) == False:
+				Transform = GetAttachScene(j,NameProp,data)
+			if type(Transform) == bool or Transform == None:
 				continue
 			SMActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.ValActor,Transform.translation,Transform.rotation.rotator())
 			SMActor.set_actor_label(NameProp)
@@ -654,6 +656,11 @@ def SpawnMeshesInMap(data,set,mapname):
 				MatOver = GetMaterialToOverride(ActualData)
 				if MatOver != None:
 					Instance.set_editor_property('override_materials',MatOver) 
+def SpawnBP(obj):
+	if "WindowShield" in obj["Outer"] and HasKey("AttachParent",obj["Properties"]) == False:
+		Transform = HasTransform(obj["Properties"])
+		asset = unreal.load_asset('/Uiana/Misc/WindowShield.WindowShield')
+		unreal.EditorLevelLibrary.spawn_actor_from_object(asset,Transform.translation,Transform.rotation.rotator())
 
 ###### end spawners
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):
@@ -731,7 +738,6 @@ def GetActualPath(name):
 def import_object(map_object: MapObject,  object_index: int):
 
 	master_object = None
-
 	if Path(map_object.model_path).exists():
 		master_object = get_object(map_object, object_index)
 
