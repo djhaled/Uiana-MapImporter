@@ -513,7 +513,7 @@ def SetAllSettings(asset,Comp):
 			Comp.set_editor_property(Setting, value)
 def SetLightmassSetting(ActorSetting,Evalu):
 	Set = eval(f'unreal.{Evalu}()')
-	BlacklistLMass = ["bCastShadowAsTranslucent","bOverrideCastShadowAsTranslucent","MaskedTranslucentOpacity","bOverrideMaskedTranslucentOpacity","bLightAsBackFace"]
+	BlacklistLMass = ["bCastShadowAsTranslucent","bOverrideCastShadowAsTranslucent","MaskedTranslucentOpacity","bOverrideMaskedTranslucentOpacity","bLightAsBackFace","bUseTwoSidedLighting"]
 	for val in ActorSetting:
 		if val in BlacklistLMass:
 			continue
