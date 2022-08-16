@@ -632,7 +632,9 @@ def SpawnMeshesInMap(data,set,mapname):
 			Transform = GetTransform(ActualData["Properties"])
 			if HasTransform(ObjectProps) == False:
 				Transform = GetAttachScene(j,NameProp,data)
-			if type(Transform) == bool or Transform == None:
+			if type(Transform) == bool:
+				Transform = GetTransform(ActualData["Properties"])
+			if Transform == None:
 				continue
 			SMActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.ValActor,Transform.translation,Transform.rotation.rotator())
 			SMActor.set_actor_label(NameProp)
