@@ -334,10 +334,16 @@ def SetTextures(mat_props: dict, MatRef):
 			if "rgba" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'RGBA', ImportedTexture)
 			if "diffuse" == param_name or "albedo" == param_name:
+				texcast.set_editor_property("srgb", True)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_DEFAULT)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
 			if "diffuse a" == param_name  or "texture a" == param_name:
+				texcast.set_editor_property("srgb", True)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_DEFAULT)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
-			if "diffuse b" == param_name:
+			if "diffuse b" == param_name  or "texture b" == param_name:
+				texcast.set_editor_property("srgb", True)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_DEFAULT)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
 			if "mra" == param_name:
 				texcast.set_editor_property("srgb", False)
@@ -352,13 +358,21 @@ def SetTextures(mat_props: dict, MatRef):
 				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA B', ImportedTexture)
 			if "normal" == param_name:
+				texcast.set_editor_property("srgb", False)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_NORMALMAP)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Normal', ImportedTexture)
 			if  "texture a normal" == param_name or "normal a" == param_name:
+				texcast.set_editor_property("srgb", False)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_NORMALMAP)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture A Normal', ImportedTexture)
-			if "normal b" == param_name or "texture b normal" == param_name:
+			if  "texture b normal" == param_name or "normal b" == param_name:
+				texcast.set_editor_property("srgb", False)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_NORMALMAP)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture B Normal', ImportedTexture)
 				pass
 			if "mask" in param_name or "Mask Textuer" in param_name or "Mask Texture" in param_name:
+				texcast.set_editor_property("srgb", False)
+				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Mask Textuer', ImportedTexture)
 			if "mask" in param_name or "rgba" in param_name:
 				pass
