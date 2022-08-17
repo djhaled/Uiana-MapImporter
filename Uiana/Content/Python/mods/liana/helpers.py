@@ -53,6 +53,8 @@ BLACKLIST = [
 	"sm_barrierduality",
 	"M_Pitt_Caustics_Box",
 	"box_for_volumes", 
+	"BombsiteMarker_0_BombsiteA_Glow",
+	"BombsiteMarker_0_BombsiteB_Glow",
 	"supergrid",
 	"_col",
 	"M_Pitt_Lamps_Glow",
