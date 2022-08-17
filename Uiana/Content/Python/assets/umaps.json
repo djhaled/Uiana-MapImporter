@@ -12,12 +12,14 @@
         "Ascent_Art_Mid",
         "Ascent_Gameplay_Dynamic",
         "Ascent_Art_Vista",
+        "Ascent_Volumes",
         "Ascent_Art_VistaA",
         "Ascent_Art_VistaAtk",
         "Ascent_Art_VistaB",
         "Ascent_Art_VistaDef",
         "Ascent_Gameplay",
-        "Ascent_Lighting"
+        "Ascent_Lighting",
+        "Ascent"
     ],
     "split": [
         "Bonsai_Art_A",
@@ -26,7 +28,9 @@
         "Bonsai_Art_AtkSpawn",
         "Bonsai_Art_ATower",
         "Bonsai_Art_B",
+        "Bonsai_Volumes",
         "Bonsai_Art_BTower",
+        "Bonsai_Skybox",
         "Bonsai_Art_DefPathA",
         "Bonsai_Art_DefPathB",
         "Bonsai_Art_DefSpawn",
@@ -39,7 +43,8 @@
         "Bonsai_Art_VistaB",
         "Bonsai_Art_VistaDef",
         "Bonsai_Lighting",
-        "Bonsai_Gameplay"
+        "Bonsai_Gameplay",
+        "Bonsai"
     ],
     "bind": [
         "Duality_Art_A",
@@ -48,6 +53,7 @@
         "Duality_Art_AtkPathB",
         "Duality_Art_B",
         "Duality_Art_BathHouse",
+        "Duality_Volumes",
         "Duality_Art_Def",
         "Duality_Art_DefPathA",
         "Duality_Art_DefPathB",
@@ -60,7 +66,8 @@
         "Duality_Art_TPArrivalRooms",
         "Duality_Art_Vista",
         "Duality_Lighting",
-        "Duality_Gameplay"
+        "Duality_Gameplay",
+        "Duality"
     ],
     "icebox": [
         "Port_Art_A",
@@ -75,7 +82,8 @@
         "Port_Art_VistaA",
         "Port_Art_VistaB",
         "Port_Gameplay",
-        "Port_Lighting"
+        "Port_Lighting",
+        "Port"
     ],
     "breeze": [
         "Foxtrot_Art_A",
@@ -94,7 +102,8 @@
         "Foxtrot_Art_VistaShip",
         "Foxtrot_Art_Workshop",
         "Foxtrot_Gameplay",
-        "Foxtrot_Lighting"
+        "Foxtrot_Lighting",
+        "Foxtrot"
     ],
     "haven": [
         "Triad_Art_A",
@@ -107,13 +116,15 @@
         "Triad_Art_C_Destruction",
         "Triad_Art_Def",
         "Triad_Art_Vista_Destruction",
+        "Triad_Volumes",
         "Triad_Art_Vista",
         "Triad_LightingDestruction",
         "Triad_Art_Birthday",
         "Triad_Art_Destruction",
         "Triad_Art_Skybox",
         "Triad_Gameplay",
-        "Triad_Lighting"
+        "Triad_Lighting",
+        "Triad"
     ],
     "fracture": [
         "Canyon_Asite",
@@ -129,7 +140,8 @@
         "Canyon_Lighting",
         "Canyon_Mid",
         "Canyon_MidCollider",
-        "Canyon_VistaA"
+        "Canyon_VistaA",
+        "Canyon"
     ],
     "range": [
         "Range_Art_AsylumDown",
@@ -149,7 +161,8 @@
         "Range_Art_Vista",
         "Range_Art_VTOL",
         "Range_Gameplay",
-        "Range_Lighting"
+        "Range_Lighting",
+        "Range"
     ],
     "pearl": [
         "Pitt_Lighting",
@@ -170,7 +183,8 @@
         "Pitt_Art_AtkPathMid.umap",
         "Pitt_Art_AtkPathB.umap",
         "Pitt_Art_AtkPathA.umap",
-        "Pitt_Art_ASite.umap"
+        "Pitt_Art_ASite.umap",
+        "Pitt"
     ],
     "character select": ["CharacterSelect_Ep02_01_EnvArt.umap", "CharacterSelect_Ep02_01_Lighting.umap"],
     "menu": ["MainMenuV2", "MainMenu_Ep02_01_Lighting", "MainMenu_Ep02_01_EnvArt", "MainMenu_Ep02_01_Characters"]
