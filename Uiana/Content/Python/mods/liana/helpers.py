@@ -102,7 +102,7 @@ def GetTransform(Prop):
 		if bIsInstanced:
 			Location = TransformData["Translation"]
 		else:
-			Location =  Props["RelativeLocation"]
+			Location =  Props["RelativeLocation"] if HasKey("RelativeLocation", Props) else Props["OffsetLocation"]
 		LocationUnreal = unreal.Vector(Location["X"],Location["Y"],Location["Z"])
 	else:
 		LocationUnreal = unreal.Vector(0.0,0.0,0.0)

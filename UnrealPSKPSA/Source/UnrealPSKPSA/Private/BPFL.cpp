@@ -91,7 +91,7 @@ void UBPFL::SetStaticSwitchParameterValue(UMaterialInstance* Instance, FName Par
 		if (SwitchParameter.ParameterInfo.Name == ParameterName)
 		{
 			SwitchParameter.Value = Value;
-			break;;
+			break;
 		}
 	}
 	Instance->UpdateStaticPermutation(StaticParameters);
