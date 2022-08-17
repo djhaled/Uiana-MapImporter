@@ -370,11 +370,11 @@ def SetTextures(mat_props: dict, MatRef):
 	#			param_name = StaticParam["ParameterInfo"]["Name"].lower()
 	#			static_name.append(param_name)
 
-	#if HasKey("VectorParameterValues",mat_props):
-	#	vector_name = []
-	#	for VectorParam in mat_props["VectorParameterValues"]:
-	#		param_name = VectorParam['ParameterInfo']['Name'].lower()
-	#		vector_name.append(param_name)
+	if HasKey("VectorParameterValues",mat_props):
+		vector_name = []
+		for VectorParam in mat_props["VectorParameterValues"]:
+			param_name = VectorParam['ParameterInfo']['Name'].lower()
+			vector_name.append(param_name)
 
 	if HasKey("TextureParameterValues",mat_props):
 		texture_name = []
@@ -387,14 +387,17 @@ def SetTextures(mat_props: dict, MatRef):
 	if "diffuse" in texture_name or "albedo" in texture_name:	
 		if "diffuse a" not in texture_name and "texture a" not in texture_name:
 			if "diffuse b" not in texture_name and "texture b" not in texture_name:
-				set_mi_param(MatRef, 'OnlyDiffuse',True)
+				if "layer b tint" not in vector_name and "layer a tint" not in vector_name:
+					set_mi_param(MatRef, 'OnlyDiffuse',True)
 	if "diffuse" not in texture_name and "albedo" not in texture_name:
 		if "diffuse a" in texture_name:
 			if "diffuse b" not in texture_name:
-				set_mi_param(MatRef, 'OnlyDiffuseA',True)
+				if "layer b tint" not in vector_name:
+					set_mi_param(MatRef, 'OnlyDiffuseA',True)
 		if "diffuse b" in texture_name:
 			if "diffuse a" not in texture_name:
-				set_mi_param(MatRef, 'OnlyDiffuseB',True)
+				if "layer a tint" not in vector_name:
+					set_mi_param(MatRef, 'OnlyDiffuseB',True)
 	if "mra" in texture_name:
 		if "mra a" not in texture_name and "mra b" not in texture_name:
 			set_mi_param(MatRef, 'OnlyMRA',True)
