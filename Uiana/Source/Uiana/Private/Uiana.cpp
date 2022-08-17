@@ -73,7 +73,7 @@ FString FUianaModule::GetMapName(int EnumValue)
 {
 	if (EnumValue == 0)
 	{
-		return FString("ascent");
+		return FString("athena_terrain");
 	}
 	if (EnumValue == 1)
 	{

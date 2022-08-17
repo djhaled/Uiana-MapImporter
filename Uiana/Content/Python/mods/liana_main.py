@@ -50,10 +50,11 @@ def extract_assets(settings: Settings):
 	else:
 		args = [settings.umodel.__str__(),
 				f"-path={settings.paks_path.__str__()}",
-				f"-game=valorant",
+				f"-game=ue4.19",
 				f"-aes={settings.aes}",
 				"*.uasset",
 				"-export",
+				"-nomesh",
 				"-noanim",
 				"-nooverwrite",
 				f"-{settings.texture_format.replace('.', '')}",
@@ -738,16 +739,23 @@ def GetActualPath(name):
 	pathe = name["ObjectPath"]
 	rfindpoint = pathe.rfind('.') 
 	fixexportdir =str(Seting.export_path) +'\\export\\Game'
-	fixedName = pathe[0:rfindpoint].replace("ShooterGame/Content",fixexportdir) + '.pskx'
+	fixedName = pathe[0:rfindpoint].replace("FortniteGame/Content",fixexportdir) + '.pskx'
 	windowsfix = fixedName.replace("/","\\")
 	return windowsfix
 	#/find = name.rfind("/") + 1
 	#newname = name[find:len(name)]
 
 def import_object(map_object: MapObject,  object_index: int):
+	bMPath = Path(map_object.model_path).exists()
+	if bMPath == False:
+		nopskx = map_object.model_path.replace(".pskx","")
+		newp = nopskx + '\\' + map_object.objname + '.pskx'
+		map_object.model_path = newp
+		bMPath = True
+
 
 	master_object = None
-	if Path(map_object.model_path).exists():
+	if bMPath:
 		master_object = get_object(map_object, object_index)
 
 		

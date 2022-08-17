@@ -1,177 +1,665 @@
 {
-    "ascent": [
-        "Ascent_Art_A",
-        "Ascent_Art_APathMid",
-        "Ascent_Art_Atk",
-        "Ascent_Art_AtkPathA",
-        "Ascent_Art_AtkPathB",
-        "Ascent_Art_B",
-        "Ascent_Art_Def",
-        "Ascent_Art_DefPathA",
-        "Ascent_Art_DefPathB",
-        "Ascent_Art_Mid",
-        "Ascent_Gameplay_Dynamic",
-        "Ascent_Art_Vista",
-        "Ascent_Art_VistaA",
-        "Ascent_Art_VistaAtk",
-        "Ascent_Art_VistaB",
-        "Ascent_Art_VistaDef",
-        "Ascent_Gameplay",
-        "Ascent_Lighting"
-    ],
-    "split": [
-        "Bonsai_Art_A",
-        "Bonsai_Art_AtkPathA",
-        "Bonsai_Art_AtkPathB",
-        "Bonsai_Art_AtkSpawn",
-        "Bonsai_Art_ATower",
-        "Bonsai_Art_B",
-        "Bonsai_Art_BTower",
-        "Bonsai_Art_DefPathA",
-        "Bonsai_Art_DefPathB",
-        "Bonsai_Art_DefSpawn",
-        "Bonsai_Art_Mid",
-        "Bonsai_Art_MidConstruction",
-        "Bonsai_Art_MidVent",
-        "Bonsai_Art_Sewer",
-        "Bonsai_Art_VistaA",
-        "Bonsai_Art_VistaAtk",
-        "Bonsai_Art_VistaB",
-        "Bonsai_Art_VistaDef",
-        "Bonsai_Lighting",
-        "Bonsai_Gameplay"
-    ],
-    "bind": [
-        "Duality_Art_A",
-        "Duality_Art_Atk",
-        "Duality_Art_AtkPathA",
-        "Duality_Art_AtkPathB",
-        "Duality_Art_B",
-        "Duality_Art_BathHouse",
-        "Duality_Art_Def",
-        "Duality_Art_DefPathA",
-        "Duality_Art_DefPathB",
-        "Duality_Art_Destructibles",
-        "Duality_Art_Lantern",
-        "Duality_Art_Mid",
-        "Duality_Art_MidPathA",
-        "Duality_Art_MIdPathB",
-        "Duality_Art_Signage",
-        "Duality_Art_TPArrivalRooms",
-        "Duality_Art_Vista",
-        "Duality_Lighting",
-        "Duality_Gameplay"
-    ],
-    "icebox": [
-        "Port_Art_A",
-        "Port_Art_AtkPathB",
-        "Port_Art_AtkSpawn",
-        "Port_Art_B",
-        "Port_Art_DefPathB",
-        "Port_Art_DefSpawn",
-        "Port_Art_Mid",
-        "Port_Art_SnowAll",
-        "Port_Art_Vista",
-        "Port_Art_VistaA",
-        "Port_Art_VistaB",
-        "Port_Gameplay",
-        "Port_Lighting"
-    ],
-    "breeze": [
-        "Foxtrot_Art_A",
-        "Foxtrot_Art_A_Tunnel",
-        "Foxtrot_Art_AtkPath_A",
-        "Foxtrot_Art_AtkPath_B",
-        "Foxtrot_Art_AtkSpawn",
-        "Foxtrot_Art_B",
-        "Foxtrot_Art_DefPath_B",
-        "Foxtrot_Art_DefPath_Mid",
-        "Foxtrot_Art_DefSpawn",
-        "Foxtrot_Art_Mid",
-        "Foxtrot_Art_MidLower",
-        "Foxtrot_Art_MidUpper",
-        "Foxtrot_Art_Vista",
-        "Foxtrot_Art_VistaShip",
-        "Foxtrot_Art_Workshop",
-        "Foxtrot_Gameplay",
-        "Foxtrot_Lighting"
-    ],
-    "haven": [
-        "Triad_Art_A",
-        "Triad_Art_Atk",
-        "Triad_Art_AtkPathA",
-        "Triad_Art_AtkPathB",
-        "Triad_Art_AtkPathC",
-        "Triad_Art_B",
-        "Triad_Art_Basalt",
-        "Triad_Art_C_Destruction",
-        "Triad_Art_Def",
-        "Triad_Art_Vista_Destruction",
-        "Triad_Art_Vista",
-        "Triad_LightingDestruction",
-        "Triad_Art_Birthday",
-        "Triad_Art_Destruction",
-        "Triad_Art_Skybox",
-        "Triad_Gameplay",
-        "Triad_Lighting"
-    ],
-    "fracture": [
-        "Canyon_Asite",
-        "Canyon_AtkPathToASite",
-        "Canyon_AtkPathToBSite",
-        "Canyon_AtkSpawn",
-        "Canyon_BackPath",
-        "Canyon_BackPathtoA",
-        "Canyon_BackPathToB",
-        "Canyon_BSite",
-        "Canyon_BSiteTunnel",
-        "Canyon_Gameplay",
-        "Canyon_Lighting",
-        "Canyon_Mid",
-        "Canyon_MidCollider",
-        "Canyon_VistaA"
-    ],
-    "range": [
-        "Range_Art_AsylumDown",
-        "Range_Art_AsylumUp",
-        "Range_Art_BMainInterior",
-        "Range_Art_Boathouse_hide",
-        "Range_Art_Boathouse",
-        "Range_Art_Bombsite",
-        "Range_Art_Bridge",
-        "Range_Art_Cemetery",
-        "Range_Art_Gallery",
-        "Range_Art_Hospital",
-        "Range_Art_JumpCourse_Outdated",
-        "Range_Art_JumpCourse",
-        "Range_Art_Tower",
-        "Range_Art_Vegetation",
-        "Range_Art_Vista",
-        "Range_Art_VTOL",
-        "Range_Gameplay",
-        "Range_Lighting"
-    ],
-    "pearl": [
-        "Pitt_Lighting",
-        "Pitt_Gameplay.umap",
-        "Pitt_Art_Vista.umap",
-        "Pitt_Art_Signage.umap",
-        "Pitt_Art_Mid.umap",
-        "Pitt_Art_DefVista.umap",
-        "Pitt_Art_DefSpawn.umap",
-        "Pitt_Art_DefPathB.umap",
-        "Pitt_Art_DefPathA.umap",
-        "Pitt_Art_BVista.umap",
-        "Pitt_Art_BSite.umap",
-        "Pitt_Art_Blockmesh.umap",
-        "Pitt_Art_AtkVista.umap",
-        "Pitt_Art_AtkSpawn.umap",
-        "Pitt_Art_AtkPathMidToA.umap",
-        "Pitt_Art_AtkPathMid.umap",
-        "Pitt_Art_AtkPathB.umap",
-        "Pitt_Art_AtkPathA.umap",
-        "Pitt_Art_ASite.umap"
-    ],
-    "character select": ["CharacterSelect_Ep02_01_EnvArt.umap", "CharacterSelect_Ep02_01_Lighting.umap"],
-    "menu": ["MainMenuV2", "MainMenu_Ep02_01_Lighting", "MainMenu_Ep02_01_EnvArt", "MainMenu_Ep02_01_Characters"]
+  "athena_terrain": [
+    "/Game/Athena/Maps/Athena_Streaming_Grid",
+    "/Game/Athena/Maps/Landscape/Athena_Terrain_LS_02",
+    "/Game/Athena/Maps/Landscape/Athena_Terrain_LS_03",
+    "/Game/Athena/Maps/Landscape/Athena_Terrain_LS_04",
+    "/Game/Athena/Maps/Landscape/Athena_Terrain_LS_05",
+    "/Game/Athena/Maps/Streaming/Athena_GameplayActors",
+    "/Game/Athena/Maps/Athena_LocationVolumes",
+    "/Game/Athena/Maps/Landscape/Athena_Terrain_LS_00",
+    "/Game/Athena/Maps/Audio/Athena_Terrain_Audio",
+    "/Game/Athena/Maps/Athena_POI_Foundations",
+    "/Game/Athena/Maps/Landscape/Athena_Terrain_LS_01",
+    "/Game/Athena/Maps/Athena_CameraLocations",
+    "FortniteGame/Content/Athena/Maps/Athena_Terrain"
+  ],
+  "athena_poi_warehouses_002": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Warehouses_002"
+  ],
+  "athena_poi_warehouses_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Warehouses_001"
+  ],
+  "athena_poi_tunnel_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Tunnel_001"
+  ],
+  "athena_poi_toiletfactory_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_ToiletFactory_001"
+  ],
+  "athena_poi_swamp_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Swamp_001"
+  ],
+  "athena_poi_suburban_015": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Suburban_015"
+  ],
+  "athena_poi_suburban_006": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Suburban_006"
+  ],
+  "athena_poi_stripmall": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_StripMall"
+  ],
+  "athena_poi_rvpark_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_RVPark_001"
+  ],
+  "athena_poi_roadside_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Roadside_001"
+  ],
+  "athena_poi_rangeroutpost": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_RangerOutpost"
+  ],
+  "athena_poi_prison_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Prison_001"
+  ],
+  "athena_poi_mesa_002": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Mesa_002"
+  ],
+  "athena_poi_mesa_005": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Mesa_005"
+  ],
+  "athena_poi_lobby_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Lobby_001"
+  ],
+  "athena_poi_lakeisland_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_LakeIsland_001"
+  ],
+  "athena_poi_lake_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Lake_001"
+  ],
+  "athena_poi_hedgemaze": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_HedgeMaze"
+  ],
+  "athena_poi_farmstead_002": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_FarmStead_002"
+  ],
+  "athena_poi_farmstead": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_FarmStead"
+  ],
+  "athena_poi_durrrburger_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_DurrrBurger_001"
+  ],
+  "athena_poi_containertown": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_ContainerTown"
+  ],
+  "athena_poi_communitypark_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_CommunityPark_001"
+  ],
+  "athena_poi_bridge_005": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Bridge_005"
+  ],
+  "athena_poi_bridge_004": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Bridge_004"
+  ],
+  "athena_poi_bridge_003": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Bridge_003"
+  ],
+  "athena_poi_bridge_002": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Bridge_002"
+  ],
+  "athena_poi_bridge_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Bridge_001"
+  ],
+  "athena_terrain_ls_05": [
+    "FortniteGame/Content/Athena/Maps/Landscape/Athena_Terrain_LS_05"
+  ],
+  "athena_terrain_ls_04": [
+    "FortniteGame/Content/Athena/Maps/Landscape/Athena_Terrain_LS_04"
+  ],
+  "athena_terrain_ls_03": [
+    "FortniteGame/Content/Athena/Maps/Landscape/Athena_Terrain_LS_03"
+  ],
+  "athena_terrain_ls_02": [
+    "FortniteGame/Content/Athena/Maps/Landscape/Athena_Terrain_LS_02"
+  ],
+  "athena_terrain_ls_01": [
+    "FortniteGame/Content/Athena/Maps/Landscape/Athena_Terrain_LS_01"
+  ],
+  "athena_terrain_ls_00": [
+    "FortniteGame/Content/Athena/Maps/Landscape/Athena_Terrain_LS_00"
+  ],
+  "athena_terrain_audio": [
+    "FortniteGame/Content/Athena/Maps/Audio/Athena_Terrain_Audio"
+  ],
+  "athena_ind_3x3_warehouse_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_IND_3x3_Warehouse_a"
+  ],
+  "athena_ind_3x3_factory_e": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_IND_3x3_Factory_e"
+  ],
+  "athena_rem_3x3_rangerstation_d": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_RangerStation_d"
+  ],
+  "athena_sub_5x5_pizzaplace_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_PizzaPlace_a"
+  ],
+  "athena_ss_1x1_outdoor3_005": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Athena_SS_1x1_Outdoor3_005"
+  ],
+  "athena_ss_1x1_outdoor3_011": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Athena_SS_1x1_Outdoor3_011"
+  ],
+  "athena_np_1x1_shack_001": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Athena_NP_1x1_Shack_001"
+  ],
+  "athena_sub_3x3_watertower_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_WaterTower_a"
+  ],
+  "athena_rem_1x1_shack_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Athena_REM_1x1_Shack_a"
+  ],
+  "athena_sub_3x3_commerce_cardealer_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_Commerce_CarDealer_b"
+  ],
+  "athena_sub_3x3_gasstation_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_GasStation_a"
+  ],
+  "athena_sub_3x3_civic_substation_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_Civic_SubStation_b"
+  ],
+  "athena_sub_5x5_park_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_Park_c"
+  ],
+  "athena_rem_3x3_ruinedbuilding_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_RuinedBuilding_c"
+  ],
+  "athena_rem_1x1_shack_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Athena_REM_1x1_Shack_c"
+  ],
+  "athena_rem_1x1_shack_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Athena_REM_1x1_Shack_b"
+  ],
+  "athena_rur_3x3_house_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_RUR_3x3_House_c"
+  ],
+  "athena_ss_1x1_outdoor3_006": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Athena_SS_1x1_Outdoor3_006"
+  ],
+  "athena_sub_3x3_house_l": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_House_l"
+  ],
+  "athena_rem_3x3_shack_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_Shack_a"
+  ],
+  "athena_sub_3x3_ruinedbuilding_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_RuinedBuilding_a"
+  ],
+  "athena_rur_3x3_shed_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_RUR_3x3_Shed_c"
+  ],
+  "athena_poi_genericplot_004": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_GenericPlot_004"
+  ],
+  "athena_thefarmstead_7x12_field_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_TheFarmstead_7x12_Field_c"
+  ],
+  "athena_thefarmstead_7x12_field_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_TheFarmstead_7x12_Field_b"
+  ],
+  "athena_sub_5x5_house_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_a"
+  ],
+  "athena_sub_5x5_house2_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House2_a"
+  ],
+  "athena_sub_5x5_house_m": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_m"
+  ],
+  "athena_sub_5x5_campingstore_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_CampingStore_a"
+  ],
+  "athena_np_1x1_shack_002": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Athena_NP_1x1_Shack_002"
+  ],
+  "athena_sub_5x5_ruinedbuilding_e": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_RuinedBuilding_e"
+  ],
+  "athena_rem_3x3_rangerstation_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_RangerStation_b"
+  ],
+  "athena_rem_5x5_ruinedbuilding_f": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_REM_5x5_RuinedBuilding_f"
+  ],
+  "athena_rem_5x5_ruinedbuilding_e": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_REM_5x5_RuinedBuilding_e"
+  ],
+  "athena_poi_genericplot_001": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_001"
+  ],
+  "athena_ind_5x5_factory_g": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_IND_5x5_Factory_g"
+  ],
+  "athena_thefarmstead_7x12_field_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_TheFarmstead_7x12_Field_a"
+  ],
+  "athena_thefarmstead_5x9_barn_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x9/Athena_TheFarmstead_5x9_Barn_a"
+  ],
+  "athena_sub_3x3_house_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_House_a"
+  ],
+  "athena_thefarmstead_5x9_house_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x9/Athena_TheFarmstead_5x9_House_a"
+  ],
+  "athena_sub_3x3_house_o": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_House_o"
+  ],
+  "athena_ind_5x5_factory_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_IND_5x5_Factory_b"
+  ],
+  "athena_sub_5x5_house_q": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_q"
+  ],
+  "athena_sub_3x3_tacostand_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_TacoStand_a"
+  ],
+  "athena_thefarmstead_9x12_woodcluster_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/9x12/Athena_TheFarmstead_9x12_WoodCluster_c"
+  ],
+  "athena_thefarmstead_5x9_silo_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x9/Athena_TheFarmstead_5x9_Silo_a"
+  ],
+  "athena_rem_3x3_shack_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_Shack_b"
+  ],
+  "athena_sub_3x3_house_g": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_House_g"
+  ],
+  "athena_sub_5x5_house_g": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_g"
+  ],
+  "athena_thefarmstead_5x9_stables_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x9/Athena_TheFarmstead_5x9_Stables_a"
+  ],
+  "athena_rem_3x3_camp_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_Camp_b"
+  ],
+  "athena_thefarmstead_9x12_woodcluster_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/9x12/Athena_TheFarmstead_9x12_WoodCluster_b"
+  ],
+  "athena_thefarmstead_7x12_stonecluster_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_TheFarmstead_7x12_StoneCluster_b"
+  ],
+  "athena_poi_genericplot_002": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_002"
+  ],
+  "athena_thefarmstead_7x12_stonecluster_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_TheFarmstead_7x12_StoneCluster_a"
+  ],
+  "athena_thefarmstead_9x12_woodcluster_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/9x12/Athena_TheFarmstead_9x12_WoodCluster_a"
+  ],
+  "athena_sub_5x5_house_d": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_d"
+  ],
+  "athena_rem_3x3_camp_d": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_Camp_d"
+  ],
+  "athena_sub_5x5_ruinedfort_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_RuinedFort_a"
+  ],
+  "athena_poi_genericplot_003": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_003"
+  ],
+  "athena_rem_3x3_ruinedbuilding_f": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_RuinedBuilding_f"
+  ],
+  "athena_rem_5x5_shack_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_REM_5x5_Shack_b"
+  ],
+  "athena_sub_5x5_house_y": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_y"
+  ],
+  "athena_rem_5x5_rangerstation_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_REM_5x5_RangerStation_c"
+  ],
+  "athena_rem_5x5_rangerstation_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_REM_5x5_RangerStation_b"
+  ],
+  "athena_rem_5x5_special_hermithouse_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_REM_5x5_Special_HermitHouse_a"
+  ],
+  "athena_rem_5x5_camp_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_REM_5x5_Camp_a"
+  ],
+  "athena_rur_3x3_barn_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_RUR_3x3_Barn_a"
+  ],
+  "athena_rur_3x3_shed_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_RUR_3x3_Shed_a"
+  ],
+  "athena_cameralocations": [
+    "FortniteGame/Content/Athena/Maps/Athena_CameraLocations"
+  ],
+  "athena_locationvolumes": [
+    "FortniteGame/Content/Athena/Maps/Athena_LocationVolumes"
+  ],
+  "athena_poi_foundations": [
+    "FortniteGame/Content/Athena/Maps/Athena_POI_Foundations"
+  ],
+  "athena_streaming_grid": [
+    "FortniteGame/Content/Athena/Maps/Athena_Streaming_Grid"
+  ],
+  "athena_ss_1x1_shrine_001": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Shrines/Athena_SS_1x1_Shrine_001"
+  ],
+  "athena_ss_1x1_shrine_002": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Shrines/Athena_SS_1x1_Shrine_002"
+  ],
+  "athena_ss_1x1_shrine_003": [
+    "FortniteGame/Content/Athena/Maps/Buildings/1x1/Shrines/Athena_SS_1x1_Shrine_003"
+  ],
+  "athena_ctn_3x3_commercial_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_CTN_3x3_Commercial_a"
+  ],
+  "athena_ctn_3x3_commercial_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_CTN_3x3_Commercial_b"
+  ],
+  "athena_ctn_3x3_residential_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_CTN_3x3_Residential_a"
+  ],
+  "athena_ind_3x3_pumpingstation_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_IND_3x3_PumpingStation_a"
+  ],
+  "athena_ind_3x3_warehouse_h": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_IND_3x3_Warehouse_h"
+  ],
+  "athena_rem_3x3_crab_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_Crab_a"
+  ],
+  "athena_rem_3x3_llama_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_Llama_a"
+  ],
+  "athena_rem_3x3_mine_c": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_Mine_c"
+  ],
+  "athena_rem_3x3_mine_d": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_REM_3x3_Mine_d"
+  ],
+  "athena_sub_3x3_house_p": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_SUB_3x3_House_p"
+  ],
+  "athena_urb_3x3_apartment_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_URB_3x3_Apartment_a"
+  ],
+  "athena_urb_3x3_civic_busstop_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_URB_3x3_Civic_BusStop_b"
+  ],
+  "athena_urb_3x3_clocktower_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_URB_3x3_ClockTower_a"
+  ],
+  "athena_urb_3x3_commercial_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_URB_3x3_Commercial_a"
+  ],
+  "athena_urb_3x3_pawnshop_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_URB_3x3_PawnShop_a"
+  ],
+  "athena_urb_3x3_plaza_g": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_URB_3x3_Plaza_g"
+  ],
+  "athena_urb_3x3_store_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_URB_3x3_Store_a"
+  ],
+  "athena_urb_3x3_tacostand_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/3x3/Athena_URB_3x3_TacoStand_a"
+  ],
+  "athena_ctn_5x5_commercial_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_CTN_5x5_Commercial_a"
+  ],
+  "athena_ctn_5x5_commercial_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_CTN_5x5_Commercial_b"
+  ],
+  "athena_ctn_5x5_plaza_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_CTN_5x5_Plaza_a"
+  ],
+  "athena_ctn_5x5_plaza_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_CTN_5x5_Plaza_b"
+  ],
+  "athena_ctn_5x5_tower_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_CTN_5x5_Tower_a"
+  ],
+  "athena_ctn_5x5_tower_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_CTN_5x5_Tower_b"
+  ],
+  "athena_ind_5x5_substation_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_IND_5x5_SubStation_b"
+  ],
+  "athena_ind_5x5_warehouse_e": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_IND_5x5_Warehouse_e"
+  ],
+  "athena_rem_5x5_fox_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_REM_5x5_Fox_a"
+  ],
+  "athena_sub_5x5_bunker_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_Bunker_a"
+  ],
+  "athena_sub_5x5_gasstation_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_GasStation_b"
+  ],
+  "athena_sub_5x5_house_j": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_j"
+  ],
+  "athena_sub_5x5_house_jj": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_jj"
+  ],
+  "athena_sub_5x5_house_s": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_House_s"
+  ],
+  "athena_sub_5x5_ruinedbuilding_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_SUB_5x5_RuinedBuilding_a"
+  ],
+  "athena_urb_5x5_apartment_e": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_URB_5x5_Apartment_e"
+  ],
+  "athena_urb_5x5_apartment_i": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_URB_5x5_Apartment_i"
+  ],
+  "athena_urb_5x5_apartment_k": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_URB_5x5_Apartment_k"
+  ],
+  "athena_urb_5x5_office_i": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_URB_5x5_Office_i"
+  ],
+  "athena_urb_5x5_park_b": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_URB_5x5_Park_b"
+  ],
+  "athena_urb_5x5_plaza_f": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_URB_5x5_Plaza_f"
+  ],
+  "athena_urb_5x5_pool_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_URB_5x5_Pool_a"
+  ],
+  "athena_urb_5x5_shops_a": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x5/Athena_URB_5x5_Shops_a"
+  ],
+  "athena_durrrburger_5x9_durrrburger": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x9/Athena_DurrrBurger_5x9_DurrrBurger"
+  ],
+  "athena_stripmall_5x9_noms": [
+    "FortniteGame/Content/Athena/Maps/Buildings/5x9/Athena_StripMall_5x9_Noms"
+  ],
+  "athena_poi_genericplot_gas_001": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_GAS_001"
+  ],
+  "athena_poi_genericplot_ind_001": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_IND_001"
+  ],
+  "athena_poi_genericplot_ind_002": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_IND_002"
+  ],
+  "athena_poi_genericplot_ind_003": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_IND_003"
+  ],
+  "athena_poi_genericplot_mcm_001": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_MCM_001"
+  ],
+  "athena_poi_genericplot_mcm_002": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_MCM_002"
+  ],
+  "athena_poi_genericplot_mcm_003": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_MCM_003"
+  ],
+  "athena_poi_genericplot_mcm_004": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_MCM_004"
+  ],
+  "athena_poi_genericplot_mcm_005": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_MCM_005"
+  ],
+  "athena_poi_genericplot_rec_001": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_REC_001"
+  ],
+  "athena_poi_genericplot_rec_002": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_REC_002"
+  ],
+  "athena_poi_genericplot_rec_003": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_REC_003"
+  ],
+  "athena_poi_genericplot_sig_001": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_POI_GenericPlot_SIG_001"
+  ],
+  "athena_stripmall_7x12_mcguffinsbooks": [
+    "FortniteGame/Content/Athena/Maps/Buildings/7x12/Athena_StripMall_7x12_McGuffinsBooks"
+  ],
+  "athena_poi_cemetery_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Cemetery_001"
+  ],
+  "athena_poi_chinatown_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_ChinaTown_001"
+  ],
+  "athena_poi_city_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_City_001"
+  ],
+  "athena_poi_imprint_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Imprint_001"
+  ],
+  "athena_poi_junkyard_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Junkyard_001"
+  ],
+  "athena_poi_mine_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Mine_001"
+  ],
+  "athena_poi_motel_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Motel_001"
+  ],
+  "athena_poi_rec_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_REC_001"
+  ],
+  "athena_poi_ruinedtown_001": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_RuinedTown_001"
+  ],
+  "athena_poi_warehouses_003": [
+    "FortniteGame/Content/Athena/Maps/POI/Athena_POI_Warehouses_003"
+  ],
+  "athena_gameplayactors": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Athena_GameplayActors"
+  ],
+  "sublevel_x0y0": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X0Y0"
+  ],
+  "sublevel_x0y1": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X0Y1"
+  ],
+  "sublevel_x0y2": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X0Y2"
+  ],
+  "sublevel_x0y3": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X0Y3"
+  ],
+  "sublevel_x0y4": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X0Y4"
+  ],
+  "sublevel_x0y5": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X0Y5"
+  ],
+  "sublevel_x1y0": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X1Y0"
+  ],
+  "sublevel_x1y1": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X1Y1"
+  ],
+  "sublevel_x1y2": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X1Y2"
+  ],
+  "sublevel_x1y3": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X1Y3"
+  ],
+  "sublevel_x1y4": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X1Y4"
+  ],
+  "sublevel_x1y5": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X1Y5"
+  ],
+  "sublevel_x2y0": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X2Y0"
+  ],
+  "sublevel_x2y1": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X2Y1"
+  ],
+  "sublevel_x2y2": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X2Y2"
+  ],
+  "sublevel_x2y3": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X2Y3"
+  ],
+  "sublevel_x2y4": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X2Y4"
+  ],
+  "sublevel_x2y5": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X2Y5"
+  ],
+  "sublevel_x3y0": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X3Y0"
+  ],
+  "sublevel_x3y1": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X3Y1"
+  ],
+  "sublevel_x3y2": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X3Y2"
+  ],
+  "sublevel_x3y3": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X3Y3"
+  ],
+  "sublevel_x3y4": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X3Y4"
+  ],
+  "sublevel_x3y5": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X3Y5"
+  ],
+  "sublevel_x4y0": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X4Y0"
+  ],
+  "sublevel_x4y1": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X4Y1"
+  ],
+  "sublevel_x4y2": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X4Y2"
+  ],
+  "sublevel_x4y3": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X4Y3"
+  ],
+  "sublevel_x4y4": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X4Y4"
+  ],
+  "sublevel_x4y5": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X4Y5"
+  ],
+  "sublevel_x5y0": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X5Y0"
+  ],
+  "sublevel_x5y1": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X5Y1"
+  ],
+  "sublevel_x5y2": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X5Y2"
+  ],
+  "sublevel_x5y3": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X5Y3"
+  ],
+  "sublevel_x5y4": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X5Y4"
+  ],
+  "sublevel_x5y5": [
+    "FortniteGame/Content/Athena/Maps/Streaming/Sublevel_X5Y5"
+  ],
+  "athena_faceoff": [
+    "FortniteGame/Content/Athena/Maps/Athena_Faceoff"
+  ]
 }

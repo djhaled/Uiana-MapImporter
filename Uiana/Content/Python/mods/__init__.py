@@ -22,7 +22,7 @@ class UeSettings:
 	fMapName = args.MapName
 	if fMapName == "characterSelect":
 		fMapName = "character select"
-	vAesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6"
+	vAesKey = "0x2CCDFD22AD74FBFEE693A81AC11ACE57E6D10D0B8AC5FA90E793A130BC540ED4"
 	bImportSubLevels = bool(args.ImportSubLevels)
 	PExportPath = Path(args.ExportPath)
 	PakFolha = args.PakFolder

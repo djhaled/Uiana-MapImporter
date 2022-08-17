@@ -93,7 +93,7 @@ def get_object_materials(model_json: dict):
 
 
 def fix_path(a: str):
-	b = a.replace("ShooterGame\\Content", "Game")
+	b = a.replace("FortniteGame\\Content", "Game")
 	c = b.replace("Engine\\Content", "Engine")
 	return c
 
@@ -166,6 +166,7 @@ class MapObject(object):
 		self.data = data
 		self.name = self.get_object_name()
 		self.uname = self.get_object_game_name()
+		self.objname = self.getOBJName()
 		self.object_path = self.get_object_path()
 		self.json = self.get_object_data_OG()
 		self.model_path = self.get_local_model_path(p=settings.assets_path)
@@ -177,6 +178,11 @@ class MapObject(object):
 	def get_object_name(self) -> str:
 		s = self.data["Properties"]["StaticMesh"]["ObjectPath"]
 		k = Path(s).stem
+		return k
+	def getOBJName(self)->str:
+		s = self.data["Properties"]["StaticMesh"]["ObjectName"]
+		news = s[s.rfind(" ")+1:len(s)]
+		k = Path(news).stem
 		return k
 
 	def get_object_game_name(self) -> str:
