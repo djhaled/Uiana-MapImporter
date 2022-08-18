@@ -26,4 +26,6 @@ public:
 	static TArray<FVector3f> ReturnCurrentVerts(UStaticMesh* Mesh);
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ChangeProjectSettings();
+	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
+	static void ImportTextures(TArray<FString> AllTexturesPath);
 };

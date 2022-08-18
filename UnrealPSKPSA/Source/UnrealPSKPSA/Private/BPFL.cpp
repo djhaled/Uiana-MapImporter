@@ -8,8 +8,12 @@
 #include "VectorTypes.h"
 #include "Engine/StaticMesh.h"
 #include "KismetProceduralMeshLibrary.h"
+#include "AutomatedAssetImportData.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "Engine/World.h"
+#include "Factories/TextureFactory.h"
 #include "StaticMeshDescription.h"
+#include "Misc/ScopedSlowTask.h"
 #include "PSKReader.h"
 #include "Engine/RendererSettings.h"
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
@@ -147,5 +151,54 @@ void UBPFL::ChangeProjectSettings()
 	Settings->DynamicGlobalIllumination = EDynamicGlobalIlluminationMethod::None;
 	Settings->Reflections == EReflectionMethod::None;
 	Settings->SaveConfig();
+}
+
+void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
+{
+	auto AutomatedData = NewObject<UAutomatedAssetImportData>();
+	AutomatedData->bReplaceExisting = false;
+	auto TextureFactory = NewObject<UTextureFactory>();
+	TextureFactory->NoCompression = true;
+	TextureFactory->AutomatedImportData = AutomatedData;
+	FScopedSlowTask ImportTask(AllTexturesPath.Num(), FText::FromString("Importing Textures"));
+	ImportTask.MakeDialog(true);
+	auto ActorIdx = -1;
+	for (auto tx : AllTexturesPath)
+	{
+		ActorIdx++;
+		FString TexGamePath, TexName;
+		tx.Split(TEXT("\\"), &TexGamePath, &TexName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+		FString PathForTextures = "/Game/ValorantContent/Textures/";
+		FString LongPackageName;
+		FPackageName::TryConvertFilenameToLongPackageName(PathForTextures, LongPackageName);
+		auto TexPackage = CreatePackage(nullptr ,*LongPackageName);
+		auto bCancelled = false;
+		auto NewTxName = TexName.Replace(TEXT(".png"),TEXT(""));
+		auto CreatedTexture = TextureFactory->FactoryCreateFile(UTexture2D::StaticClass(), TexPackage, FName(*NewTxName), RF_Public | RF_Standalone, tx, NULL, GWarn, bCancelled);
+		auto Tex = CastChecked<UTexture2D>(CreatedTexture);
+		if (NewTxName.EndsWith("MRA"))
+		{
+			Tex->SRGB = false;
+			Tex->CompressionSettings = TC_Masks;
+		}
+		if (NewTxName.EndsWith("NM"))
+		{
+			Tex->SRGB = false;
+			Tex->CompressionSettings = TC_Normalmap;
+			Tex->LODGroup = TEXTUREGROUP_WorldNormalMap;
+		}
+		if (NewTxName.EndsWith("DF"))
+		{
+			Tex->SRGB = true;
+			Tex->CompressionSettings = TC_Default;
+		}
+		ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Texture : %d of %d: %s"), ActorIdx + 1, AllTexturesPath.Num() + 1, *NewTxName));
+		ImportTask.EnterProgressFrame();
+		Tex->MarkPackageDirty();
+		FAssetRegistryModule::AssetCreated(Tex);
+		Tex->PreEditChange(nullptr);
+		Tex->PostEditChange();
+		TexPackage->FullyLoad();
+	}
 }
 

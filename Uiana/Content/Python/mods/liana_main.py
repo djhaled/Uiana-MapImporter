@@ -296,13 +296,8 @@ def get_scalar_value(mat_props, s_param_name):
 COUNT = 0
 
 def ImportTexture(Path):
-	task = unreal.AssetImportTask()
-	task.set_editor_property('destination_path', '/Game/ValorantContent/Textures')
-	task.set_editor_property('filename', Path)
-	task.set_editor_property('automated', True)
-	task.set_editor_property('save', False)
-	task.set_editor_property('replace_existing', False)
-	AllTextures.append(task)
+	if Path not in AllTextures:
+		AllTextures.append(Path)
 
 
 def SetTextures(mat_props: dict, MatRef):
@@ -325,35 +320,22 @@ def SetTextures(mat_props: dict, MatRef):
 		
 		if "diffuse b low" not in param_name:
 			if Path(tex_local_path).exists():
-				ImportedTexture = unreal.load_asset(f'/Game/ValorantContent/Textures/{tex_name}.{tex_name}')
-				texcast = unreal.Texture2D.cast(ImportedTexture)
+				ImportedTexture = unreal.load_asset(f'/Game/ValorantContent/Textures/.{tex_name}')
 			if ImportedTexture == None:
 				continue
 			if "rgba" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'RGBA', ImportedTexture)
 			if "diffuse" == param_name or "albedo" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
-				texcast.set_editor_property("srgb", True)
-				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_DEFAULT)
 			if "diffuse a" == param_name  or "texture a" == param_name:
-				texcast.set_editor_property("srgb", False)
-				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_DEFAULT)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
 			if "diffuse b" == param_name  or "texture b" == param_name:
-				texcast.set_editor_property("srgb", False)
-				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_DEFAULT)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
 			if "mra" == param_name:
-				texcast.set_editor_property("srgb", False)
-				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA', ImportedTexture)
 			if  "mra a" == param_name:
-				texcast.set_editor_property("srgb", False)
-				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA A', ImportedTexture)
 			if "mra b" == param_name :
-				texcast.set_editor_property("srgb", False)
-				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA B', ImportedTexture)
 			if "normal" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Normal', ImportedTexture)
@@ -774,7 +756,8 @@ def ImportAllTexturesFromMaterial(matJson):
 					tex_local_path = Seting.assets_path.joinpath(tex_game_path).__str__()
 					param_name = param['ParameterInfo']['Name'].lower()
 					tex_name = Path(tex_local_path).stem
-					ImportTexture(tex_local_path)
+					if tex_local_path not in AllTextures:
+						AllTextures.append(tex_local_path)
 
 
 	
@@ -836,9 +819,10 @@ def ExportAllTextures():
 		ImportAllTexturesFromMaterial(MatJson)
 
 
+	unreal.BPFL.import_textures(AllTextures)
 
 
-	do_import_tasks(None,AllTextures,True)
+
 def ExportAllMaterials():
 	MatPath = Seting.selected_map.materials_path
 	MatOverridePath = Seting.selected_map.materials_ovr_path
