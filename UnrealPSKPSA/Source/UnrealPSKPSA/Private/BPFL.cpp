@@ -176,18 +176,21 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		auto NewTxName = TexName.Replace(TEXT(".png"),TEXT(""));
 		auto CreatedTexture = TextureFactory->FactoryCreateFile(UTexture2D::StaticClass(), TexPackage, FName(*NewTxName), RF_Public | RF_Standalone, tx, NULL, GWarn, bCancelled);
 		auto Tex = CastChecked<UTexture2D>(CreatedTexture);
-		if (NewTxName.EndsWith("MRA"))
+		/// tx 
+		auto CompressionSetting = Tex->CompressionSettings;
+		//auto EnumCompString = UEnum::GetValueAsString(CompressionSetting);
+		if (NewTxName.EndsWith("MRA") && CompressionSetting != TC_Masks)
 		{
 			Tex->SRGB = false;
 			Tex->CompressionSettings = TC_Masks;
 		}
-		if (NewTxName.EndsWith("NM"))
+		if (NewTxName.EndsWith("NM") && CompressionSetting != TC_Normalmap)
 		{
 			Tex->SRGB = false;
 			Tex->CompressionSettings = TC_Normalmap;
 			Tex->LODGroup = TEXTUREGROUP_WorldNormalMap;
 		}
-		if (NewTxName.EndsWith("DF"))
+		if (NewTxName.EndsWith("DF") && CompressionSetting != TC_Normalmap)
 		{
 			Tex->SRGB = true;
 			Tex->CompressionSettings = TC_Default;

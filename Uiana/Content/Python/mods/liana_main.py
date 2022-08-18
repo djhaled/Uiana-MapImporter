@@ -345,8 +345,6 @@ def SetTextures(mat_props: dict, MatRef):
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Texture B Normal', ImportedTexture)
 				pass
 			if "mask" in param_name or "Mask Textuer" in param_name or "Mask Texture" in param_name:
-				texcast.set_editor_property("srgb", False)
-				texcast.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Mask Textuer', ImportedTexture)
 			if "mask" in param_name or "rgba" in param_name:
 				pass
