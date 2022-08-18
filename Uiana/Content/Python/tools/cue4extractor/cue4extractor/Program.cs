@@ -27,13 +27,13 @@ namespace cue4extractor
         /// <param name="fileList">An option whose argument is parsed as a FileInfo</param>
         /// <param name="gameUmaps">An option whose argument is parsed as a FileInfo</param>
         private static void Main(
-            string gameDirectory = @"C:\Riot Games\VALORANT\live\ShooterGame\Content\Paks",
+            string gameDirectory = @"E:\Riot Games\VALORANT\live\ShooterGame\Content\Paks",
             string aesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6",
-            string exportDirectory = @"C:\Users\floxay\Documents\GitHub\Liana\maps\test",
+            string exportDirectory = @"D:\TEtest",
             string mapName = "bind",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
             string fileList = "",
-            string gameUmaps = @"C:\Users\floxay\Documents\GitHub\Liana\_utility\umaps.json"
+            string gameUmaps = @"D:\Baka\umaps.json"
             )
         {
             var versions = new VersionContainer(EGame.GAME_Valorant);
@@ -112,7 +112,7 @@ namespace cue4extractor
                 {
                     var sWatch = Stopwatch.StartNew();
 
-                    var umapInternalPath = $"Game/Maps/{selectedMap}/{umap}";
+                    var umapInternalPath = $"{umap}";
                     var umapExportFull = provider.LoadObjectExports(umapInternalPath);
                     var filename = Path.GetFileNameWithoutExtension(umapInternalPath);
                     var umapJSON = JsonConvert.SerializeObject(umapExportFull, Formatting.Indented, settings);

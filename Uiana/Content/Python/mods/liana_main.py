@@ -281,6 +281,10 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 		for param in mat_props["VectorParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
 			param_value = param["ParameterValue"]
+			if param_name == "texture tint a":
+				param_name = "layer a tint"
+			if param_name == "texture tint b":
+				param_name = "layer b tint"
 			SetMaterialVectorValue(UEMat, param_name,get_rgb(param_value))
 
 def get_scalar_value(mat_props, s_param_name):
@@ -327,9 +331,9 @@ def SetTextures(mat_props: dict, MatRef):
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'RGBA', ImportedTexture)
 			if "diffuse" == param_name or "albedo" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse', ImportedTexture)
-			if "diffuse a" == param_name  or "texture a" == param_name:
+			if "diffuse a" == param_name  or "texture a" == param_name or "albedo a" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse A', ImportedTexture)
-			if "diffuse b" == param_name  or "texture b" == param_name:
+			if "diffuse b" == param_name  or "texture b" == param_name or "albedo b" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'Diffuse B', ImportedTexture)
 			if "mra" == param_name:
 				MatParameterValue = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(MatRef, 'MRA', ImportedTexture)

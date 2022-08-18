@@ -174,7 +174,11 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		auto TexPackage = CreatePackage(nullptr ,*LongPackageName);
 		auto bCancelled = false;
 		auto NewTxName = TexName.Replace(TEXT(".png"),TEXT(""));
-		auto CreatedTexture = TextureFactory->FactoryCreateFile(UTexture2D::StaticClass(), TexPackage, FName(*NewTxName), RF_Public | RF_Standalone, tx, NULL, GWarn, bCancelled);
+		auto CreatedTexture = TextureFactory->FactoryCreateFile(UTexture2D::StaticClass(), TexPackage, FName(*NewTxName), RF_Public | RF_Standalone, tx, NULL, GWarn, bCancelled); 
+		if (CreatedTexture == nullptr)
+		{
+			continue;
+		}
 		auto Tex = CastChecked<UTexture2D>(CreatedTexture);
 		/// tx 
 		auto CompressionSetting = Tex->CompressionSettings;

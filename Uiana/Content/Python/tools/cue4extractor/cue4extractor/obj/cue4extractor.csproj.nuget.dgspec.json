@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj": {}
+    "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj": {}
   },
   "projects": {
-    "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj": {
+    "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj",
+        "projectUniqueName": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj",
         "projectName": "cue4extractor",
-        "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj",
+        "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4extractor\\cue4extractor.csproj",
         "packagesPath": "C:\\Users\\BERNA\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4extractor\\obj\\",
+        "outputPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4extractor\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\BERNA\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -28,11 +28,11 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj": {
-                "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj"
+              "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj": {
+                "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj"
               },
-              "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj": {
-                "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\RangeRemake\\Plugins\\Uiana\\Content\\Piana\\src\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj"
+              "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj": {
+                "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj"
               }
             }
           }
@@ -58,7 +58,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -67,7 +68,171 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj",
+        "projectName": "CUE4Parse-Conversion",
+        "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\CUE4Parse-Conversion.csproj",
+        "packagesPath": "C:\\Users\\BERNA\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse-Conversion\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": [
+          "C:\\Users\\BERNA\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj": {
+                "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "SharpGLTF.Core": {
+              "target": "Package",
+              "version": "[1.0.0-alpha0023, )"
+            },
+            "SharpGLTF.Toolkit": {
+              "target": "Package",
+              "version": "[1.0.0-alpha0023, )"
+            },
+            "SkiaSharp": {
+              "target": "Package",
+              "version": "[2.88.1-preview.71, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj",
+        "projectName": "CUE4Parse",
+        "projectPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\CUE4Parse.csproj",
+        "packagesPath": "C:\\Users\\BERNA\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\BERNA\\Documents\\Unreal Projects\\ValeProjects\\Plugins\\Uiana\\Content\\Python\\tools\\cue4extractor\\cue4parse\\CUE4Parse\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": [
+          "C:\\Users\\BERNA\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "DotNetZip": {
+              "target": "Package",
+              "version": "[1.16.0, )"
+            },
+            "K4os.Compression.LZ4.Streams": {
+              "target": "Package",
+              "version": "[1.2.16, )"
+            },
+            "LZMA-SDK": {
+              "target": "Package",
+              "version": "[19.0.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[2.11.0, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[4.0.1, )"
+            },
+            "System.Memory": {
+              "target": "Package",
+              "version": "[4.5.5, )"
+            },
+            "System.Runtime.CompilerServices.Unsafe": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }

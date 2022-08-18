@@ -358,6 +358,9 @@ def GetAttachScene(obj,OuterName,umapfile):
 		if outer == "PersistentLevel":
 			outer = j["Name"]
 		#print(f'OuterName trying to find is {OuterName} and current outer is {outer} // also tipo is {tipo}')
+		if HasKey("Properties",j) == False:
+			print(j)
+			continue
 		KeyOuter = HasKey("AttachParent",j["Properties"])
 		if outer == OuterName and tipo in types and KeyOuter == False:
 			return HasTransform(j["Properties"])
