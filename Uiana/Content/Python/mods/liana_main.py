@@ -692,9 +692,15 @@ def LevelStreamingStuff():
 # ANCHOR: Functions
 def SetPostProcessSettings(AllSettings,Comp):
 	for Setting in AllSettings:
-		bekaBlackList=["bOverride_AmbientOcclusionTintColor","AutoExposureBiasBackup","AmbientOcclusionTintColor","SavedSelections","bOverride_AresAdaptiveSharpenEnable",'FilmContrast','FilmWhitePoint',"bOverride_AresClarityEnable","bOverride_IndirectLightingScaleCurve","bOverride_AutoExposureBiasBackup","IndirectLightingColor","IndirectLightingScaleCurve","bOverride_ScreenPercentage"]
+		bekaBlackList=["SavedSelections","bOverride_AresAdaptiveSharpenEnable","FilmContrast","bOverride_AmbientOcclusionTintColor","AmbientOcclusionTintColor","bOverride_FilmContrast","bOverride_AutoExposureBiasBackup","FilmWhitePoint","bOverride_FilmWhitePoint","AutoExposureBiasBackup","bOverride_AresClarityEnable","bOverride_IndirectLightingScaleCurve","IndirectLightingScaleCurve","bOverride_ScreenPercentage","ScreenPercentage"]
 		if Setting not in bekaBlackList:
-			Comp.set_editor_property(Setting, AllSettings[Setting])
+			ResultValue = AllSettings[Setting] 
+			CompSet = type(Comp.get_editor_property(Setting))
+			if CompSet == unreal.LinearColor:
+				ResultValue = unreal.LinearColor(ResultValue["R"],ResultValue["G"],ResultValue["B"],ResultValue["A"])
+			if CompSet == unreal.Color:
+				ResultValue = unreal.Color(ResultValue["R"],ResultValue["G"],ResultValue["B"],ResultValue["A"])
+			Comp.set_editor_property(Setting, ResultValue)
 
 def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)
