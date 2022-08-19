@@ -11,6 +11,7 @@ parser.add_argument('MapName',type=str,help='MapName')
 parser.add_argument('ExportPath',type=str,help='ExportPath')
 parser.add_argument('PakFolder',type=str,help='PakFolder')
 parser.add_argument('PluginPath',type=str,help='PluginPath')
+parser.add_argument('GameVersion',type=str,help='GameVerison')
 args = parser.parse_args()
 
 print(args.MapName)
@@ -30,5 +31,6 @@ class UeSettings:
 	NewPath = (args.PluginPath) + ('\\Uiana\\Content\\Python')
 	FixedPath = NewPath
 	PPluginPath = Path(FixedPath)
+	GVersion =args.GameVersion
 import_map(UeSettings)
 exit()

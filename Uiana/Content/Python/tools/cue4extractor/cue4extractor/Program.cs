@@ -26,6 +26,7 @@ namespace cue4extractor
         /// <param name="mapName">An option whose argument is parsed as a FileInfo</param>
         /// <param name="fileList">An option whose argument is parsed as a FileInfo</param>
         /// <param name="gameUmaps">An option whose argument is parsed as a FileInfo</param>
+        /// <param name="GameVersion">An option whose argument is parsed as a FileInfo</param>
         private static void Main(
             string gameDirectory = @"D:\FortOLD\FortniteGame\Content\Paks",
             string aesKey = "0x2CCDFD22AD74FBFEE693A81AC11ACE57E6D10D0B8AC5FA90E793A130BC540ED4",
@@ -33,10 +34,11 @@ namespace cue4extractor
             string mapName = "athena_terrain",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
             string fileList = "",
-            string gameUmaps = @"D:\Baka\umaps.json"
+            string gameUmaps = @"D:\Baka\umaps.json",
+            EGame GameVersion = EGame.GAME_UE4_25
             )
         {
-            var versions = new VersionContainer(EGame.GAME_UE4_20);
+            var versions = new VersionContainer(GameVersion);
             var provider = new DefaultFileProvider(gameDirectory, SearchOption.AllDirectories, true, versions);
             provider.Initialize();
             provider.SubmitKey(new FGuid(), new FAesKey(aesKey));

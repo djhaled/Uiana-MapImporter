@@ -8,10 +8,6 @@ import time
 import unreal
 SELECTIVE_OBJECTS = []
 projectpath = unreal.Paths.project_plugins_dir()
-newpath = projectpath + 'Uiana/Content/Python/assets/umapTYPE.json'
-f = open(newpath)
-JsonMapTypeData = json.load(f)
-FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
 
 # -------------------------- #
 def ClearLevel():
@@ -418,6 +414,7 @@ def create_folders(self):
 class Settings:
 	def __init__(self,UESet):
 		self.aes = UESet.vAesKey
+		self.GameVersion = UESet.GVersion
 		self.texture_format = ".png"
 		########## have to fix so it gets actual dir
 		self.script_root = UESet.PPluginPath

@@ -6,6 +6,7 @@ import winsound
 import subprocess
 from pathlib import Path
 import unreal
+import json
 import time
 from mods.liana.helpers import *
 from mods.liana.valorant import *
@@ -20,7 +21,8 @@ AllLevelPaths = []
 file = "snd.mp3"
 AssetTools = unreal.AssetToolsHelpers.get_asset_tools()
 start_time = time.time()
-#BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
+BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
+
 def GetMaterialToOverride(Data):
 	Props = Data["Properties"]
 	MaterialArray = []
@@ -43,14 +45,19 @@ def GetMaterialToOverride(Data):
 
 def bIsDefaultEnv(asset):
 	return "BaseEnv_MAT_V4"
-
+def CUE4ParseToUmodel(parse):
+	NewMid = parse.lower().replace("game_", "")
+	end = NewMid.replace("_",".")
+	print(end)
+	return end
 def extract_assets(settings: Settings):
 	if settings.assets_path.joinpath("exported.yo").exists():
 		pass
 	else:
+		uever = CUE4ParseToUmodel(settings.GameVersion)
 		args = [settings.umodel.__str__(),
 				f"-path={settings.paks_path.__str__()}",
-				f"-game=ue4.19",
+				f"-game={uever}",
 				f"-aes={settings.aes}",
 				"*.uasset",
 				"-export",
@@ -70,7 +77,8 @@ def extract_data(settings: Settings, export_directory: str, asset_list_txt: str 
 			"--export-directory", export_directory.__str__(),
 			"--map-name", settings.selected_map.name,
 			"--file-list", asset_list_txt,
-			"--game-umaps", settings.umap_list_path.__str__()
+			"--game-umaps", settings.umap_list_path.__str__(),
+			"--game-version", settings.GameVersion
 			]
 	subprocess.call(args)
 
