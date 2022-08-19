@@ -528,9 +528,6 @@ def SetLightmassSetting(ActorSetting,Evalu):
 	#################### Spawners
 def ImportLights(OBJData, ArrObjsImport):
 	ActorInfo = ActorDefs(OBJData)
-	if ActorInfo.type == "SphereReflectionCaptureComponent":
-		if HasKey("Cubemap",ActorInfo.props) == False:
-			return
 	PostProcessSettings = []
 	LightTypeNoComp = ActorInfo.type.replace("Component","")
 	LightType = eval(f'unreal.{LightTypeNoComp}')
