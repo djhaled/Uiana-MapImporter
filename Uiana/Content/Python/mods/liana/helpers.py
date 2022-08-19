@@ -433,6 +433,7 @@ class Settings:
 		self.umodel = self.script_root.joinpath("tools", "umodel.exe")
 		self.debug = False
 		self.cue4extractor = self.script_root.joinpath("tools", "cue4extractor.exe")
+		self.cue4umapextractor = self.script_root.joinpath("tools", "CUE4UmapsExtractor.exe")
 		self.log = self.export_path.joinpath("import.log")
 		self.umap_list_path = self.importer_assets_path.joinpath("umaps.json")
 		self.umap_list = read_json(self.umap_list_path)

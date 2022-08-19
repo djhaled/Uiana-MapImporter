@@ -563,3 +563,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 src/umodel.cfg
+Uiana/Content/Python/tools/cue4extractor/CUE4Parse/
