@@ -384,6 +384,7 @@ def SetTextures(mat_props: dict, MatRef):
 	if "diffuse" not in texture_name and "albedo" not in texture_name:
 		if "diffuse a" in texture_name:
 			if "diffuse b" not in texture_name:
+				set_mi_param(MatRef, 'WoodFix',True)
 				if "layer b tint" not in vector_name:
 					set_mi_param(MatRef, 'OnlyDiffuseA',True)
 		if "diffuse b" in texture_name:
@@ -856,7 +857,7 @@ def import_map(Setting):
 	Seting = settings
 	umap_json_paths = get_map_assets(Seting)
 	if Seting.import_sublevel == False:
-		CreateNewLevel("Map")
+		CreateNewLevel(settings.selected_map.name)
 	ClearLevel()
 	#  Check if the game files are exported
 	######### export all textures before ###########
