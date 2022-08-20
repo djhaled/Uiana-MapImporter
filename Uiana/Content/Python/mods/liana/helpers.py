@@ -59,6 +59,10 @@ BLACKLIST = [
 	"_col",
 	"M_Pitt_Lamps_Glow",
 	"for_volumes",
+	"Foxtrot_ASite_Plane_DU",
+	"Foxtrot_ASite_Side_DU",
+	"BombsiteMarker_0_BombsiteA_Glow",
+	"BombsiteMarker_0_BombsiteB_Glow",
 ]
 def GetUMapType(mapname):
 	for j in JsonMapTypeData:
