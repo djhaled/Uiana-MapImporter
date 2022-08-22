@@ -5,7 +5,9 @@ UUianaDataSettings::UUianaDataSettings(const FObjectInitializer& ObjectInitializ
 {
 	ExportFolder.Path = "C:/Exports";
 	PaksFolder.Path = "C:/Riot Games/VALORANT/live/ShooterGame/Content/Paks";
-	Map = Ascent;
+	//Map = Ascent;
+	MapName = "Default";
+	AesKey = 0x0;
 	GameVersion = GAME_Valorant;
 	ImportMeshes = true;
 	ImportMaterials = true;

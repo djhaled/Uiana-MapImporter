@@ -66,18 +66,9 @@ def extract_assets(settings: Settings):
 				"-nooverwrite",
 				f"-{settings.texture_format.replace('.', '')}",
 				f"-out={settings.assets_path.__str__()}"]
+		print(args)
 		subprocess.call(args,stderr=subprocess.DEVNULL)
 
-
-def ExtractUmapsFile(settings: Settings):
-	if settings.assets_path.joinpath("exported.yo").exists():
-		pass
-	else:
-	    args = [settings.cue4umapextractor.__str__(),
-	    "--paks-directory", settings.paks_path.__str__(),
-	    "--aes-key", settings.aes,
-	    "--game", settings.GameVersion,]
-	subprocess.call(args)
 def extract_data(settings: Settings, export_directory: str, asset_list_txt: str = ""):
 	args = [settings.cue4extractor.__str__(),
 			"--game-directory", settings.paks_path.__str__(),
@@ -88,6 +79,7 @@ def extract_data(settings: Settings, export_directory: str, asset_list_txt: str 
 			"--game-umaps", settings.umap_list_path.__str__(),
 			"--game-version", settings.GameVersion
 			]
+	print(args)
 	subprocess.call(args)
 
 
@@ -881,7 +873,6 @@ def import_map(Setting):
 	settings = Settings(Setting)
 	global Seting
 	Seting = settings
-	ExtractUmapsFile(Seting)
 	umap_json_paths = get_map_assets(Seting)
 	if Seting.import_sublevel == False:
 		CreateNewLevel("Map")

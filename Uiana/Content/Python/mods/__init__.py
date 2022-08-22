@@ -12,6 +12,7 @@ parser.add_argument('ExportPath',type=str,help='ExportPath')
 parser.add_argument('PakFolder',type=str,help='PakFolder')
 parser.add_argument('PluginPath',type=str,help='PluginPath')
 parser.add_argument('GameVersion',type=str,help='GameVerison')
+parser.add_argument('vaAesKey',type=str,help='vaAesKey')
 args = parser.parse_args()
 
 print(args.MapName)
@@ -23,7 +24,7 @@ class UeSettings:
 	fMapName = args.MapName
 	if fMapName == "characterSelect":
 		fMapName = "character select"
-	vAesKey = "0x2CCDFD22AD74FBFEE693A81AC11ACE57E6D10D0B8AC5FA90E793A130BC540ED4"
+	vAesKey = args.vaAesKey
 	bImportSubLevels = bool(args.ImportSubLevels)
 	PExportPath = Path(args.ExportPath)
 	PakFolha = args.PakFolder

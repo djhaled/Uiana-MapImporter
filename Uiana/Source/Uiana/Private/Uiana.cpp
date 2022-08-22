@@ -69,53 +69,19 @@ void FUianaModule::ShutdownModule()
 
 
 
-FString FUianaModule::GetMapName(int EnumValue)
+
+
+bool FUianaModule::GetImportVisibility()
 {
-	if (EnumValue == 0)
+	FString CurrentPath = FPaths::ProjectPluginsDir() + "/Uiana/Content/Python/assets/umaps.json";
+	if (FPaths::FileExists(CurrentPath))
 	{
-		return FString("athena_terrain");
+		return true;
 	}
-	if (EnumValue == 1)
+	else
 	{
-		return FString("split");
+		return false;
 	}
-	if (EnumValue == 2)
-	{
-		return FString("bind");
-	}
-	if (EnumValue == 3)
-	{
-		return FString("icebox");
-	}
-	if (EnumValue == 4)
-	{
-		return FString("breeze");
-	}
-	if (EnumValue == 5)
-	{
-		return FString("haven");
-	}
-	if (EnumValue == 6)
-	{
-		return FString("fracture");
-	}
-	if (EnumValue == 7)
-	{
-		return FString("range");
-	}
-	if (EnumValue == 8)
-	{
-		return FString("pearl");
-	}
-	if (EnumValue == 9)
-	{
-		return FString("characterSelect");
-	}
-	if (EnumValue == 10)
-	{
-		return FString("menu");
-	}
-	return FString("NoMap");
 }
 
 void FUianaModule::PluginButtonClicked()
@@ -123,16 +89,18 @@ void FUianaModule::PluginButtonClicked()
 	FGlobalTabmanager::Get()->TryInvokeTab(UianaTabName);
 }
 
-FReply FUianaModule::ExecuteFunction()
+FReply FUianaModule::ExecuteMapFunction()
 {
 	bool ImportMesh = Stun->ImportMeshes;
 	bool ImportMat = Stun->ImportMaterials;
 	bool ImportDecal = Stun->ImportDecals;
 	bool ImportLights = Stun->ImportLights;
 	bool ImportSubLevels = Stun->UseSubLevels;
-	FString MapName = GetMapName(Stun->Map.GetValue());
+	//FString MapName = UEnum::GetDisplayValueAsText(Stun->Map).ToString(); 
+	FString MapName = Stun->MapName;
 	FString ExportPath = Stun->ExportFolder.Path;
 	FString PakFolder = Stun->PaksFolder.Path;
+	FString AesKK = Stun->AesKey;
 	FString CurrentPath = FPaths::ProjectPluginsDir();
 	FString GVersion = UEnum::GetDisplayValueAsText(Stun->GameVersion).ToString();
 	Stun->SaveConfig();
@@ -147,7 +115,26 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(PakFolder));
 	args.Add(FStringFormatArg(CurrentPath));
 	args.Add(FStringFormatArg(GVersion));
-	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\"\"{9}\""), args);
+	args.Add(FStringFormatArg(AesKK));
+	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\"\"{9}\"\"{10}\""), args);
+	const TCHAR* TCharCommand = *FormattedConsoleCommand;
+	GEngine->Exec(NULL, TCharCommand);
+	return FReply::Handled();
+}
+
+FReply FUianaModule::ExecuteUMapListFunction()
+{
+	Stun->SaveConfig();
+	TArray< FStringFormatArg > args;
+	FString Aesk = Stun->AesKey;
+	FString PakFolder = Stun->PaksFolder.Path;
+	FString CurrentPath = FPaths::ProjectPluginsDir();
+	FString GVersion = UEnum::GetDisplayValueAsText(Stun->GameVersion).ToString();
+	args.Add(FStringFormatArg(PakFolder));
+	args.Add(FStringFormatArg(GVersion));
+	args.Add(FStringFormatArg(Aesk));
+	args.Add(FStringFormatArg(CurrentPath));
+	FString FormattedConsoleCommand = FString::Format(TEXT("py runextractor.py \"{0}\" \"{1}\"\"{2}\" \"{3}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
 	GEngine->Exec(NULL, TCharCommand);
 	return FReply::Handled();
@@ -250,14 +237,32 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 		.Padding(2.f, 5.f)
 		[
 			SNew(SButton)
+			.IsEnabled(GetImportVisibility())
 			.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
 		.ForegroundColor(FSlateColor::UseForeground())
-		.OnClicked(FOnClicked::CreateRaw(this, &FUianaModule::ExecuteFunction))
+		.OnClicked(FOnClicked::CreateRaw(this, &FUianaModule::ExecuteMapFunction))
 		[
 			SNew(STextBlock)
 			.Justification(ETextJustify::Center)
 		.TextStyle(FEditorStyle::Get(), "NormalText.Important")
 		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate Map"))
+		]
+		]
+	+ SVerticalBox::Slot()
+		.AutoHeight()
+		.VAlign(VAlign_Bottom)
+		.HAlign(HAlign_Right)
+		.Padding(2.f, 5.f)
+		[
+			SNew(SButton)
+			.ButtonStyle(FEditorStyle::Get(), "FlatButton.Info")
+		.ForegroundColor(FSlateColor::UseForeground())
+		.OnClicked(FOnClicked::CreateRaw(this, &FUianaModule::ExecuteUMapListFunction))
+		[
+			SNew(STextBlock)
+			.Justification(ETextJustify::Center)
+		.TextStyle(FEditorStyle::Get(), "NormalText.Important")
+		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate .umap assets"))
 		]
 		]
 		]

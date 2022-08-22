@@ -28,16 +28,24 @@ namespace cue4extractor
         /// <param name="gameUmaps">An option whose argument is parsed as a FileInfo</param>
         /// <param name="GameVersion">An option whose argument is parsed as a FileInfo</param>
         private static void Main(
-            string gameDirectory = @"D:\FortOLD\FortniteGame\Content\Paks",
-            string aesKey = "0x2CCDFD22AD74FBFEE693A81AC11ACE57E6D10D0B8AC5FA90E793A130BC540ED4",
-            string exportDirectory = @"C:\maps\test",
-            string mapName = "athena_terrain",
+            string gameDirectory = @"D:\SteamLibrary\steamapps\common\Splitgate\PortalWars\Content\Paks",
+            string aesKey = "0xD73A797940208F2FB29256BE81A7CBC7B74CBF899441BB277F357F7F4577DBBB",
+            string exportDirectory = @"D:\mapsCenat",
+            string mapName = "crag",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
             string fileList = "",
-            string gameUmaps = @"D:\Baka\umaps.json",
-            EGame GameVersion = EGame.GAME_UE4_25
+            string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\BLANK\Plugins\Uiana\Content\Python\assets\umaps.json",
+            EGame GameVersion = EGame.GAME_Splitgate
             )
         {
+            //Console.WriteLine($"CUE4PARSE -  {gameDirectory}");
+            //Console.WriteLine($"CUE4PARSE -  {aesKey}");
+            //Console.WriteLine($"CUE4PARSE -  {exportDirectory}");
+            //Console.WriteLine($"CUE4PARSE -  {mapName}");
+            //Console.WriteLine($"CUE4PARSE -  {fileList}");
+            //Console.WriteLine($"CUE4PARSE -  {gameUmaps}");
+            //Console.WriteLine($"CUE4PARSE -  {GameVersion}");
+            //Thread.Sleep(100000);
             var versions = new VersionContainer(GameVersion);
             var provider = new DefaultFileProvider(gameDirectory, SearchOption.AllDirectories, true, versions);
             provider.Initialize();

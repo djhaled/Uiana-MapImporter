@@ -20,8 +20,10 @@ public:
 	/** This function will be bound to Command. */
 	UFUNCTION()
 	FString GetMapName(int EnumValue);
+	bool GetImportVisibility();
 	void PluginButtonClicked();
-	FReply ExecuteFunction();
+	FReply ExecuteMapFunction();
+	FReply ExecuteUMapListFunction();
 	UPROPERTY(Category = MapsAndSets, EditAnywhere)
 	mutable UUianaDataSettings*  Stun;
 	
