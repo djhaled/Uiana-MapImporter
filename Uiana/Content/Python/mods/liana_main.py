@@ -234,7 +234,7 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 		for prop_name, prop_value in mat_props["BasePropertyOverrides"].items():
 			if "BlendMode" == prop_name:
 				if "BLEND_Translucent" in prop_value:
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'IsTranslucent',True)
+					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'BLENDTranslucent',True)
 					blend_mode = unreal.BlendMode.BLEND_TRANSLUCENT
 				elif "BLEND_Masked" in prop_value:
 					blend_mode = unreal.BlendMode.BLEND_MASKED
@@ -261,10 +261,6 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 			for param in mat_props["StaticParameters"]["StaticSwitchParameters"]:
 				param_name = param["ParameterInfo"]["Name"].lower()
 				param_value = param["Value"]
-				if param_name == "Use Vertex Color":                                                                                              ####
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Vertex Color',True)
-				if param_name == "Use Alpha As Emissive":                                                                                              ####
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'Use Alpha As Emissive',True)
 				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, param_name,bool(param_value))
 		if "StaticComponentMaskParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
@@ -387,7 +383,7 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 	if "diffuse" not in texture_name and "albedo" not in texture_name:
 		if "diffuse a" in texture_name:
 			if "diffuse b" not in texture_name:
-				if "Wood_M15_OldSplintered" in mat_data["Name"]:
+				if "Wood_M15" or "WoodM15" in mat_data["Name"]:
 					set_switch_param(MatRef, 'WoodFix',True)
 				if "layer b tint" not in vector_name:
 					set_switch_param(MatRef, 'OnlyDiffuseA',True)
