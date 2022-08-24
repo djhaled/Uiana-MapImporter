@@ -265,16 +265,16 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 				param_name = param["ParameterInfo"]["Name"].lower()
 				param_value = param["Value"]
 				if param_name == "Use Vertex Color":                                                                                              ####
-					unreal.BPFL.set_static_switch_parameter_value(UEMat, 'Use Vertex Color',True)
+					unreal.BPFL.set_material_instance_static_switch_parameter_value(UEMat, 'Use Vertex Color',True)
 				if param_name == "Use Alpha As Emissive":                                                                                              ####
-					unreal.BPFL.set_static_switch_parameter_value(UEMat, 'Use Alpha As Emissive',True)
-				unreal.BPFL.set_static_switch_parameter_value(UEMat, param_name,bool(param_value))
+					unreal.BPFL.set_material_instance_static_switch_parameter_value(UEMat, 'Use Alpha As Emissive',True)
+				unreal.BPFL.set_material_instance_static_switch_parameter_value(UEMat, param_name,bool(param_value))
 		if "StaticComponentMaskParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
 				listosa = ["R","G","B"]
 				for pa in listosa:
 					value = param[pa]
-					unreal.BPFL.set_static_switch_parameter_value(UEMat, pa,bool(value))
+					unreal.BPFL.set_material_instance_static_switch_parameter_value(UEMat, pa,bool(value))
 	if "ScalarParameterValues" in mat_props:
 		for param in mat_props["ScalarParameterValues"]:
 			param_name = param['ParameterInfo']['Name'].lower()
@@ -319,7 +319,6 @@ def SetTextures(mat_props: dict, MatRef):
 		for VectorParam in mat_props["VectorParameterValues"]:
 		    param_name = VectorParam['ParameterInfo']['Name'].lower()
 		    vector_name.append(param_name)
-	
 	for param in mat_props["TextureParameterValues"]:
 		vector_name = []
 		tex_game_path = get_texture_path(s=param, f=Set.texture_format)
@@ -379,7 +378,7 @@ def SetTextures(mat_props: dict, MatRef):
 		    param_name = TextureParam['ParameterInfo']['Name'].lower()
 		    texture_name.append(param_name)
 
-	set_mi_param = unreal.BPFL.set_static_switch_parameter_value
+	set_mi_param = unreal.BPFL.set_material_instance_static_switch_parameter_value
 
 	if "diffuse" in texture_name or "albedo" in texture_name:	
 		if "diffuse a" not in texture_name and "texture a" not in texture_name:
@@ -418,10 +417,10 @@ def SetTextures(mat_props: dict, MatRef):
 				set_mi_param(MatRef, 'OnlyNormalB',True)
 
 	if "mra" in texture_name or "mra a" in texture_name or "mra b" in texture_name:		
-		unreal.BPFL.set_static_switch_parameter_value(MatRef, 'Use AO color',True)
+		unreal.BPFL.set_material_instance_static_switch_parameter_value(MatRef, 'Use AO color',True)
 
 	if "emissive mult" in vector_name:
-		unreal.BPFL.set_static_switch_parameter_value(MatRef, 'Use Emissive',True)
+		unreal.BPFL.set_material_instance_static_switch_parameter_value(MatRef, 'Use Emissive',True)
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 
@@ -788,6 +787,7 @@ def CreateMaterial(mat):
 	else:
 		Mat = AssetTools.create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
 		Mat = unreal.MaterialInstanceConstant.cast(Mat)
+		# ParentToImport = "BaseEnv_MAT_V4"
 		ParentToImport = "BaseEnv_MAT_V4"
 		if HasKey("Parent",MatProps):
 			ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])

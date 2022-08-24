@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Materials/MaterialInstanceConstant.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "BPFL.generated.h"
 
@@ -17,8 +18,11 @@ class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable, Category = VertexPainting)
-	static void SetStaticSwitchParameterValue(UMaterialInstance* Instance, FName ParameterName, bool Value);
+	UFUNCTION(BlueprintCallable, Category = "MaterialEditing")
+	static bool SetMaterialInstanceStaticSwitchParameterValue(UMaterialInstanceConstant* Instance, FName ParameterName, bool Value, EMaterialParameterAssociation Association = EMaterialParameterAssociation::GlobalParameter);
+	static void SetStaticSwitchParameterValueEditorOnly(UMaterialInstance* Instance, const FMaterialParameterInfo& ParameterInfo, bool Value);
+	// UFUNCTION(BlueprintCallable, Category = VertexPainting)
+	// static void SetStaticSwitchParameterValue(UMaterialInstance* Instance, FName ParameterName, bool Value);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
 	static void PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)

@@ -13,6 +13,8 @@
 #include "Materials/MaterialInstance.h"
 #include "PSKReader.h"
 #include "Engine/RendererSettings.h"
+#include "MaterialEditor/MaterialEditorInstanceConstant.h"
+
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
 {
 	TArray<FColor> FinalColors;
@@ -82,20 +84,60 @@ FColor UBPFL::ReturnFromHex(FString Beka)
 	return FColor::FromHex(Beka);
 }
 
-// Copied from https://qiita.com/EGJ-Kaz_Okada/items/4fd6db895b398893cbbb
-void UBPFL::SetStaticSwitchParameterValue(UMaterialInstance* Instance, FName ParameterName, bool Value)
+bool UBPFL::SetMaterialInstanceStaticSwitchParameterValue(UMaterialInstanceConstant* Instance, FName ParameterName, bool Value, EMaterialParameterAssociation Association)
 {
-	FStaticParameterSet StaticParameters = Instance->GetStaticParameters();
-	for (auto& SwitchParameter : StaticParameters.StaticSwitchParameters)
+	bool bResult = false;
+	if (Instance)
 	{
-		if (SwitchParameter.ParameterInfo.Name == ParameterName)
+		UBPFL::SetStaticSwitchParameterValueEditorOnly(Instance, FMaterialParameterInfo(ParameterName, Association, Association == EMaterialParameterAssociation::LayerParameter ? 0 : INDEX_NONE), Value);
+
+		// The material instance editor window puts MaterialLayersParameters into our StaticParameters, if we don't do this, our settings could get wiped out on first launch of the material editor.
+		// If there's ever a cleaner and more isolated way of populating MaterialLayersParameters, we should do that instead.
+		UMaterialEditorInstanceConstant* MaterialEditorInstance = NewObject<UMaterialEditorInstanceConstant>(GetTransientPackage(), NAME_None, RF_Transactional);
+		MaterialEditorInstance->SetSourceInstance(Instance);
+	}
+	return bResult;
+}
+
+void UBPFL::SetStaticSwitchParameterValueEditorOnly(UMaterialInstance* Instance, const FMaterialParameterInfo& ParameterInfo, bool Value)
+{
+	check(GIsEditor || IsRunningCommandlet());
+	FStaticParameterSet StaticParameters = Instance->GetStaticParameters();
+	UE_LOG(LogTemp, Warning, TEXT("UIANA: Instance %s has %d static switch parameters"), *(Instance->GetName()), StaticParameters.StaticSwitchParameters.Num());
+	for (FStaticSwitchParameter& StaticSwitches : StaticParameters.StaticSwitchParameters)
+	{
+		if (StaticSwitches.ParameterInfo == ParameterInfo)
 		{
-			SwitchParameter.Value = Value;
-			break;
+			StaticSwitches.bOverride = true;
+			StaticSwitches.Value = Value;
+			return;
 		}
 	}
-	Instance->UpdateStaticPermutation(StaticParameters);
+
+	new(StaticParameters.StaticSwitchParameters) FStaticSwitchParameter(ParameterInfo, Value, true, FGuid());
 }
+
+// #if WITH_EDITORONLY_DATA
+// // Copied from https://qiita.com/EGJ-Kaz_Okada/items/4fd6db895b398893cbbb
+// void UBPFL::SetStaticSwitchParameterValue(UMaterialInstance* Instance, FName ParameterName, bool Value)
+// {
+// 	check(GIsEditor || IsRunningCommandlet());
+// 	FStaticParameterSet StaticParameters = Instance->GetStaticParameters();
+// 	FString params = "Params: ";
+// 	for (auto& SwitchParameter : StaticParameters.StaticSwitchParameters)
+// 	{
+// 		params += SwitchParameter.ParameterInfo.Name;
+// 		if (SwitchParameter.ParameterInfo.Name == ParameterName)
+// 		{
+// 			SwitchParameter.bOverride = true;
+// 			SwitchParameter.Value = Value;
+// 			break;
+// 		}
+// 	}
+// 	UE_LOG(LogTemp, Warning, TEXT("UIANA: %s has parameters %s"), *(ParameterName.ToString()), *params);
+// 	Instance->UpdateStaticPermutation(StaticParameters);
+// }
+// #endif // WITH_EDITORONLY_DATA
 
 TMap<FVector, FColor> UBPFL::MakeHashmap(TArray<FVector> arr1, TArray<FColor> TestVtx)
 {
