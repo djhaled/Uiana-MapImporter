@@ -232,12 +232,6 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
 
 	new_list = []
 
-	def is_blacklisted(object_name: str) -> bool:
-		for blocked in BLACKLIST:
-			if blocked.lower() in object_name.lower():
-				return True
-		return False
-
 	# Check for blacklisted items
 	for og_model in filtered_list:
 		model_name_lower = get_obj_name(data=og_model, mat=False).lower()
@@ -248,7 +242,11 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
 			new_list.append(og_model)
 
 	return new_list
-
+def is_blacklisted(object_name: str) -> bool:
+	for blocked in BLACKLIST:
+		if blocked.lower() in object_name.lower():
+			return True
+	return False
 def get_obj_name(data: dict, mat: bool):
 	if mat:
 		s = data["ObjectPath"]

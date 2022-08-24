@@ -19,7 +19,6 @@ object_types = []
 AllLevelPaths = []
 file = "snd.mp3"
 AssetTools = unreal.AssetToolsHelpers.get_asset_tools()
-start_time = time.time()
 #BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
 def GetMaterialToOverride(Data):
 	Props = Data["Properties"]
@@ -72,21 +71,6 @@ def extract_data(settings: Settings, export_directory: str, asset_list_txt: str 
 
 
 
-
-
-def get_object(map_object, index):
-	name = map_object.get_object_name()
-	path_to_file = unreal.load_asset(f"/Game/ValorantContent/Meshes/{name}")
-	if path_to_file != None:
-		return
-	task = unreal.AssetImportTask()
-	task.set_editor_property('destination_path', '/Game/ValorantContent/Meshes')
-	task.set_editor_property('filename', map_object.model_path)
-	task.set_editor_property('automated', True)
-	task.set_editor_property('save', False)
-	task.set_editor_property('replace_existing', False)
-	AllMeshes.append(map_object)
-	AllTasks.append(task)
 
 
 def get_map_assets(settings: Settings):
@@ -165,30 +149,13 @@ def get_map_assets(settings: Settings):
 def SetDecalMaterial(Set,MapObject):
 	Set = Seting
 	object_properties_OG = MapObject["Properties"]
-	ObjectName = MapObject["Name"]
-	Parent = "DecalBugged"
-	if "DecalMaterial" in MapObject["Properties"]:
+	if "DecalMaterial" in object_properties_OG:
 		yoyo = MapObject["Properties"]["DecalMaterial"]
 		mat_name = get_obj_name(data=yoyo, mat=True)
-		mat_json = read_json(Set.selected_map.materials_ovr_path.joinpath(f"{mat_name}.json"))
-		MaterialData = mat_json[0]
-		if HasKey("Properties",MaterialData) == False:
-			return
-		Props = MaterialData["Properties"]
-		if HasKey("Parent",Props) == False:
-			idk = 0 
-			#print(MaterialData["Name"])
-		else:
-			Parent = Props["Parent"]["ObjectName"]
 		Mat = unreal.load_asset(f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
-		if Mat is None:
-			Mat= AssetTools.create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
-			unreal.EditorAssetLibrary.save_asset(f'/Game/ValorantContent/Materials/{mat_name}')
-		Mat = unreal.MaterialInstanceConstant.cast(Mat)
-		MatBase = ImportShader(Parent.replace("Material ", ""))
-		Mat.set_editor_property('parent', MatBase)
-		set_material(settings=Settings,  mat_data=MaterialData, object_cls=MapObject,UEMat = Mat,decal=True )
 		return Mat
+	else: 
+		return None
 
 # SECTION : Set Material
 def ReturnParent(parentName):
@@ -309,7 +276,7 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 		
 		if "diffuse b low" not in param_name:
 			if Path(tex_local_path).exists():
-				ImportedTexture = unreal.load_asset(f'/Game/ValorantContent/Textures/.{tex_name}')
+				ImportedTexture = unreal.load_asset(f'/Game/ValorantContent/Textures/{tex_name}')
 			if ImportedTexture == None:
 				continue
 			if "diffuse" == param_name or "albedo" == param_name:
@@ -506,8 +473,8 @@ def ImportDecal(DecalData):
 	DecActor.set_folder_path(f'Decals')
 	DecActor.set_actor_scale3d(ActorInfo.transform.scale3d)
 	DecalComponent = DecActor.decal
-	#DecalMat = SetDecalMaterial(Settings, DecalData)
-	#DecalComponent.set_decal_material(DecalMat)
+	DecalMat = SetDecalMaterial(Settings, DecalData)
+	DecalComponent.set_decal_material(DecalMat)
 	BlacklistDecal =  ['DecalMaterial','LightColorType','CachedVertexFogIntensityFromVolumes','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	for propName,PropValue in ActorInfo.props.items():
 		if propName not in BlacklistDecal:
@@ -590,12 +557,10 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 		if object_type == "mesh" and Seting.import_Mesh :
 			#if "Lighting" not in umap_name:
 			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name)
-			imported_object = import_object(map_object=map_object, object_index=objectIndex)
 		if object_type == "decal" and settings.import_decals:
 			ImportDecal(object_data)
 		if object_type == "light" and settings.import_lights:
 			ImportLights(object_data,objectsToImport)
-	do_import_tasks(AllMeshes,AllTasks,False)
 	if Seting.import_Mesh :
 		SpawnMeshesInMap(umap_data,settings,umap_name)
 def LevelStreamingStuff():
@@ -658,13 +623,7 @@ def GetActualPath(name):
 	#/find = name.rfind("/") + 1
 	#newname = name[find:len(name)]
 
-def import_object(map_object: MapObject,  object_index: int):
 
-	master_object = None
-	if Path(map_object.model_path).exists():
-		master_object = get_object(map_object, object_index)
-
-		
 
 
 # ANCHOR Post Processing
@@ -732,6 +691,8 @@ def ExportAllMeshes():
 		Lines = file1.read().splitlines() 
 	ExpPath = str(Seting.assets_path)
 	for line in Lines:
+		if is_blacklisted(line[line.rfind("\\")+1:len(line)]):
+			continue
 		linearr = line.split("\\")
 		if linearr[0] == "Engine":
 			continue
@@ -740,7 +701,8 @@ def ExportAllMeshes():
 			linearr.pop(0)
 		JoinedLinesBack = "\\".join(linearr)
 		FullPath = ExpPath + '\\Game\\' + JoinedLinesBack + ".pskx"
-		AllMeshes.append(FullPath)
+		if FullPath not in AllMeshes:
+			AllMeshes.append(FullPath)
 
 	# import 
 	unreal.BPFL.import_meshes(AllMeshes,str(Seting.selected_map.objects_path))
@@ -797,12 +759,19 @@ def import_map(Setting):
 	#  Check if the game files are exported
 	######### export all textures before ###########
 	if (Seting.import_materials ):
+		txttime = time.time()
 		ExportAllTextures()
+		print("--- %s seconds to create textures ---" % (time.time() - txttime))
+		start_time = time.time()
 		ExportAllMaterials()
+	print("--- %s seconds to create materials  ---" % (time.time() - start_time))
+	Mstart_time = time.time()
 	if Seting.import_Mesh:
 		ExportAllMeshes()
+	print("--- %s seconds to create meshes ---" % (time.time() - Mstart_time))
 	###### above takes 0.09 might fix #######
 	umap_json_path: Path
+	Ltart_time = time.time()
 	for index, umap_json_path in reversed(list(enumerate(umap_json_paths))):
 		umap_data = read_json(umap_json_path)
 		umap_name = umap_json_path.stem
@@ -813,7 +782,6 @@ def import_map(Setting):
 			unreal.EditorLevelLibrary.save_current_level()
 	if Seting.import_sublevel :
 		LevelStreamingStuff()
-	SetSMSettings()
-	print("--- %s seconds ---" % (time.time() - start_time))
+	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
 	winsound.Beep(18000, 100)
 

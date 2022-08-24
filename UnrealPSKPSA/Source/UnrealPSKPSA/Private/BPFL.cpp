@@ -171,7 +171,7 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		ActorIdx++;
 		FString TexGamePath, TexName;
 		tx.Split(TEXT("\\"), &TexGamePath, &TexName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-		FString PathForTextures = FString::Printf(TEXT("/Game/ValorantContent/Textures/%s"), *TexName);
+		FString PathForTextures = FString::Printf(TEXT("/Game/ValorantContent/Textures/%s"), *TexName.Replace(TEXT(".png"),TEXT("")));
 		auto TexPackage = CreatePackage(nullptr ,*PathForTextures);
 		auto bCancelled = false;
 		auto NewTxName = TexName.Replace(TEXT(".png"),TEXT(""));
