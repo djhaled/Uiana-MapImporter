@@ -58,6 +58,8 @@ BLACKLIST = [
 	"supergrid",
 	"_col",
 	"M_Pitt_Lamps_Glow",
+	"Bombsite_0_ASiteSide",
+	"Bombsite_0_BSiteSide"
 	"for_volumes",
 	"Foxtrot_ASite_Plane_DU",
 	"Foxtrot_ASite_Side_DU",

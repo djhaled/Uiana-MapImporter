@@ -29,7 +29,6 @@ def GetMaterialToOverride(Data):
 		if mat == None:
 			MaterialArray.append(None)
 			continue
-
 		matname = mat["ObjectName"]
 		CheckLoaded = ReturnObjectName(matname)
 		if CheckLoaded == "Stone_M2_Steps_MI1":
@@ -41,8 +40,6 @@ def GetMaterialToOverride(Data):
 		MaterialArray.append(Material)
 	return MaterialArray
 
-def bIsDefaultEnv(asset):
-	return "BaseEnv_MAT_V4"
 
 def extract_assets(settings: Settings):
 	if settings.assets_path.joinpath("exported.yo").exists():
@@ -74,17 +71,7 @@ def extract_data(settings: Settings, export_directory: str, asset_list_txt: str 
 	subprocess.call(args)
 
 
-def do_import_tasks(Meshes,tasks,bTexture):
-	AssetTools.import_asset_tasks(tasks)
-	# if Meshes is not None:
-	# 	for t in Meshes:
-	# 		if Seting.import_materials :
-	# 			set_materials(Settings,t,False)
-			# else:
-			# 	pass
-	AllTasks.clear()
-	AllMeshes.clear()
-	AllTextures.clear()
+
 
 
 def get_object(map_object, index):
@@ -354,7 +341,7 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
 
-def SetSMSettings():
+def Get():
 	OBJPath = Seting.selected_map.objects_path
 	### first normal mats #######
 	ListObjs = os.listdir(OBJPath)
@@ -739,7 +726,24 @@ def CreateMaterial(mat):
 
 
 	set_material(settings=Settings,  mat_data=mat_data, object_cls=None,UEMat = Mat )
+def ExportAllMeshes():
+	OBJPath = Seting.selected_map.folder_path.joinpath(f"_assets_objects.txt")
+	with open(OBJPath,'r') as file1:
+		Lines = file1.read().splitlines() 
+	ExpPath = str(Seting.assets_path)
+	for line in Lines:
+		linearr = line.split("\\")
+		if linearr[0] == "Engine":
+			continue
+		else:
+			linearr.pop(0)
+			linearr.pop(0)
+		JoinedLinesBack = "\\".join(linearr)
+		FullPath = ExpPath + '\\Game\\' + JoinedLinesBack + ".pskx"
+		AllMeshes.append(FullPath)
 
+	# import 
+	unreal.BPFL.import_meshes(AllMeshes,str(Seting.selected_map.objects_path))
 def ExportAllTextures():
 	MatPath = Seting.selected_map.materials_path
 	MatOverridePath = Seting.selected_map.materials_ovr_path
@@ -795,6 +799,8 @@ def import_map(Setting):
 	if (Seting.import_materials ):
 		ExportAllTextures()
 		ExportAllMaterials()
+	if Seting.import_Mesh:
+		ExportAllMeshes()
 	###### above takes 0.09 might fix #######
 	umap_json_path: Path
 	for index, umap_json_path in reversed(list(enumerate(umap_json_paths))):

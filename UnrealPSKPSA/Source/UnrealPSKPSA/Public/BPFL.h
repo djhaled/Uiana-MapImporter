@@ -10,6 +10,7 @@
  * 
  */
 class AActor;
+class UPSKXFactory;
 
 UCLASS()
 class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
@@ -28,4 +29,7 @@ public:
 	static void ChangeProjectSettings();
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ImportTextures(TArray<FString> AllTexturesPath);
+	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
+	static void ImportMeshes(TArray<FString> AllMeshesPath, FString ObjectsPath);
+	static ECollisionTraceFlag GetTraceFlag(FString tflag);
 };
