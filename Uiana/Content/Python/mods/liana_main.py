@@ -300,7 +300,6 @@ def ImportTexture(Path):
 	if Path not in AllTextures:
 		AllTextures.append(Path)
 
-
 def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 	Set = Seting
 	ImportedTexture = None
@@ -313,7 +312,7 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 		for VectorParam in mat_props["VectorParameterValues"]:
 			param_name = VectorParam['ParameterInfo']['Name'].lower()
 			vector_name.append(param_name)
-	
+
 	for param in mat_props["TextureParameterValues"]:
 		vector_name = []
 		tex_game_path = get_texture_path(s=param, f=Set.texture_format)
@@ -326,102 +325,34 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 				ImportedTexture = unreal.load_asset(f'/Game/ValorantContent/Textures/.{tex_name}')
 			if ImportedTexture == None:
 				continue
-			if "rgba" == param_name:
-				MatParameterValue = set_texture_param(MatRef, 'RGBA', ImportedTexture)
 			if "diffuse" == param_name or "albedo" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Diffuse', ImportedTexture)
 			if "diffuse a" == param_name  or "texture a" == param_name or "albedo a" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Diffuse A', ImportedTexture)
 			if "diffuse b" == param_name  or "texture b" == param_name or "albedo b" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Diffuse B', ImportedTexture)
-			if "mra" == param_name:
-				MatParameterValue = set_texture_param(MatRef, 'MRA', ImportedTexture)
-			if  "mra a" == param_name:
-				MatParameterValue = set_texture_param(MatRef, 'MRA A', ImportedTexture)
-			if "mra b" == param_name :
-				MatParameterValue = set_texture_param(MatRef, 'MRA B', ImportedTexture)
-			if "normal" == param_name:
-				MatParameterValue = set_texture_param(MatRef, 'Normal', ImportedTexture)
 			if  "texture a normal" == param_name or "normal a" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Texture A Normal', ImportedTexture)
 			if  "texture b normal" == param_name or "normal b" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Texture B Normal', ImportedTexture)
-				pass
 			if "mask" in param_name or "Mask Textuer" in param_name or "Mask Texture" in param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Mask Textuer', ImportedTexture)
 			if "mask" in param_name or "rgba" in param_name:
 				pass
-
-#Section Master Material StaticSwitches (will probably be changed later)
-
-	#if HasKey("StaticParameters",mat_props):
-	#	if "StaticSwitchParameters" in mat_props["StaticParameters"]:
-	#		static_name = []
-	#		for StaticParam in mat_props["StaticParameters"]["StaticSwitchParameters"]:
-	#			param_name = StaticParam["ParameterInfo"]["Name"].lower()
-	#			static_name.append(param_name)
-
-	if HasKey("VectorParameterValues",mat_props):
-		vector_name = []
-		for VectorParam in mat_props["VectorParameterValues"]:
-			param_name = VectorParam['ParameterInfo']['Name'].lower()
-			vector_name.append(param_name)
+			set_texture_param(MatRef, param_name, ImportedTexture)
 
 	if HasKey("TextureParameterValues",mat_props):
 		texture_name = []
 		for TextureParam in mat_props["TextureParameterValues"]:
 			param_name = TextureParam['ParameterInfo']['Name'].lower()
 			texture_name.append(param_name)
-
-	
-
-	if "diffuse" in texture_name or "albedo" in texture_name:	
-		if "diffuse a" not in texture_name and "texture a" not in texture_name:
-			if "diffuse b" not in texture_name and "texture b" not in texture_name:
-				if "layer b tint" not in vector_name and "layer a tint" not in vector_name:
-					set_switch_param(MatRef, 'OnlyDiffuse',True)
-	if "diffuse" not in texture_name and "albedo" not in texture_name:
-		if "diffuse a" in texture_name:
-			if "diffuse b" not in texture_name:
-				if "Wood_M15" or "WoodM15" in mat_data["Name"]:
-					set_switch_param(MatRef, 'WoodFix',True)
-				if "layer b tint" not in vector_name:
-					set_switch_param(MatRef, 'OnlyDiffuseA',True)
-		if "diffuse b" in texture_name:
-			if "diffuse a" not in texture_name:
-				if "layer a tint" not in vector_name:
-					set_switch_param(MatRef, 'OnlyDiffuseB',True)
-	if "mra" in texture_name:
-		if "mra a" not in texture_name and "mra b" not in texture_name:
-			set_switch_param(MatRef, 'OnlyMRA',True)
-	if "mra" not in texture_name:
-		if "mra a" in texture_name:
-			if "mra b" not in texture_name:
-				set_switch_param(MatRef, 'OnlyMraA',True)
-		if "mra b" in texture_name:
-			if "mra a" not in texture_name:
-				set_switch_param(MatRef, 'OnlyMraB',True)
-	if "normal" in texture_name:
-		if "normal a" not in texture_name and "texture a normal" not in texture_name:
-			if "normal b" not in texture_name and "texture b normal" not in texture_name:
-				set_switch_param(MatRef, 'OnlyNormal',True)
-	if "normal" not in texture_name:
-		if "normal a" or "texture a normal" in texture_name:
-			if "normal b" and "texture b normal" not in texture_name:
-				set_switch_param(MatRef, 'OnlyNormalA',True)
-		if "normal b" or "texture b normal" in texture_name:
-			if "normal a" and "texture a normal" not in texture_name:
-				set_switch_param(MatRef, 'OnlyNormalB',True)
-
-	if "mra" in texture_name or "mra a" in texture_name or "mra b" in texture_name:		
-		set_switch_param(MatRef, 'Use AO color',True)
-
-	if "emissive mult" in vector_name:
-		set_switch_param(MatRef, 'Use Emissive',True)
+	mat_name = mat_data["Name"]
+	if "diffuse a" in texture_name:
+		if "diffuse b" not in texture_name:
+			if "Wood_M15" in mat_name:
+				set_switch_param(MatRef, 'WoodFix',True)
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
-
-
 
 def SetSMSettings():
 	OBJPath = Seting.selected_map.objects_path
@@ -588,8 +519,8 @@ def ImportDecal(DecalData):
 	DecActor.set_folder_path(f'Decals')
 	DecActor.set_actor_scale3d(ActorInfo.transform.scale3d)
 	DecalComponent = DecActor.decal
-	DecalMat = SetDecalMaterial(Settings, DecalData)
-	DecalComponent.set_decal_material(DecalMat)
+	#DecalMat = SetDecalMaterial(Settings, DecalData)
+	#DecalComponent.set_decal_material(DecalMat)
 	BlacklistDecal =  ['DecalMaterial','LightColorType','CachedVertexFogIntensityFromVolumes','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	for propName,PropValue in ActorInfo.props.items():
 		if propName not in BlacklistDecal:
