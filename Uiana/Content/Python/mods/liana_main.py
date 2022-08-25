@@ -383,10 +383,7 @@ def ImportLights(OBJData, ArrObjsImport):
 		PostProcessSettings = ActorInfo.props["Settings"]
 		SetPostProcessSettings(PostProcessSettings,CompToUse)
 	for Setting in ActorInfo.props:
-		LightSettingType = type(ActorInfo.props[Setting])
 		LightSetting = ActorInfo.props[Setting]
-				#if Setting == "ReflectionSourceType":
-					#continue
 		if Setting == "IESTexture":
 			CompToUse.set_editor_property('IESTexture',SetIesTexture(LightSetting))
 		if Setting == "Cubemap":
@@ -400,6 +397,9 @@ def ImportLights(OBJData, ArrObjsImport):
 		if Setting == "Mobility":
 			CompToUse.set_editor_property('Mobility',Mobility)
 	SetAllSettings(ActorInfo.props,CompToUse)
+
+
+	############## to pass it to c++ we need to make a data asset that withholds all data from the umaps.
 def ImportDecal(DecalData):
 	ActorInfo = ActorDefs(DecalData)
 	if not ActorInfo.transform:
@@ -454,13 +454,13 @@ def ImportMesh(MeshData,MapObj):
 		SMActor.set_folder_path(FolderName)
 		if len(OvrVertexes) > 0:
 			unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
-		SetAllSettings(MeshActor.props,Instance)
-		if HasKey("OverrideMaterials",MeshActor.props):
-			if not Seting.import_materials:
-				return
-			MatOver = GetMaterialToOverride(MeshActor.data)
-			if MatOver:
-				Instance.set_editor_property('override_materials',MatOver) 
+	SetAllSettings(MeshActor.props,Instance)
+	if HasKey("OverrideMaterials",MeshActor.props):
+		if not Seting.import_materials:
+			return
+		MatOver = GetMaterialToOverride(MeshActor.data)
+		if MatOver:
+			Instance.set_editor_property('override_materials',MatOver) 
 
 ###### end spawners
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):

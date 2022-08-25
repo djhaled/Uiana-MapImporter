@@ -183,7 +183,6 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		auto Tex = CastChecked<UTexture2D>(CreatedTexture);
 		/// tx 
 		auto CompressionSetting = Tex->CompressionSettings;
-		//auto EnumCompString = UEnum::GetValueAsString(CompressionSetting);
 		if (NewTxName.EndsWith("MRA") && CompressionSetting != TC_Masks)
 		{
 			Tex->SRGB = false;
@@ -193,7 +192,6 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		{
 			Tex->SRGB = false;
 			Tex->CompressionSettings = TC_Normalmap;
-			Tex->LODGroup = TEXTUREGROUP_WorldNormalMap;
 		}
 		if (NewTxName.EndsWith("DF") && CompressionSetting != TC_Normalmap)
 		{
