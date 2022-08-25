@@ -533,6 +533,7 @@ class Map:
 
 class ActorDefs():
 	def __init__(self,Actor):
+		self.data = Actor
 		self.name = Actor["Name"]
 		self.type = Actor["Type"]
 		self.props = Actor["Properties"]

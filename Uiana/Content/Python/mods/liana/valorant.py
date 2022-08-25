@@ -157,7 +157,32 @@ def get_texture_path_yo(s: str, f: str):
 	b = fix_path(a=a) + f
 	return b
 
+def extract_assets(settings: Settings):
+	if settings.assets_path.joinpath("exported.yo").exists():
+		pass
+	else:
+		args = [settings.umodel.__str__(),
+				f"-path={settings.paks_path.__str__()}",
+				f"-game=valorant",
+				f"-aes={settings.aes}",
+				"*.uasset",
+				"-export",
+				"-noanim",
+				"-nooverwrite",
+				f"-{settings.texture_format.replace('.', '')}",
+				f"-out={settings.assets_path.__str__()}"]
+		subprocess.call(args,stderr=subprocess.DEVNULL)
 
+def extract_data(settings: Settings, export_directory: str, asset_list_txt: str = ""):
+	args = [settings.cue4extractor.__str__(),
+			"--game-directory", settings.paks_path.__str__(),
+			"--aes-key", settings.aes,
+			"--export-directory", export_directory.__str__(),
+			"--map-name", settings.selected_map.name,
+			"--file-list", asset_list_txt,
+			"--game-umaps", settings.umap_list_path.__str__()
+			]
+	subprocess.call(args)
 class MapObject(object):
 	def __init__(self, settings: Settings, data: dict, umap_name: str):
 		self.umap = umap_name
