@@ -422,8 +422,8 @@ def ImportMesh(MeshData,MapObj):
 		return
 	PathToGo = ConvertToLoadableUE(MeshActor.props["StaticMesh"],"StaticMesh ","Meshes")
 	Transform = GetTransform(MeshActor.props)
-	if not Transform:
-		Transform = GetAttachScene(j,NameProp,data)
+	if not HasTransform(MeshActor.props):
+		Transform = GetAttachScene(MeshActor.data,MeshActor.outer,MapObj.umapdata)
 	if type(Transform) == bool:
 		Transform = GetTransform(MeshActor.props)
 	if not Transform:
@@ -472,7 +472,7 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 		object_type = get_object_type(object_data)
 		if object_type == "mesh" and Seting.import_Mesh :
 			#if "Lighting" not in umap_name:
-			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name)
+			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name,umap_data=umap_data)
 			ImportMesh(object_data,map_object)
 		if object_type == "decal" and settings.import_decals:
 			ImportDecal(object_data)
