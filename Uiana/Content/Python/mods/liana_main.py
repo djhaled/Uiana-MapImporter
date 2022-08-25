@@ -461,6 +461,44 @@ def ImportMesh(MeshData,MapObj):
 		MatOver = GetMaterialToOverride(MeshActor.data)
 		if MatOver:
 			Instance.set_editor_property('override_materials',MatOver) 
+def SetSMSettings():
+	OBJPath = Seting.selected_map.objects_path
+	### first normal mats #######
+	ListObjs = os.listdir(OBJPath)
+	for obj in ListObjs:
+		Join = OBJPath.joinpath(obj)
+		ObjJson = read_json(Join)
+		sm = ObjJson
+		for sm in ObjJson:
+			if HasKey("Outer",sm):
+				Outer = sm["Outer"]
+			if sm["Type"] == "StaticMesh":
+				Props = sm["Properties"]
+				Name = sm["Name"]
+				LmCoord = 0
+				LMRes = 256
+				#########Set LightMapSettings
+				if HasKey("LightMapResolution",Props):
+					LMRes = Props["LightMapResolution"]
+				if HasKey("LightMapCoordinateIndex",Props):
+					LmCoord = Props["LightMapCoordinateIndex"]
+				MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Name}")
+				if (MeshToLoad):
+					CastSM = unreal.StaticMesh.cast(MeshToLoad)
+					CastSM.set_editor_property("light_map_coordinate_index", LmCoord)
+					CastSM.set_editor_property("light_map_resolution", LMRes)
+			########### Set BodyCollision
+			if sm["Type"] == "BodySetup":
+				PropsBody = sm["Properties"]
+				if HasKey("CollisionTraceFlag",PropsBody):
+					ColTrace = re.sub('([A-Z])', r'_\1', PropsBody["CollisionTraceFlag"])
+					MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Outer}")
+					if (MeshToLoad):
+						CastSM = unreal.StaticMesh.cast(MeshToLoad)
+						BSetup =  CastSM.get_editor_property("body_setup")
+						strcollision = 'CTF_' + ColTrace[8:len(ColTrace)].upper()
+						BSetup.set_editor_property("collision_trace_flag", eval(f'unreal.CollisionTraceFlag.{strcollision}'))
+						CastSM.set_editor_property("body_setup", BSetup)
 
 ###### end spawners
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):
@@ -663,5 +701,6 @@ def import_map(Setting):
 			unreal.EditorLevelLibrary.save_current_level()
 	if Seting.import_sublevel :
 		LevelStreamingStuff()
+	SetSMSettings()
 	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
 	winsound.Beep(26000, 1500)
