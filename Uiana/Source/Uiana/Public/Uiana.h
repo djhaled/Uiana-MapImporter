@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Input/Reply.h"
 #include "Modules/ModuleManager.h"
 
 class FToolBarBuilder;
@@ -12,21 +13,19 @@ class UUianaDataSettings;
 class FUianaModule : public IModuleInterface
 {
 public:
-
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	
+
 	/** This function will be bound to Command. */
 	UFUNCTION()
 	FString GetMapName(int EnumValue);
 	void PluginButtonClicked();
 	FReply ExecuteFunction();
 	UPROPERTY(Category = MapsAndSets, EditAnywhere)
-	mutable UUianaDataSettings*  Stun;
-	
-private:
+	mutable UUianaDataSettings* Stun;
 
+private:
 	void RegisterMenus();
 	void RegisterSettings();
 	TSharedRef<SWidget> MakeDataManagementSettingsDetailsWidget() const;

@@ -12,35 +12,31 @@
 // Sets default values
 AValActor::AValActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	SceneComp = CreateDefaultSubobject<USceneComponent>("RootSceneComp");
 	RootComponent = SceneComp;
 	SceneComp->Mobility = EComponentMobility::Static;
-
-
 }
 
 // Called when the game starts or when spawned
 void AValActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 
 void AValActor::CreateCapsuleComponent(UCapsuleComponent*& NewComp)
 {
 	UCapsuleComponent* HiSplineComp;
-	NewComp = NewObject<UCapsuleComponent >(this, HiSplineComp->StaticClass());
+	NewComp = NewObject<UCapsuleComponent>(this, HiSplineComp->StaticClass());
 	NewComp->SetupAttachment(RootComponent);
 	NewComp->RegisterComponent();
 	AddInstanceComponent(NewComp);
 	NewComp->SetFlags(RF_Transactional);
-
 }
 
-void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp,  UStaticMesh* MeshToUSE)
+void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp, UStaticMesh* MeshToUSE)
 {
 	UHierarchicalInstancedStaticMeshComponent* HiStaticMesh;
 	NewComp = NewObject<UHierarchicalInstancedStaticMeshComponent>(this, HiStaticMesh->StaticClass());
@@ -52,7 +48,7 @@ void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponen
 	NewComp->SetMobility(EComponentMobility::Static);
 }
 
-void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp,UStaticMesh* MeshToUSE)
+void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp, UStaticMesh* MeshToUSE)
 {
 	UStaticMeshComponent* HiStaticMesh;
 	NewComp = NewObject<UStaticMeshComponent>(this, HiStaticMesh->StaticClass());
@@ -94,14 +90,9 @@ void AValActor::CreateBlockingVolumeComponent(UStaticMeshComponent*& NewComp)
 	AddInstanceComponent(NewComp);
 	NewComp->SetFlags(RF_Transactional);
 	NewComp->bOverrideWireframeColor = true;
-	NewComp->WireframeColorOverride = FColor(239,131,131,0);
+	NewComp->WireframeColorOverride = FColor(239, 131, 131, 0);
 	NewComp->CastShadow = false;
 	NewComp->bHiddenInGame = true;
 	NewComp->BodyInstance.MassScale = 177.82793;
 	NewComp->SetMobility(EComponentMobility::Static);
 }
-
-
-
-
-

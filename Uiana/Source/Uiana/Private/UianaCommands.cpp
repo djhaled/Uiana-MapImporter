@@ -6,7 +6,8 @@
 
 void FUianaCommands::RegisterCommands()
 {
-	UI_COMMAND(OpenPluginWindow, "Uiana", "Generate Valorant Map selected", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(OpenPluginWindow, "Uiana", "Generate Valorant Map selected", EUserInterfaceActionType::Button,
+	           FInputChord());
 }
 
 #undef LOCTEXT_NAMESPACE

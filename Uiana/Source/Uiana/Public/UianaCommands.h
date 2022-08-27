@@ -9,9 +9,9 @@
 class FUianaCommands : public TCommands<FUianaCommands>
 {
 public:
-
 	FUianaCommands()
-		: TCommands<FUianaCommands>(TEXT("Uiana"), NSLOCTEXT("Contexts", "Uiana", "Uiana Plugin"), NAME_None, FUianaStyle::GetStyleSetName())
+		: TCommands<FUianaCommands>(TEXT("Uiana"), NSLOCTEXT("Contexts", "Uiana", "Uiana Plugin"), NAME_None,
+		                            FUianaStyle::GetStyleSetName())
 	{
 	}
 
@@ -19,5 +19,5 @@ public:
 	virtual void RegisterCommands() override;
 
 public:
-	TSharedPtr< FUICommandInfo > OpenPluginWindow;
+	TSharedPtr<FUICommandInfo> OpenPluginWindow;
 };

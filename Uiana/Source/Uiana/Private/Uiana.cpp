@@ -23,12 +23,12 @@ static const FName UianaTabName("Uiana");
 void FUianaModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	
+
 	FUianaStyle::Initialize();
 	FUianaStyle::ReloadTextures();
 	RegisterSettings();
 	FUianaCommands::Register();
-	
+
 	PluginCommands = MakeShareable(new FUICommandList);
 
 	PluginCommands->MapAction(
@@ -36,22 +36,26 @@ void FUianaModule::StartupModule()
 		FExecuteAction::CreateRaw(this, &FUianaModule::PluginButtonClicked),
 		FCanExecuteAction());
 
-	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FUianaModule::RegisterMenus));
-	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UianaTabName, FOnSpawnTab::CreateRaw(this, &FUianaModule::OnSpawnPluginTab))
-		.SetDisplayName(LOCTEXT("FeditortestTabTitle", "Valorant Map Importer"))
-		.SetMenuType(ETabSpawnerMenuType::Hidden);
+	UToolMenus::RegisterStartupCallback(
+		FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FUianaModule::RegisterMenus));
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UianaTabName,
+	                                                  FOnSpawnTab::CreateRaw(this, &FUianaModule::OnSpawnPluginTab))
+	                        .SetDisplayName(LOCTEXT("FeditortestTabTitle", "Valorant Map Importer"))
+	                        .SetMenuType(ETabSpawnerMenuType::Hidden);
 }
+
 void FUianaModule::RegisterSettings()
 {
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
 		SettingsModule->RegisterSettings("Project", "Plugins", "Uiana",
-			LOCTEXT("RuntimeSettingsName", "Uiana"),
-			LOCTEXT("RuntimeSettingsDescription", "Configure Uiana settings"),
-			GetMutableDefault<UUianaDataSettings>()
+		                                 LOCTEXT("RuntimeSettingsName", "Uiana"),
+		                                 LOCTEXT("RuntimeSettingsDescription", "Configure Uiana settings"),
+		                                 GetMutableDefault<UUianaDataSettings>()
 		);
 	}
 }
+
 void FUianaModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
@@ -66,7 +70,6 @@ void FUianaModule::ShutdownModule()
 	FUianaCommands::Unregister();
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(UianaTabName);
 }
-
 
 
 FString FUianaModule::GetMapName(int EnumValue)
@@ -135,7 +138,7 @@ FReply FUianaModule::ExecuteFunction()
 	FString PakFolder = Stun->PaksFolder.Path;
 	FString CurrentPath = FPaths::ProjectPluginsDir();
 	Stun->SaveConfig();
-	TArray< FStringFormatArg > args;
+	TArray<FStringFormatArg> args;
 	args.Add(FStringFormatArg(ImportSubLevels));
 	args.Add(FStringFormatArg(ImportMesh));
 	args.Add(FStringFormatArg(ImportMat));
@@ -145,9 +148,10 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(ExportPath));
 	args.Add(FStringFormatArg(PakFolder));
 	args.Add(FStringFormatArg(CurrentPath));
-	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\""), args);
+	FString FormattedConsoleCommand = FString::Format(
+		TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
-	GEngine->Exec(NULL, TCharCommand);
+	GEngine->Exec(nullptr, TCharCommand);
 	return FReply::Handled();
 }
 
@@ -169,7 +173,8 @@ void FUianaModule::RegisterMenus()
 		{
 			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("PluginTools");
 			{
-				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FUianaCommands::Get().OpenPluginWindow));
+				FToolMenuEntry& Entry = Section.AddEntry(
+					FToolMenuEntry::InitToolBarButton(FUianaCommands::Get().OpenPluginWindow));
 				Entry.SetCommandList(PluginCommands);
 			}
 		}
@@ -180,7 +185,8 @@ TSharedRef<SWidget> FUianaModule::MakeDataManagementSettingsDetailsWidget() cons
 {
 	UObject* Container = NewObject<UUianaDataSettings>();
 	Stun = Cast<UUianaDataSettings>(Container);
-	FPropertyEditorModule& PropertyEditorModule = FModuleManager::Get().LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	FPropertyEditorModule& PropertyEditorModule = FModuleManager::Get().LoadModuleChecked<FPropertyEditorModule>(
+		"PropertyEditor");
 	FDetailsViewArgs DetailsViewArgs;
 	DetailsViewArgs.bUpdatesFromSelection = false;
 	DetailsViewArgs.bLockable = false;
@@ -204,68 +210,63 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 		FText::FromString(TEXT("PLUGIN_NAME.cpp"))
 	);
 	return SNew(SDockTab)
-		.TabRole(ETabRole::NomadTab)
+		.TabRole(NomadTab)
 		[
 			// Put your tab content here!
 			SNew(SBorder)
 			.BorderImage(new FSlateColorBrush(FColor(5, 5, 5)))
-		[
-			SNew(SVerticalBox)
+			[
+				SNew(SVerticalBox)
 
-			+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(8.f, 5.f, 8.f, 0.f)
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Fill)
-		[
-			SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("ToolPanel.DarkGroupBorder"))
-		[
-			SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				  .AutoHeight()
+				  .Padding(8.f, 5.f, 8.f, 0.f)
+				  .HAlign(HAlign_Fill)
+				  .VAlign(VAlign_Fill)
+				[
+					SNew(SBorder)
+					.BorderImage(FEditorStyle::GetBrush("ToolPanel.DarkGroupBorder"))
+					[
+						SNew(SVerticalBox)
 
-			+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(1.f, 1.f, 0.f, 0.f)
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Top)
-
-
+						+ SVerticalBox::Slot()
+						  .AutoHeight()
+						  .Padding(1.f, 1.f, 0.f, 0.f)
+						  .HAlign(HAlign_Left)
+						  .VAlign(VAlign_Top)
 
 
+						+ SVerticalBox::Slot()
+						  .AutoHeight()
+						  .VAlign(VAlign_Bottom)
+						[
+							MakeDataManagementSettingsDetailsWidget()
+						]
 
-
-		+SVerticalBox::Slot()
-		.AutoHeight()
-		.VAlign(VAlign_Bottom)
-		[
-			MakeDataManagementSettingsDetailsWidget()
-		]
-
-	+ SVerticalBox::Slot()
-		.AutoHeight()
-		.VAlign(VAlign_Bottom)
-		.HAlign(HAlign_Right)
-		.Padding(2.f, 5.f)
-		[
-			SNew(SButton)
+						+ SVerticalBox::Slot()
+						  .AutoHeight()
+						  .VAlign(VAlign_Bottom)
+						  .HAlign(HAlign_Right)
+						  .Padding(2.f, 5.f)
+						[
+							SNew(SButton)
 			.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
 		.ForegroundColor(FSlateColor::UseForeground())
 		.OnClicked(FOnClicked::CreateRaw(this, &FUianaModule::ExecuteFunction))
-		[
-			SNew(STextBlock)
+							[
+								SNew(STextBlock)
 			.Justification(ETextJustify::Center)
 		.TextStyle(FEditorStyle::Get(), "NormalText.Important")
 		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate Map"))
-		]
-		]
-		]
-		]
-		]
+							]
+						]
+					]
+				]
+			]
 		];
 }
 
 
-
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FUianaModule, Uiana)
