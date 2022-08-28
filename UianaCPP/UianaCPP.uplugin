@@ -1,0 +1,23 @@
+﻿{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "UianaCPP",
+  "Description": "Uiana C++-only version",
+  "Category": "Other",
+  "CreatedBy": "UsaidM",
+  "CreatedByURL": "",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "CanContainContent": true,
+  "IsBetaVersion": true,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "UianaCPP",
+      "Type": "Editor",
+      "LoadingPhase": "Default"
+    }
+  ]
+}
