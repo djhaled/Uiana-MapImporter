@@ -425,20 +425,20 @@ def create_folders(self):
 
 class Settings:
 	def __init__(self,UESet):
-		self.aes = UESet.vAesKey
-		self.texture_format = ".png"
+		self.aes = UESet.vAesKey # 
+		self.texture_format = ".png" # 
 		########## have to fix so it gets actual dir
 		self.script_root = UESet.PPluginPath
-		self.tools_path = self.script_root.joinpath("tools")
-		self.importer_assets_path = self.script_root.joinpath("assets")
-		self.paks_path = UESet.PPakFolder
-		self.import_decals = UESet.bImportDecal
-		self.import_lights = UESet.bImportLights
-		self.import_Mesh = UESet.bImportMesh
-		self.import_materials = UESet.bImportMaterial
-		self.import_sublevel = UESet.bImportSubLevels
+		self.tools_path = self.script_root.joinpath("tools") # 
+		self.importer_assets_path = self.script_root.joinpath("assets") # 
+		self.paks_path = UESet.PPakFolder # 
+		self.import_decals = UESet.bImportDecal # 
+		self.import_lights = UESet.bImportLights # 
+		self.import_Mesh = UESet.bImportMesh # 
+		self.import_materials = UESet.bImportMaterial # 
+		self.import_sublevel = UESet.bImportSubLevels # 
 		self.combine_umaps = False
-		self.export_path = UESet.PExportPath
+		self.export_path = UESet.PExportPath # 
 		self.assets_path = self.export_path.joinpath("export")
 		self.maps_path = self.export_path.joinpath("maps")
 		self.umodel = self.script_root.joinpath("tools", "umodel.exe")
@@ -449,53 +449,6 @@ class Settings:
 		self.umap_list = read_json(self.umap_list_path)
 		
 		self.selected_map = Map(UESet.fMapName, self.maps_path, self.umap_list)
-
-		self.shaders = [
-			"VALORANT_Base",
-			"VALORANT_Decal",
-			"VALORANT_Emissive",
-			"VALORANT_Emissive_Scroll",
-			"VALORANT_Hologram",
-			"VALORANT_Glass",
-			"VALORANT_Blend",
-			"VALORANT_Decal",
-			"VALORANT_MRA_Splitter",
-			"VALORANT_Normal_Fix",
-			"VALORANT_Screen"
-		]
-
-		create_folders(self)
-
-
-class Map:
-	def __init__(self, selected_map_name: str, maps_path: Path, all_umaps: list):
-
-		self.name = selected_map_name
-		# print(maps_path, self.name)
-		self.folder_path = maps_path.joinpath(self.name)
-
-		self.umaps = all_umaps[self.name]
-		# print(self)
-		self.materials_path = self.folder_path.joinpath("materials")
-		self.materials_ovr_path = self.folder_path.joinpath("materials_ovr")
-		self.objects_path = self.folder_path.joinpath("objects")
-		self.scenes_path = self.folder_path.joinpath("scenes")
-		self.umaps_path = self.folder_path.joinpath("umaps")
-		create_folders(self)
-		self.import_decals = True
-		self.import_lights = False
-		self.combine_umaps = False
-		self.export_path = Path('D:\XportPsk')
-		self.assets_path = self.export_path.joinpath("export")
-		self.maps_path = self.export_path.joinpath("maps")
-		self.umodel = self.script_root.joinpath("tools", "umodel.exe")
-		self.debug = False
-		self.cue4extractor = self.script_root.joinpath("tools", "cue4extractor.exe")
-		self.log = self.export_path.joinpath("import.log")
-		self.umap_list_path = self.importer_assets_path.joinpath("umaps.json")
-		self.umap_list = read_json(self.umap_list_path)
-		
-		self.selected_map = Map('bind', self.maps_path, self.umap_list)
 
 		self.shaders = [
 			"VALORANT_Base",

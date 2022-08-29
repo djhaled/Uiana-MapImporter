@@ -7,6 +7,7 @@
 #include "UObject/Object.h"
 #include "Misc/Paths.h"
 #include "JsonUtilities.h"
+#include "UianaHelpers.h"
 #include "UianaMap.generated.h"
 
 /**

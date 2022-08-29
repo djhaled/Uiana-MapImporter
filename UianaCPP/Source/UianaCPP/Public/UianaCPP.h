@@ -33,8 +33,6 @@ private:
 	void OnTextCommited();
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 
-
-private:
 	TWeakObjectPtr<UUianaDataSettings> DataManagementSettingsObjectPtr;
 	TSharedPtr<class FUICommandList> PluginCommands;
 };
