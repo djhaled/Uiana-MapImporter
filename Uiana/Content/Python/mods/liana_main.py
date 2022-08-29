@@ -539,6 +539,8 @@ def SetPostProcessSettings(AllSettings,Comp):
 			if CompSet == unreal.Color:
 				ResultValue = unreal.Color(ResultValue["R"],ResultValue["G"],ResultValue["B"],ResultValue["A"])
 			Comp.set_editor_property(Setting, ResultValue)
+			Comp.set_editor_property("override_ambient_occlusion_intensity", True)
+			Comp.set_editor_property("ambient_occlusion_intensity", 0)
 def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)
 	startpath = f"/Game/ValorantContent/Maps/{newmap}/{mapname}"
