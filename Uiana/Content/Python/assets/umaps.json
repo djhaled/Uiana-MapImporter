@@ -1,269 +1,147 @@
 {
-  "crag": [
-    "/Game/Environments/Crag/Map/Crag_Lights",
-    "/Game/Environments/Crag/Map/Crag_SA00_Content",
-    "/Game/Environments/Crag/Map/Crag_SA01_Content",
-    "/Game/Environments/Crag/Map/Crag_SA02_Content",
-    "/Game/Environments/Crag/Map/Crag_SA03_Content",
-    "/Game/Environments/Crag/Map/Crag_SA04_Content",
-    "/Game/Environments/Crag/Map/Crag_Audio",
-    "/Game/Environments/Crag/Map/Crag_Game",
-    "/Game/Environments/Crag/Map/Crag_Scoreboard",
-    "/Game/Environments/Crag/Map/Crag_Vfx",
-    "/Game/Maps/Crag"
+  "map_m011": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/M011/Map_M011_Background",
+    "/Game/Panda_Main/Maps/M011/Map_M011_Lighting",
+    "/Game/Panda_Main/Maps/M011/Map_M011_Audio",
+    "/Game/Panda_Main/Maps/M011/Map_M011_Animation",
+    "/Game/Panda_Main/Maps/M011/Map_M011_VFX",
+    "MultiVersus/Content/Panda_Main/Maps/M011/Map_M011"
   ],
-  "lobby": [
-    "/Game/Maps/Lobby/Sublevels/Lobby_Foregone_Characters",
-    "/Game/Maps/Lobby"
+  "map_m011_largenoplat": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_Animation_LargeNoPlat",
+    "/Game/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_Lighting_LargeNoPlat",
+    "/Game/Panda_Main/Maps/M011/Map_M011_Audio",
+    "/Game/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_VFX_LargeNoPlat",
+    "/Game/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_Background_LargeNoPlat",
+    "MultiVersus/Content/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_LargeNoPlat"
   ],
-  "mainmenu": [
-    "/Game/Environments/MainMenu_Console/Maps/MainMenu_Game",
-    "/Game/Environments/MainMenu_Console/Maps/MainMenu_Inspect",
-    "/Game/Maps/Sublevels/Rewards",
-    "/Game/Maps/Sublevels/Abyss_Main_Menu_BLockout_Char",
-    "/Game/Maps/MainMenu"
+  "map_m011_small": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/M011/Maps/Small/Map_M011_VFX_Small",
+    "/Game/Panda_Main/Maps/M011/Map_M011_Audio",
+    "/Game/Panda_Main/Maps/M011/Maps/Small/Map_M011_Animation_Small",
+    "/Game/Panda_Main/Maps/M011/Maps/Small/Map_M011_Background_Small",
+    "/Game/Panda_Main/Maps/M011/Maps/Small/Map_M011_Lighting_Small",
+    "MultiVersus/Content/Panda_Main/Maps/M011/Maps/Small/Map_M011_Small"
   ],
-  "foregone_destruction": [
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/BLK_Sublevels/FD_Content_E_BLK",
-    "/Game/Environments/ForegoneDestruction/Maps/FD_VFX_P",
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/FD_Animals",
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/FD_Flags",
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/FD_Nav",
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/FD_Game_new",
-    "/Game/Environments/ForegoneDestruction/Maps/FD_FoliageNew",
-    "/Game/Environments/ForegoneDestruction/Maps/FD_Audio",
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/FD_PortalSurfacesDressing",
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/FD_Background",
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/FD_Lighting",
-    "/Game/Environments/ForegoneDestruction/Maps/Foregone_Update/FD_Content_S",
-    "/Game/Environments/ForegoneDestruction/Maps/FD_Scoreboards",
-    "/Game/Maps/Foregone_Destruction"
+  "map_m011_smallnoplat": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_Lighting_SmallNoPlat",
+    "/Game/Panda_Main/Maps/M011/Map_M011_Audio",
+    "/Game/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_Background_SmallNoPlat",
+    "/Game/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_VFX_SmallNoPlat",
+    "/Game/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_Animation_SmallNoPlat",
+    "MultiVersus/Content/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_SmallNoPlat"
   ],
-  "atlantis": [
-    "/Game/Environments/Dorado/Map/Dorado_Nav",
-    "/Game/Environments/Dorado/Map/Dorado_S01_Content",
-    "/Game/Environments/Dorado/Map/Dorado_Audio",
-    "/Game/Environments/Dorado/Map/Dorado_Scoreboard",
-    "/Game/Environments/Dorado/Map/Dorado_S01_Game",
-    "/Game/Environments/Dorado/Map/Dorado_S01_Fish",
-    "/Game/Environments/Dorado/Map/Dorado_S01_Lights",
-    "/Game/Maps/Atlantis"
+  "map_batcave": [
+    "/Game/Panda_Main/Maps/Map_Batcave/Map_Batcave_Lighting",
+    "/Game/Panda_Main/Maps/Map_Batcave/Map_BatcaveNew_VFX",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/Map_Batcave/Map_Batcave_Audio",
+    "/Game/Panda_Main/Maps/Map_Batcave/Map_Batcave_Godrays_VFX",
+    "/Game/Panda_Main/Maps/Map_Batcave/Map_Batcave_EarlyTestGameplay",
+    "MultiVersus/Content/Panda_Main/Maps/Map_Batcave/Map_Batcave"
   ],
-  "abyss": [
-    "/Game/Maps/Abyss/Sublevels/Abyss_Lighting",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Randy_Geo",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Ben_Geo",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Alex_s",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Nav",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Audio",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Efrem_Geo",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Foliage_Geo",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Game",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Vfx",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Samuele_Geo",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Federico_Geo",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Alex_Geo",
-    "/Game/Maps/Abyss/Sublevels/Abyss_Eldar_Geo",
-    "/Game/Maps/Abyss"
+  "map_classic3platform_large": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "MultiVersus/Content/Panda_Main/Maps/Map_Classic3Platform/Map_Classic3Platform_Large"
   ],
-  "silo": [
-    "/Game/Environments/Silo/Sublevels/Silo_Audio",
-    "/Game/Environments/Silo/Sublevels/Silo_Content",
-    "/Game/Environments/Silo/Sublevels/Silo_Game",
-    "/Game/Environments/Silo/Sublevels/Silo_Scoreboard",
-    "/Game/Environments/Silo/Sublevels/Silo_S01_Lights",
-    "/Game/Environments/Silo/Sublevels/Silo_Nav",
-    "/Game/Maps/Silo"
+  "map_classic3platform_small": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "MultiVersus/Content/Panda_Main/Maps/Map_Classic3Platform/Map_Classic3Platform_Small"
   ],
-  "forge_island": [
-    "/Game/Environments/Forge/Map/Forge_Island_Lighting",
-    "/Game/Environments/Forge/Map/Forge_Island_Content",
-    "/Game/Environments/Forge/Map/Forge_Island_J",
-    "/Game/Environments/Forge/Map/Forge_Island_L",
-    "/Game/Environments/Forge/Map/Forge_Island_Audio",
-    "/Game/Maps/Forge_Island"
+  "map_treehousesmall": [
+    "/Game/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse_Audio",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/Map_TreeHouseSmall/Map_TreeHouseSmall_VFX",
+    "MultiVersus/Content/Panda_Main/Maps/Map_TreeHouseSmall/Map_TreeHouseSmall"
   ],
-  "impact": [
-    "/Game/Environments/Impact/Maps/Impact_Game",
-    "/Game/Environments/Impact/Maps/Impact_Content_E",
-    "/Game/Environments/Impact/Maps/Impact_Content_J",
-    "/Game/Environments/Impact/Maps/Impact_Content_S",
-    "/Game/Environments/Impact/Maps/Impact_Audio",
-    "/Game/Environments/Impact/Maps/Impact_Lights",
-    "/Game/Environments/Impact/Maps/Impact_Scoreboards",
-    "/Game/Maps/Impact"
+  "map_scoobydoo": [
+    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_Audio",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_Lighting",
+    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_Background",
+    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_Animation",
+    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_VFX",
+    "MultiVersus/Content/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo"
   ],
-  "practicerange": [
-    "/Game/Environments/Simulation_Maps/Maps/Practice_Arena/Practice_Arena_Lights",
-    "/Game/Environments/Simulation_Maps/Maps/Practice_Arena/Practice_Arena_Content",
-    "/Game/Maps/PracticeRange"
+  "map_trainingroomlarge": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "MultiVersus/Content/Panda_Main/Maps/TrainingRoomLarge/Map_TrainingRoomLarge"
   ],
-  "forge_flat_earth": [
-    "/Game/Environments/Forge/Map/Forge_Flat_Earth_Lighting",
-    "/Game/Environments/Forge/Map/Forge_Flat_Earth_Background",
-    "/Game/Environments/Forge/Map/Forge_Flat_Earth_Audio",
-    "/Game/Maps/Forge_Flat_Earth"
+  "map_trainingroomsmall": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "MultiVersus/Content/Panda_Main/Maps/TrainingRoomSmall/Map_TrainingRoomSmall"
   ],
-  "highwind": [
-    "/Game/Environments/ArenaL/Map/Highwind_Nav",
-    "/Game/Environments/ArenaL/Map/Highwind_Content_S01",
-    "/Game/Environments/ArenaL/Map/Highwind_Game_S01",
-    "/Game/Environments/ArenaL/Map/Highwind_Audio_S01",
-    "/Game/Environments/ArenaL/Map/Highwind_Scoreboard_S01",
-    "/Game/Environments/ArenaL/Map/Highwind_Lights_S01",
-    "/Game/Maps/Highwind"
+  "map_trophyroom_2platforms": [
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Audio",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_Lighting",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_Background",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_VFX",
+    "MultiVersus/Content/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_2platforms"
   ],
-  "karman_station": [
-    "/Game/Environments/Karman_Station/Maps/Karman_S_Scoreboard",
-    "/Game/Environments/Karman_Station/Maps/Karman_S_Game",
-    "/Game/Environments/Karman_Station/Maps/Karman_S_Lights",
-    "/Game/Environments/Karman_Station/Maps/Karman_S_Audio",
-    "/Game/Environments/Karman_Station/Maps/Karman_Content",
-    "/Game/Environments/Karman_Station/Maps/Karman_Content_J",
-    "/Game/Environments/Karman_Station/Maps/Karman_Content_S",
-    "/Game/Environments/Karman_Station/Maps/Karman_Content_F",
-    "/Game/Environments/Karman_Station/Maps/Karman_Nav",
-    "/Game/Maps/Karman_Station"
+  "map_trophyroom_4platforms": [
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Audio",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_Lighting",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_Background",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_VFX",
+    "MultiVersus/Content/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms"
   ],
-  "oasis": [
-    "/Game/Environments/OASIS/Maps/Oasis_Game",
-    "/Game/Environments/OASIS/Maps/Oasis_Content",
-    "/Game/Environments/Oasis/Maps/Oasis_Scoreboards",
-    "/Game/Environments/OASIS/Maps/Oasis_Background_Content",
-    "/Game/Environments/Oasis/Maps/Oasis_Lights",
-    "/Game/Environments/OASIS/Maps/Oasis_Audio",
-    "/Game/Environments/OASIS/Maps/Oasis_Nav",
-    "/Game/Maps/Oasis"
+  "map_trophyroom_largeplatform": [
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Audio",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_LargePlatform_VFX",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Background",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Lighting",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "MultiVersus/Content/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_LargePlatform"
   ],
-  "lavawell": [
-    "/Game/Environments/Lavawell/Maps/Lavawell_Content",
-    "/Game/Environments/Lavawell/Maps/Lavawell_Audio",
-    "/Game/Environments/Lavawell/Maps/Lavawell_Nav",
-    "/Game/Environments/Lavawell/Maps/Lavawell_Lights",
-    "/Game/Environments/Lavawell/Maps/Lavawell_Scoreboard",
-    "/Game/Environments/Lavawell/Maps/Lavawell_Game",
-    "/Game/Maps/Lavawell"
+  "map_trophyroom_tutorial": [
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Audio",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_LargePlatform_VFX",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Background",
+    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Lighting",
+    "MultiVersus/Content/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Tutorial"
   ],
-  "simulation_hotel": [
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Hotel/Simulation_Hotel_Game",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Hotel/Simulation_Hotel_Content",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Hotel/Simulation_Hotel_Scoreboard",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Hotel/Simulation_Hotel_Audio",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Hotel/Simulation_Hotel_Lights",
-    "/Game/Maps/Simulation_Hotel"
+  "prematch": [
+    "/Game/Panda_Main/PreMatch/Maps/PM_NewSlants",
+    "/Game/Panda_Main/PreMatch/Maps/PM_BG_TrophyRoom",
+    "MultiVersus/Content/Panda_Main/PreMatch/PreMatch"
   ],
-  "simulation_golf": [
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_GolfV2/Simulation_GolfV2_Content",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_GolfV2/Simulation_GolfV2_Game",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_GolfV2/Simulation_GolfV2_Lights",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_GolfV2/Simulation_GolfV2_Scoreboards",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_GolfV2/Simulation_GolfV2_Audio",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_GolfV2/Simulation_GolfV2_Nav",
-    "/Game/Maps/Simulation_Golf"
+  "new_mainmenu": [
+    "/Game/Panda_Main/PreMatch/Maps/PM_NewSlants",
+    "/Game/Panda_Main/PreMatch/PreMatch",
+    "/Game/Panda_Main/PreMatch/Maps/PM_BG_TrophyRoom",
+    "MultiVersus/Content/Panda_Main/UI/MainMenu/New_MainMenu"
   ],
-  "simulation_foxtrot": [
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Foxtrot/Simulation_Foxtrot_Scoreboards",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Foxtrot/Simulation_Foxtrot_Content",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Foxtrot/Simulation_Foxtrot_Lights",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Foxtrot/Simulation_Foxtrot_Game",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Foxtrot/Simulation_Foxtrot_Audio",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Foxtrot/Simulation_Foxtrot_Nav",
-    "/Game/Maps/Simulation_Foxtrot"
+  "map_m009": [
+    "/Game/Panda_Main/Maps/M009/Map_M009_Audio",
+    "/Game/Panda_Main/Maps/M009/Map_M009_VFX",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/M009/Map_M009_Background",
+    "/Game/Panda_Main/Maps/M009/Map_M009_Lighting",
+    "MultiVersus/Content/Panda_Main/Maps/M009/Map_M009"
   ],
-  "simulation_echo": [
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Echo/Simulation_Echo_Content",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Echo/Simulation_Echo_Lighting",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Echo/Simulation_Echo_Game",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Echo/Simulation_Echo_Audio",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Echo/Simulation_Echo_Scoreboards",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Echo/Simulation_Echo_Nav",
-    "/Game/Maps/Simulation_Echo"
+  "map_m009_small": [
+    "/Game/Panda_Main/Maps/M009/Map_M009_Audio",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "/Game/Panda_Main/Maps/M009/Map_M009_small_VFX",
+    "/Game/Panda_Main/Maps/M009/Map_M009_small_Lighting",
+    "/Game/Panda_Main/Maps/M009/Map_M009_small_Background",
+    "MultiVersus/Content/Panda_Main/Maps/M009/Map_M009_small"
   ],
-  "simulation_delta": [
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Delta/Simulation_Delta_Content",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Delta/Simulation_Delta_Light",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Delta/Simulation_Delta_Scoreboards",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Delta/Simulation_Delta_Game",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Delta/Simulation_Delta_Audio",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Delta/Simulation_Delta_Nav",
-    "/Game/Maps/Simulation_Delta"
+  "map_trainingarena": [
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "MultiVersus/Content/Panda_Main/Maps/Map_TrainingArena/Map_TrainingArena"
   ],
-  "simulation_charlie": [
-    "/Game/Environments/Simulation_Maps/Maps/SImulation_Charlie/Simulation_Charlie_Content",
-    "/Game/Environments/Simulation_Maps/Maps/SImulation_Charlie/Simulation_Charlie_Game",
-    "/Game/Environments/Simulation_Maps/Maps/SImulation_Charlie/Simulation_Charlie_Audio",
-    "/Game/Environments/Simulation_Maps/Maps/SImulation_Charlie/Simulation_Charlie_Lights",
-    "/Game/Environments/Simulation_Maps/Maps/SImulation_Charlie/Simulation_Charlie_Scoreboards",
-    "/Game/Environments/Simulation_Maps/Maps/SImulation_Charlie/Simulation_Charlie_Nav",
-    "/Game/Maps/Simulation_Charlie"
-  ],
-  "simulation_bravo": [
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Bravo/Simulation_Bravo_Content",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Bravo/Simulation_Bravo_Lights",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Bravo/Simulation_Bravo_Game",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Bravo/Simulation_Bravo_Audio",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Bravo/Simulation_Bravo_Scoreboards",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Bravo/Simulation_Bravo_Nav",
-    "/Game/Maps/Simulation_Bravo"
-  ],
-  "simulation_alpha": [
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Alpha/Simulation_Alpha_Content",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Alpha/Simulation_Alpha_Game",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Alpha/Simulation_Alpha_Audio",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Alpha/Simulation_Alpha_lights",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Alpha/Simulation_Alpha_Scoreboards",
-    "/Game/Environments/Simulation_Maps/Maps/Simulation_Alpha/Simulation_Alpha_Nav",
-    "/Game/Maps/Simulation_Alpha"
-  ],
-  "stadium": [
-    "/Game/Environments/Map8/Maps/Map8_New_Content",
-    "/Game/Environments/Map8/Maps/Map8_audio",
-    "/Game/Environments/Map8/Maps/Map8_S01_game",
-    "/Game/Environments/Map8/Maps/Map8_Scoreboard",
-    "/Game/Environments/Map8/Maps/Map8_Lights_S01",
-    "/Game/Environments/Map8/Maps/Map8_Nav",
-    "/Game/Maps/Stadium"
-  ],
-  "helix": [
-    "/Game/Environments/Tundra/Sublevels/Tundra_Content",
-    "/Game/Environments/Tundra/Sublevels/Tundra_Game",
-    "/Game/Environments/Tundra/Sublevels/Tundra_Light",
-    "/Game/Environments/Tundra/Sublevels/Tundra_Scoreboard",
-    "/Game/Environments/Tundra/Sublevels/Tundra_Audio",
-    "/Game/Environments/Tundra/Sublevels/Tundra_Nav",
-    "/Game/Maps/Helix"
-  ],
-  "tutorial": [
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_4_ARandPistol",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_1_Crouch",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_0_Walking",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_10_Emote",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_3_Jetpack",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_2_JumpandSprint",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_5_Portals",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_Audio",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_6_Elevator",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_7_EnemyPortals",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_8_MeleeFlank",
-    "/Game/Maps/Sublevels/Tutorial_Modules/Tutorial_9_ShootThroughPortal",
-    "/Game/Maps/Tutorial"
-  ],
-  "pantheon": [
-    "/Game/Environments/Pantheon/Map/Pantheon_S01_Geometry",
-    "/Game/Environments/Pantheon/Map/Pantheon_Audio",
-    "/Game/Environments/Pantheon/Map/Pantheon_S01_Game",
-    "/Game/Environments/Pantheon/Map/Pantheon_Scoreboard",
-    "/Game/Environments/Pantheon/Map/Pantheon_S01_Light",
-    "/Game/Environments/Pantheon/Map/Pantheon_Nav",
-    "/Game/Maps/Pantheon"
-  ],
-  "olympus": [
-    "/Game/Environments/Olympus/Map/Olympus_Scoreboard",
-    "/Game/Environments/Olympus/Map/Olympus_Audio",
-    "/Game/Environments/Olympus/Map/Olympus_S02_Content",
-    "/Game/Environments/Olympus/Map/Olympus_S01_Game",
-    "/Game/Environments/Olympus/Map/Olympus_S02_Lights",
-    "/Game/Environments/Olympus/Map/Olympus_Nav",
-    "/Game/Maps/Olympus"
+  "map_treehouse": [
+    "/Game/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse_VFX",
+    "/Game/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse_Audio",
+    "/Game/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse_Geo",
+    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
+    "MultiVersus/Content/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse"
   ]
 }

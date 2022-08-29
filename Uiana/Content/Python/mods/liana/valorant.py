@@ -27,11 +27,14 @@ def filter_umap(umap_data: dict) -> list:
 
 	return umap_filtered, object_types
 
-
+def GetActualName(name):#\Game\Environments\Crag\Map\Crag_Game
+	newlen = name.rfind('\\') + 1
+	jc = name[newlen:len(name)]
+	return jc
 def get_objects(umap_data):
 	umap_objects = list()
 	umap_materials = list()
-
+	allobjes = list()
 	for obj in umap_data:
 
 		if "Properties" in obj:
@@ -39,18 +42,23 @@ def get_objects(umap_data):
 				if obj["Properties"]["StaticMesh"] is not None:
 					obj_path = get_object_path(data=obj, mat=False)
 					umap_objects.append(obj_path)
+					allobjes.append(GetActualName(obj_path))
 
 					if "OverrideMaterials" in obj["Properties"]:
 						for mat in obj["Properties"]["OverrideMaterials"]:
 							if mat is not None:
-								umap_materials.append(get_object_path(data=mat, mat=True))
+								ovrmat = get_object_path(data=mat, mat=True)
+								umap_materials.append(ovrmat)
+								allobjes.append(GetActualName(ovrmat))
 
 			elif "DecalMaterial" in obj["Properties"]:
 				mat = obj["Properties"]["DecalMaterial"]
 				if mat is not None:
-					umap_materials.append(get_object_path(data=mat, mat=True))
+					decalmat = get_object_path(data=mat, mat=True)
+					umap_materials.append(decalmat)
+					allobjes.append(GetActualName(decalmat))
 
-	return umap_objects, umap_materials
+	return umap_objects, umap_materials, allobjes
 
 
 def get_object_path(data: dict, mat: bool):
@@ -80,6 +88,7 @@ def get_object_type(model_data: dict) -> str:
 def get_object_materials(model_json: dict):
 	# model_json = _common.read_json(model)
 	model_materials = list()
+	allmates = list()
 	for objm in model_json:
 		if objm["Type"] == "StaticMesh":
 			StaticMat = objm["Properties"]["StaticMaterials"]
@@ -87,13 +96,20 @@ def get_object_materials(model_json: dict):
 				if mat is not None and "MaterialInterface" in mat:
 					if mat["MaterialInterface"] is not None:
 						material = mat["MaterialInterface"]
-						model_materials.append(get_object_path(data=material, mat=True))
+						MInter = get_object_path(data=material, mat=True)
+						allmates.append(GetActualName(MInter))
+						model_materials.append(MInter)
 
-	return model_materials
+	return model_materials, allmates
 
 
 def fix_path(a: str):
-	b = a.replace("FortniteGame\\Content", "Game")
+	pathlist = a.split('\\')
+	GameName = ''
+	for idx,pl in enumerate(pathlist):
+		if pl == "Content":
+			GameName = pathlist[idx-1]
+	b = a.replace(f"{GameName}\\Content", "Game")
 	c = b.replace("Engine\\Content", "Engine")
 	return c
 

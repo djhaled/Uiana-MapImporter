@@ -51,22 +51,26 @@ def CUE4ParseToUmodel(parse):
 	print(end)
 	return end
 def extract_assets(settings: Settings):
-	if settings.assets_path.joinpath("exported.yo").exists():
+	bDoes = settings.assets_path.joinpath("exported.yo").exists()
+	print(bDoes)
+	if bDoes:
 		pass
 	else:
 		uever = CUE4ParseToUmodel(settings.GameVersion)
+		assetobjects = settings.selected_map.folder_path.joinpath("AllAssets.txt")
 		args = [settings.umodel.__str__(),
 				f"-path={settings.paks_path.__str__()}",
 				f"-game={uever}",
 				f"-aes={settings.aes}",
-				"*.uasset",
+				f"-files={assetobjects}",
 				"-export",
 				"-nomesh",
 				"-noanim",
 				"-nooverwrite",
 				f"-{settings.texture_format.replace('.', '')}",
 				f"-out={settings.assets_path.__str__()}"]
-		print(args)
+		with open(settings.assets_path.joinpath('exported.yo').__str__(), 'w') as out_file:
+			out_file.write("")
 		subprocess.call(args,stderr=subprocess.DEVNULL)
 
 def extract_data(settings: Settings, export_directory: str, asset_list_txt: str = ""):
@@ -79,7 +83,6 @@ def extract_data(settings: Settings, export_directory: str, asset_list_txt: str 
 			"--game-umaps", settings.umap_list_path.__str__(),
 			"--game-version", settings.GameVersion
 			]
-	print(args)
 	subprocess.call(args)
 
 
@@ -116,12 +119,11 @@ def get_map_assets(settings: Settings):
 
 	if not settings.selected_map.folder_path.joinpath("exported.yo").exists():
 		extract_data(settings, export_directory=settings.selected_map.umaps_path)
-		extract_assets(settings)
 
 		umaps = get_files(
 			path=settings.selected_map.umaps_path.__str__(), extension=".json")
 		umap: Path
-
+		allassets =list()
 		object_list = list()
 		materials_ovr_list = list()
 		materials_list = list()
@@ -134,16 +136,14 @@ def get_map_assets(settings: Settings):
 			save_json(umap.__str__(), umap_json)
 
 			# get objects
-			umap_objects, umap_materials = get_objects(umap_json)
-
+			umap_objects, umap_materials,allumapassets = get_objects(umap_json)
+			allassets.append(allumapassets)
 			object_list.append(umap_objects)
 			materials_ovr_list.append(umap_materials)
-
 		object_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
 			f"_assets_objects.txt"), lines=object_list)
 		mats_ovr_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
 			f"_assets_materials_ovr.txt"), lines=materials_ovr_list)
-
 		extract_data(settings, export_directory=settings.selected_map.objects_path,
 					 asset_list_txt=object_txt)
 		extract_data(settings, export_directory=settings.selected_map.materials_ovr_path,
@@ -160,11 +160,14 @@ def get_map_assets(settings: Settings):
 			# save json
 			save_json(model.__str__(), model_json)
 			# get object materials
-			model_materials = get_object_materials(model_json)
+			model_materials, allumapmats = get_object_materials(model_json)
 			# get object textures
 			# ...
 
 			materials_list.append(model_materials)
+			allassets.append(allumapmats)
+		assets_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
+			f"AllAssets.txt"), lines=allassets)
 
 		mats_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
 			f"_assets_materials.txt"), lines=materials_list)
@@ -173,9 +176,7 @@ def get_map_assets(settings: Settings):
 
 		with open(settings.selected_map.folder_path.joinpath('exported.yo').__str__(), 'w') as out_file:
 			out_file.write("")
-		with open(settings.assets_path.joinpath('exported.yo').__str__(), 'w') as out_file:
-			out_file.write("")
-
+		extract_assets(settings)
 	else:
 		umaps = get_files(
 			path=settings.selected_map.umaps_path.__str__(), extension=".json")
@@ -237,8 +238,6 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 
 	SetTextures(mat_props,UEMat)
 	SetAllSettings(mat_props,UEMat)
-
-	BasePropsBlacklist = ['bVertexFog','bOverride_DecalDiffuseLighting','bDecalDiffuseLighting','bDitherOpacityMask','DecalDiffuseLighting','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	if "BasePropertyOverrides" in mat_props:
 		for prop_name, prop_value in mat_props["BasePropertyOverrides"].items():
 			if "BlendMode" == prop_name:
@@ -260,10 +259,12 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 				UEMat.set_editor_property('BasePropertyOverrides',BasePropOverride)
 				unreal.MaterialEditingLibrary.update_material_instance(UEMat)
 				continue
-			if prop_name not in BasePropsBlacklist:
-				BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
-				BasePropOverride.set_editor_property(prop_name, prop_value)
-	
+			BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
+			## fix this so it reads PropertyOverrides
+			#bHasSetting = HasVariable(BasePropOverride,prop_name)
+			#if bHasSetting:
+			#SetAllSettings(BasePropOverride,)
+			#BasePropOverride.set_editor_property(prop_name, prop_value)
 	if "StaticParameters" in mat_props:
 		if "StaticSwitchParameters" in mat_props["StaticParameters"]:
 			for param in mat_props["StaticParameters"]["StaticSwitchParameters"]:
@@ -489,6 +490,12 @@ def SetAllSettings(asset,Comp):
 			ActorSetting = asset[Setting]
 			if Setting in blackmisc:
 				continue
+			try:
+				PropSet = Comp.get_editor_property(Setting)
+			except:
+				print(f"ReadProtected {Setting}")
+				continue
+
 			PropSet = Comp.get_editor_property(Setting)
 			classname = GetClassName(PropSet)
 			if type(ActorSetting) == int or type(ActorSetting) == float or type(ActorSetting) == bool :
@@ -554,6 +561,8 @@ def ImportLights(OBJData, ArrObjsImport):
 			########SpawnLightAndGetReferenceForComp#######
 	if ActorInfo.transform == False:
 		ActorInfo.transform = GetAttachScene(OBJData,ActorInfo.outer,ArrObjsImport)
+	if ActorInfo.transform == None:
+		return
 	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, ActorInfo.transform.translation, ActorInfo.transform.rotation.rotator())
 	LightActor.set_folder_path(f'Lights/{LightTypeNoComp}')
 	LightActor.set_actor_label(ActorInfo.name)
@@ -609,10 +618,8 @@ def ImportDecal(DecalData):
 	DecalComponent = DecActor.decal
 	DecalMat = SetDecalMaterial(Settings, DecalData)
 	DecalComponent.set_decal_material(DecalMat)
-	BlacklistDecal =  ['DecalMaterial','LightColorType','CachedVertexFogIntensityFromVolumes','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	for propName,PropValue in ActorInfo.props.items():
-		if propName not in BlacklistDecal:
-			SetAllSettings(DecalData,DecalComponent)
+		SetAllSettings(DecalData,DecalComponent)
 def SpawnMeshesInMap(data,set,mapname):
 	for j in data:
 		OvrVertexes = []
@@ -713,9 +720,13 @@ def LevelStreamingStuff():
 # ANCHOR: Functions
 def SetPostProcessSettings(AllSettings,Comp):
 	for Setting in AllSettings:
-		bekaBlackList=["bOverride_AmbientOcclusionTintColor","AutoExposureBiasBackup","AmbientOcclusionTintColor","SavedSelections","bOverride_AresAdaptiveSharpenEnable",'FilmContrast','FilmWhitePoint',"bOverride_AresClarityEnable","bOverride_IndirectLightingScaleCurve","bOverride_AutoExposureBiasBackup","IndirectLightingColor","IndirectLightingScaleCurve","bOverride_ScreenPercentage"]
-		if Setting not in bekaBlackList:
-			Comp.set_editor_property(Setting, AllSettings[Setting])
+		FinalSettingName = CheckForNewer(Setting)
+		ActualSet = AllSettings[Setting]
+		bHasIt = HasVariable(Comp,FinalSettingName)
+		if type(ActualSet) == dict:
+			continue
+		if bHasIt:
+			   Comp.set_editor_property(FinalSettingName, ActualSet)
 
 def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)

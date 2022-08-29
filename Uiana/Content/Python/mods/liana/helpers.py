@@ -40,6 +40,29 @@ def GetReadableUMapType(mapname):
 		MapType = j["StreamingType"]
 		if mapname == NewMapName:
 			return MapType
+def CheckForNewer(settingName):
+	returnstr = ''
+	if settingName == "GrainIntensity":
+		return "FilmGrainIntensity"
+	if settingName == "bOverride_GrainIntensity":
+		return "override_film_grain_intensity"
+		settingName = bOverride_FilmGrainIntensity
+	return settingName
+
+
+def HasVariable(comp,asset):
+	varilist = dir(comp)
+	newasset = asset.replace("_","" )
+	LowerAsset = newasset.lower()
+	if LowerAsset.find('b') == 0 and 'override' in LowerAsset:
+		LowerAsset = LowerAsset[1:len(LowerAsset)] 
+	for vAs in varilist:
+		NewVas = vAs.replace("_","")
+		if NewVas == LowerAsset:
+			return True
+	print(f'CUE4UmapImporter PPSetting Error: {LowerAsset}')
+	return False
+
 BLACKLIST = [
 	"navmesh",
 	"_breakable",
@@ -352,6 +375,8 @@ def GetAttachScene(obj,OuterName,umapfile):
 		if outer == "PersistentLevel":
 			outer = j["Name"]
 		#print(f'OuterName trying to find is {OuterName} and current outer is {outer} // also tipo is {tipo}')
+		if not HasKey("Properties",j):
+			continue
 		KeyOuter = HasKey("AttachParent",j["Properties"])
 		if outer == OuterName and tipo in types and KeyOuter == False:
 			return HasTransform(j["Properties"])
@@ -400,7 +425,6 @@ def create_folders(self):
 				f.mkdir(parents=True)
 
 
-# ANCHOR: Classes
 # -------------------------- #
 
 

@@ -113,9 +113,12 @@ TArray<FColor> UBPFL::FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArr
 	auto Hasher = MakeHashmap(ReaderVerts, BrokenVtxColorArray);
 	for (auto vt : CurrentVerticesPosition)
 	{
-		auto finder = Hasher.Find(FVector3f(vt));
-		LocalVtxColors.Add(*finder);
 
+		auto finder = Hasher.Find(FVector3f(vt));
+		if (finder)
+		{
+			LocalVtxColors.Add(*finder);
+		}
 	}
 	return LocalVtxColors;
 }
