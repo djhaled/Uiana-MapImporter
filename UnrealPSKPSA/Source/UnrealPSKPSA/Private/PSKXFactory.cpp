@@ -83,12 +83,14 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 		auto Material = Reader->Materials[i];
 		auto MaterialName = FName(Material.MaterialName);
 		auto MaterialNamey = FString(Material.MaterialName);
-		FString Test = "/Game/ValorantContent/Materials/";
+		FString NewPathMat = "/Game/ValorantContent/Materials/";
 		IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
 		UMaterialInstanceConstantFactoryNew* Factory = NewObject<UMaterialInstanceConstantFactoryNew>();
-		auto lala = AssetTools.CreateAsset(MaterialNamey, Test, UMaterialInstanceConstant::StaticClass(), Factory);
-		if (lala == nullptr)
+		auto singpath = FPaths::Combine(NewPathMat, MaterialNamey);
+		UObject* CheckAsset = UEditorAssetLibrary::LoadAsset(singpath);
+		if (CheckAsset == nullptr)
 		{
+			CheckAsset = AssetTools.CreateAsset(MaterialNamey, NewPathMat, UMaterialInstanceConstant::StaticClass(), Factory);
 			TArray< FStringFormatArg > args;
 			args.Add(FStringFormatArg(MaterialNamey));
 			FString PathMat = FString::Format(TEXT("/Game/ValorantContent/Materials/{0}.{0}"), args);
@@ -101,7 +103,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 			StaticMesh->GetSectionInfoMap().Set(0, i, FMeshSectionInfo(i));
 			continue;
 		}
-		UMaterialInstanceConstant* MaterialInstance = CastChecked<UMaterialInstanceConstant>(lala);
+		UMaterialInstanceConstant* MaterialInstance = CastChecked<UMaterialInstanceConstant>(CheckAsset);
 		MaterialInstance->MarkPackageDirty();
 		FStaticMaterial StaticMaterial;
 		StaticMaterial.MaterialInterface = MaterialInstance;

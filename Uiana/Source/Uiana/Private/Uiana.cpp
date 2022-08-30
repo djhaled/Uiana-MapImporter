@@ -69,8 +69,6 @@ void FUianaModule::ShutdownModule()
 
 
 
-
-
 bool FUianaModule::GetImportVisibility()
 {
 	FString CurrentPath = FPaths::ProjectPluginsDir() + "/Uiana/Content/Python/assets/umaps.json";
@@ -96,7 +94,6 @@ FReply FUianaModule::ExecuteMapFunction()
 	bool ImportDecal = Stun->ImportDecals;
 	bool ImportLights = Stun->ImportLights;
 	bool ImportSubLevels = Stun->UseSubLevels;
-	//FString MapName = UEnum::GetDisplayValueAsText(Stun->Map).ToString(); 
 	FString MapName = Stun->MapName;
 	FString ExportPath = Stun->ExportFolder.Path;
 	FString PakFolder = Stun->PaksFolder.Path;
@@ -121,7 +118,6 @@ FReply FUianaModule::ExecuteMapFunction()
 	GEngine->Exec(NULL, TCharCommand);
 	return FReply::Handled();
 }
-
 FReply FUianaModule::ExecuteUMapListFunction()
 {
 	Stun->SaveConfig();
@@ -139,7 +135,6 @@ FReply FUianaModule::ExecuteUMapListFunction()
 	GEngine->Exec(NULL, TCharCommand);
 	return FReply::Handled();
 }
-
 void FUianaModule::RegisterMenus()
 {
 	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner

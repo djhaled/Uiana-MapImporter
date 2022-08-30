@@ -1,147 +1,201 @@
 {
-  "map_m011": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/M011/Map_M011_Background",
-    "/Game/Panda_Main/Maps/M011/Map_M011_Lighting",
-    "/Game/Panda_Main/Maps/M011/Map_M011_Audio",
-    "/Game/Panda_Main/Maps/M011/Map_M011_Animation",
-    "/Game/Panda_Main/Maps/M011/Map_M011_VFX",
-    "MultiVersus/Content/Panda_Main/Maps/M011/Map_M011"
+  "character select": [
+    "/Game/Maps/PregameV2/CharacterSelect_Ep02_01_EnvArt",
+    "/Game/Maps/PregameV2/CharacterSelect_Ep02_01_Lighting",
+    "ShooterGame/Content/Maps/PregameV2/CharacterSelectPersistentLevel"
   ],
-  "map_m011_largenoplat": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_Animation_LargeNoPlat",
-    "/Game/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_Lighting_LargeNoPlat",
-    "/Game/Panda_Main/Maps/M011/Map_M011_Audio",
-    "/Game/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_VFX_LargeNoPlat",
-    "/Game/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_Background_LargeNoPlat",
-    "MultiVersus/Content/Panda_Main/Maps/M011/Maps/LargeNoPlat/Map_M011_LargeNoPlat"
+  "haven": [
+    "/Game/Maps/Triad/Triad_Gameplay",
+    "/Game/Maps/Triad/Triad_ObserverCameras",
+    "/Game/Maps/Triad/Triad_Art_B",
+    "/Game/Maps/Triad/Triad_Art_Atk",
+    "/Game/Maps/Triad/Triad_Art_Def",
+    "/Game/Maps/Triad/Triad_Art_Basalt",
+    "/Game/Maps/Triad/Triad_Art_Vista",
+    "/Game/Maps/Triad/Triad_Art_AtkPathA",
+    "/Game/Maps/Triad/Triad_Art_AtkPathB",
+    "/Game/Maps/Triad/Triad_Art_AtkPathC",
+    "/Game/Maps/Triad/Triad_Art_Vista_Destruction",
+    "/Game/Maps/Triad/Triad_BVProjectile",
+    "/Game/Maps/Triad/Triad_Art_C_Destruction",
+    "/Game/Maps/Triad/Triad_VFX_Destruction",
+    "/Game/Maps/Triad/Triad_LightingDestruction",
+    "/Game/Maps/Triad/Triad_Lighting",
+    "/Game/Maps/Triad/Triad_Art_Destruction",
+    "/Game/Maps/Triad/Triad_Volumes",
+    "/Game/Maps/Triad/Triad_Art_Skybox",
+    "/Game/Maps/Triad/Triad_Art_A",
+    "ShooterGame/Content/Maps/Triad/Triad"
   ],
-  "map_m011_small": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/M011/Maps/Small/Map_M011_VFX_Small",
-    "/Game/Panda_Main/Maps/M011/Map_M011_Audio",
-    "/Game/Panda_Main/Maps/M011/Maps/Small/Map_M011_Animation_Small",
-    "/Game/Panda_Main/Maps/M011/Maps/Small/Map_M011_Background_Small",
-    "/Game/Panda_Main/Maps/M011/Maps/Small/Map_M011_Lighting_Small",
-    "MultiVersus/Content/Panda_Main/Maps/M011/Maps/Small/Map_M011_Small"
+  "pearl": [
+    "/Game/Maps/Pitt/Pitt_Art_Blockmesh",
+    "/Game/Maps/Pitt/Pitt_Art_ASite",
+    "/Game/Maps/Pitt/Pitt_Art_Mid",
+    "/Game/Maps/Pitt/Pitt_Art_Vista",
+    "/Game/Maps/Pitt/Pitt_Art_DefPathB",
+    "/Game/Maps/Pitt/Pitt_Art_DefPathA",
+    "/Game/Maps/Pitt/Pitt_Art_AtkVista",
+    "/Game/Maps/Pitt/Pitt_Art_DefVista",
+    "/Game/Maps/Pitt/Pitt_Art_BVista",
+    "/Game/Maps/Pitt/Pitt_Lighting",
+    "/Game/Maps/Pitt/Pitt_Art_AtkPathMid",
+    "/Game/Maps/Pitt/Pitt_Art_AtkPathMidToA",
+    "/Game/Maps/Pitt/Pitt_Art_Signage",
+    "/Game/Maps/Pitt/Pitt_Gameplay",
+    "/Game/Maps/Pitt/Pitt_Art_DefSpawn",
+    "/Game/Maps/Pitt/Pitt_Art_BSite",
+    "/Game/Maps/Pitt/Pitt_Art_AtkSpawn",
+    "/Game/Maps/Pitt/Pitt_Art_AtkPathB",
+    "/Game/Maps/Pitt/Pitt_Art_AtkPathA",
+    "ShooterGame/Content/Maps/Pitt/Pitt"
   ],
-  "map_m011_smallnoplat": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_Lighting_SmallNoPlat",
-    "/Game/Panda_Main/Maps/M011/Map_M011_Audio",
-    "/Game/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_Background_SmallNoPlat",
-    "/Game/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_VFX_SmallNoPlat",
-    "/Game/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_Animation_SmallNoPlat",
-    "MultiVersus/Content/Panda_Main/Maps/M011/Maps/SmallNoPlat/Map_M011_SmallNoPlat"
+  "fracture": [
+    "/Game/Maps/Canyon/Canyon_Gameplay",
+    "/Game/Maps/Canyon/Canyon_BSiteTunnel",
+    "/Game/Maps/Canyon/Canyon_AtkPathToBSite",
+    "/Game/Maps/Canyon/Canyon_AtkSpawn",
+    "/Game/Maps/Canyon/Canyon_BackPath",
+    "/Game/Maps/Canyon/Canyon_BackPathtoA",
+    "/Game/Maps/Canyon/Canyon_Asite",
+    "/Game/Maps/Canyon/Canyon_VistaA",
+    "/Game/Maps/Canyon/Canyon_MidCollider",
+    "/Game/Maps/Canyon/Canyon_BSite",
+    "/Game/Maps/Canyon/Canyon_Mid",
+    "/Game/Maps/Canyon/Canyon_Lighting",
+    "/Game/Maps/Canyon/Canyon_BackPathToB",
+    "/Game/Maps/Canyon/Canyon_AtkPathToASite",
+    "ShooterGame/Content/Maps/Canyon/Canyon"
   ],
-  "map_batcave": [
-    "/Game/Panda_Main/Maps/Map_Batcave/Map_Batcave_Lighting",
-    "/Game/Panda_Main/Maps/Map_Batcave/Map_BatcaveNew_VFX",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/Map_Batcave/Map_Batcave_Audio",
-    "/Game/Panda_Main/Maps/Map_Batcave/Map_Batcave_Godrays_VFX",
-    "/Game/Panda_Main/Maps/Map_Batcave/Map_Batcave_EarlyTestGameplay",
-    "MultiVersus/Content/Panda_Main/Maps/Map_Batcave/Map_Batcave"
+  "range": [
+    "/Game/Maps/Poveglia/Range_Art_AsylumDown",
+    "/Game/Maps/Poveglia/Range_Art_AsylumUp",
+    "/Game/Maps/Poveglia/Range_Art_Tower",
+    "/Game/Maps/Poveglia/Range_Art_VTOL",
+    "/Game/Maps/Poveglia/Range_Art_Vegetation",
+    "/Game/Maps/Poveglia/Range_Art_JumpCourse",
+    "/Game/Maps/Poveglia/Range_Art_BMainInterior",
+    "/Game/Maps/Poveglia/Range_Art_Vista",
+    "/Game/Maps/Poveglia/Range_Art_Bombsite",
+    "/Game/Maps/Poveglia/Range_Art_AsylumBasement",
+    "/Game/Maps/Poveglia/Range_Lighting",
+    "/Game/Maps/Poveglia/Range_Gameplay",
+    "/Game/Maps/Poveglia/Range_Art_Boathouse",
+    "/Game/Maps/Poveglia/Range_Art_Bridge",
+    "/Game/Maps/Poveglia/Range_Art_Cemetery",
+    "/Game/Maps/Poveglia/Range_Art_Gallery",
+    "/Game/Maps/Poveglia/Range_Art_Hospital",
+    "ShooterGame/Content/Maps/Poveglia/Range"
   ],
-  "map_classic3platform_large": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "MultiVersus/Content/Panda_Main/Maps/Map_Classic3Platform/Map_Classic3Platform_Large"
+  "split": [
+    "/Game/Maps/Bonsai/Bonsai_Art_VistaB",
+    "/Game/Maps/Bonsai/Bonsai_Volumes",
+    "/Game/Maps/Bonsai/Bonsai_Art_DefPathB",
+    "/Game/Maps/Bonsai/Bonsai_Art_DefPathA",
+    "/Game/Maps/Bonsai/Bonsai_Art_AtkPathA",
+    "/Game/Maps/Bonsai/Bonsai_Art_B",
+    "/Game/Maps/Bonsai/Bonsai_Art_AtkPathB",
+    "/Game/Maps/Bonsai/Bonsai_Art_AtkSpawn",
+    "/Game/Maps/Bonsai/Bonsai_Art_VistaAtk",
+    "/Game/Maps/Bonsai/Bonsai_Art_VistaA",
+    "/Game/Maps/Bonsai/Bonsai_Gameplay",
+    "/Game/Maps/Bonsai/Bonsai_Art_VistaDef",
+    "/Game/Maps/Bonsai/Bonsai_Art_MidVent",
+    "/Game/Maps/Bonsai/Bonsai_Art_BTower",
+    "/Game/Maps/Bonsai/Bonsai_Art_Sewer",
+    "/Game/Maps/Bonsai/Bonsai_Art_MidConstruction",
+    "/Game/Maps/Bonsai/Bonsai_Art_ATower",
+    "/Game/Maps/Bonsai/Bonsai_Lighting",
+    "/Game/Maps/Bonsai/Bonsai_Skybox",
+    "/Game/Maps/Bonsai/Bonsai_Art_A",
+    "/Game/Maps/Bonsai/Bonsai_Art_Mid",
+    "/Game/Maps/Bonsai/Bonsai_Art_DefSpawn",
+    "/Game/Maps/Bonsai/Bonsai_Gameplay_Dynamic",
+    "ShooterGame/Content/Maps/Bonsai/Bonsai"
   ],
-  "map_classic3platform_small": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "MultiVersus/Content/Panda_Main/Maps/Map_Classic3Platform/Map_Classic3Platform_Small"
+  "bind": [
+    "/Game/Maps/Duality/Duality_Audio",
+    "/Game/Maps/Duality/Duality_Art_A",
+    "/Game/Maps/Duality/Duality_Volumes",
+    "/Game/Maps/Duality/Duality_Art_Def",
+    "/Game/Maps/Duality/Duality_Art_Vista",
+    "/Game/Maps/Duality/Duality_Art_AtkPathA",
+    "/Game/Maps/Duality/Duality_Art_AtkPathB",
+    "/Game/Maps/Duality/Duality_Art_DefPathA",
+    "/Game/Maps/Duality/Duality_Art_DefPathB",
+    "/Game/Maps/Duality/Duality_Art_Mid",
+    "/Game/Maps/Duality/Duality_Art_TPArrivalRooms",
+    "/Game/Maps/Duality/Duality_Art_Signage",
+    "/Game/Maps/Duality/Duality_Gameplay",
+    "/Game/Maps/Duality/Duality_Art_MidPathB",
+    "/Game/Maps/Duality/Duality_Art_MidPathA",
+    "/Game/Maps/Duality/Duality_Art_Lantern",
+    "/Game/Maps/Duality/Duality_Art_Destructibles",
+    "/Game/Maps/Duality/Duality_Art_Birthday",
+    "/Game/Maps/Duality/Duality_Art_BathHouse",
+    "/Game/Maps/Duality/Duality_Art_B",
+    "/Game/Maps/Duality/Duality_Lighting",
+    "/Game/Maps/Duality/Duality_Art_Atk",
+    "ShooterGame/Content/Maps/Duality/Duality"
   ],
-  "map_treehousesmall": [
-    "/Game/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse_Audio",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/Map_TreeHouseSmall/Map_TreeHouseSmall_VFX",
-    "MultiVersus/Content/Panda_Main/Maps/Map_TreeHouseSmall/Map_TreeHouseSmall"
+  "breeze": [
+    "/Game/Maps/Foxtrot/Foxtrot_Art_AtkPath_A",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_DefPath_B",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_Vista",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_AtkPath_B",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_A_Tunnel",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_DefPath_Mid",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_Workshop",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_VistaShip",
+    "/Game/Maps/Foxtrot/Foxtrot_Gameplay",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_MidLower",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_MidUpper",
+    "/Game/Maps/Foxtrot/Foxtrot_Lighting",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_A",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_B",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_Mid",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_DefSpawn",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_AtkSpawn",
+    "ShooterGame/Content/Maps/Foxtrot/Foxtrot"
   ],
-  "map_scoobydoo": [
-    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_Audio",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_Lighting",
-    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_Background",
-    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_Animation",
-    "/Game/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo_VFX",
-    "MultiVersus/Content/Panda_Main/Maps/ScoobyMansion/Map_ScoobyDoo"
+  "ascent": [
+    "/Game/Maps/Ascent/Ascent_Lighting",
+    "/Game/Maps/Ascent/Ascent_Art_DefPathB",
+    "/Game/Maps/Ascent/Ascent_Gameplay_Dynamic",
+    "/Game/Maps/Ascent/Ascent_Art_VistaAtk",
+    "/Game/Maps/Ascent/Ascent_Art_Mid",
+    "/Game/Maps/Ascent/Ascent_Art_A",
+    "/Game/Maps/Ascent/Ascent_Art_B",
+    "/Game/Maps/Ascent/Ascent_Art_Atk",
+    "/Game/Maps/Ascent/Ascent_Art_Def",
+    "/Game/Maps/Ascent/Ascent_Volumes",
+    "/Game/Maps/Ascent/Ascent_Art_AtkPathA",
+    "/Game/Maps/Ascent/Ascent_Art_DefPathA",
+    "/Game/Maps/Ascent/Ascent_Art_AtkPathB",
+    "/Game/Maps/Ascent/Ascent_Art_APathMid",
+    "/Game/Maps/Ascent/Ascent_Art_VistaB",
+    "/Game/Maps/Ascent/Ascent_Art_VistaDef",
+    "/Game/Maps/Ascent/Ascent_Art_Vista",
+    "/Game/Maps/Ascent/Ascent_Gameplay",
+    "/Game/Maps/Ascent/Ascent_Art_VistaA",
+    "ShooterGame/Content/Maps/Ascent/Ascent"
   ],
-  "map_trainingroomlarge": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "MultiVersus/Content/Panda_Main/Maps/TrainingRoomLarge/Map_TrainingRoomLarge"
+  "icebox": [
+    "/Game/Maps/Port/Port_Art_SnowAll",
+    "/Game/Maps/Port/Port_Art_AtkPathB",
+    "/Game/Maps/Port/Port_Art_DefPathB",
+    "/Game/Maps/Port/Port_Art_VistaA",
+    "/Game/Maps/Port/Port_Art_VistaB",
+    "/Game/Maps/Port/Port_Art_A",
+    "/Game/Maps/Port/Port_Art_AtkSpawn",
+    "/Game/Maps/Port/Port_Art_B",
+    "/Game/Maps/Port/Port_Art_DefSpawn",
+    "/Game/Maps/Port/Port_Art_Mid",
+    "/Game/Maps/Port/Port_Lighting",
+    "/Game/Maps/Port/Port_Art_Vista",
+    "/Game/Maps/Port/Port_Gameplay",
+    "ShooterGame/Content/Maps/Port/Port"
   ],
-  "map_trainingroomsmall": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "MultiVersus/Content/Panda_Main/Maps/TrainingRoomSmall/Map_TrainingRoomSmall"
-  ],
-  "map_trophyroom_2platforms": [
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Audio",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_Lighting",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_Background",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_VFX",
-    "MultiVersus/Content/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_2platforms"
-  ],
-  "map_trophyroom_4platforms": [
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Audio",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_Lighting",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_Background",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms_VFX",
-    "MultiVersus/Content/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_4platforms"
-  ],
-  "map_trophyroom_largeplatform": [
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Audio",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_LargePlatform_VFX",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Background",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Lighting",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "MultiVersus/Content/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_LargePlatform"
-  ],
-  "map_trophyroom_tutorial": [
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Audio",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_LargePlatform_VFX",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Background",
-    "/Game/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Lighting",
-    "MultiVersus/Content/Panda_Main/Maps/TrophyRoom/Map_TrophyRoom_Tutorial"
-  ],
-  "prematch": [
-    "/Game/Panda_Main/PreMatch/Maps/PM_NewSlants",
-    "/Game/Panda_Main/PreMatch/Maps/PM_BG_TrophyRoom",
-    "MultiVersus/Content/Panda_Main/PreMatch/PreMatch"
-  ],
-  "new_mainmenu": [
-    "/Game/Panda_Main/PreMatch/Maps/PM_NewSlants",
-    "/Game/Panda_Main/PreMatch/PreMatch",
-    "/Game/Panda_Main/PreMatch/Maps/PM_BG_TrophyRoom",
-    "MultiVersus/Content/Panda_Main/UI/MainMenu/New_MainMenu"
-  ],
-  "map_m009": [
-    "/Game/Panda_Main/Maps/M009/Map_M009_Audio",
-    "/Game/Panda_Main/Maps/M009/Map_M009_VFX",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/M009/Map_M009_Background",
-    "/Game/Panda_Main/Maps/M009/Map_M009_Lighting",
-    "MultiVersus/Content/Panda_Main/Maps/M009/Map_M009"
-  ],
-  "map_m009_small": [
-    "/Game/Panda_Main/Maps/M009/Map_M009_Audio",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "/Game/Panda_Main/Maps/M009/Map_M009_small_VFX",
-    "/Game/Panda_Main/Maps/M009/Map_M009_small_Lighting",
-    "/Game/Panda_Main/Maps/M009/Map_M009_small_Background",
-    "MultiVersus/Content/Panda_Main/Maps/M009/Map_M009_small"
-  ],
-  "map_trainingarena": [
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "MultiVersus/Content/Panda_Main/Maps/Map_TrainingArena/Map_TrainingArena"
-  ],
-  "map_treehouse": [
-    "/Game/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse_VFX",
-    "/Game/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse_Audio",
-    "/Game/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse_Geo",
-    "/Game/Panda_Main/Maps/ContainerMaps/CameraContainer",
-    "MultiVersus/Content/Panda_Main/Maps/Map_TreeHouse/Map_TreeHouse"
+  "menu": [
+    "/Game/Maps/Menu/MainMenuV2"
   ]
 }

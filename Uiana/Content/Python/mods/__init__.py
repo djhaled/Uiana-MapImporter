@@ -15,7 +15,6 @@ parser.add_argument('GameVersion',type=str,help='GameVerison')
 parser.add_argument('vaAesKey',type=str,help='vaAesKey')
 args = parser.parse_args()
 
-print(args.MapName)
 class UeSettings:
 	bImportMaterial = bool(args.ImportMaterial)
 	bImportMesh = bool(args.ImportMesh)

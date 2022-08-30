@@ -9,6 +9,7 @@ import unreal
 SELECTIVE_OBJECTS = []
 projectpath = unreal.Paths.project_plugins_dir()
 
+
 # -------------------------- #
 def ClearLevel():
 	AllActors = unreal.EditorLevelLibrary.get_all_level_actors()
@@ -40,6 +41,38 @@ def GetReadableUMapType(mapname):
 		MapType = j["StreamingType"]
 		if mapname == NewMapName:
 			return MapType
+BLACKLIST = [
+	"navmesh",
+	"_breakable",
+	"_collision",
+	"windstreaks_plane",
+	"sm_port_snowflakes_boundmesh",
+	"sm_barrierduality",
+	"M_Pitt_Caustics_Box",
+	"box_for_volumes", 
+	"BombsiteMarker_0_BombsiteA_Glow",
+	"BombsiteMarker_0_BombsiteB_Glow",
+	"supergrid",
+	"_col",
+	"M_Pitt_Lamps_Glow",
+	"Bombsite_0_ASiteSide",
+	"Bombsite_0_BSiteSide"
+	"for_volumes",
+	"Foxtrot_ASite_Plane_DU",
+	"Foxtrot_ASite_Side_DU",
+	"BombsiteMarker_0_BombsiteA_Glow",
+	"BombsiteMarker_0_BombsiteB_Glow",
+]
+
+def GetUMapType(mapname):
+	for j in JsonMapTypeData:
+		NewMapName = j["Name"]
+		MapType = j["StreamingType"]
+		if mapname == NewMapName:
+			return eval(f'unreal.{MapType}')
+def ImportShader(Shader):
+	BaseShader = unreal.load_asset(f'/Uiana/Materials/{Shader}')
+	return BaseShader
 def CheckForNewer(settingName):
 	returnstr = ''
 	if settingName == "GrainIntensity":
@@ -48,8 +81,6 @@ def CheckForNewer(settingName):
 		return "override_film_grain_intensity"
 		settingName = bOverride_FilmGrainIntensity
 	return settingName
-
-
 def HasVariable(comp,asset):
 	varilist = dir(comp)
 	newasset = asset.replace("_","" )
@@ -62,31 +93,6 @@ def HasVariable(comp,asset):
 			return True
 	print(f'CUE4UmapImporter PPSetting Error: {LowerAsset}')
 	return False
-
-BLACKLIST = [
-	"navmesh",
-	"_breakable",
-	"_collision",
-	"windstreaks_plane",
-	"sm_port_snowflakes_boundmesh",
-	"sm_barrierduality",
-	"M_Pitt_Caustics_Box",
-	"box_for_volumes", 
-	"supergrid",
-	"_col",
-	"M_Pitt_Lamps_Glow",
-	"for_volumes",
-]
-def GetUMapType(mapname):
-	for j in JsonMapTypeData:
-		NewMapName = j["Name"]
-		MapType = j["StreamingType"]
-		if mapname == NewMapName:
-			return eval(f'unreal.{MapType}')
-def ImportShader(Shader):
-	BaseShader = unreal.load_asset(f'/Uiana/Materials/{Shader}')
-	return BaseShader
-
 def ReturnObjectName(name):
 	rformPar =name.rfind(' ') + 1
 	return name[rformPar:len(name)]
@@ -243,12 +249,6 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
 
 	new_list = []
 
-	def is_blacklisted(object_name: str) -> bool:
-		for blocked in BLACKLIST:
-			if blocked.lower() in object_name.lower():
-				return True
-		return False
-
 	# Check for blacklisted items
 	for og_model in filtered_list:
 		model_name_lower = get_obj_name(data=og_model, mat=False).lower()
@@ -259,7 +259,11 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
 			new_list.append(og_model)
 
 	return new_list
-
+def is_blacklisted(object_name: str) -> bool:
+	for blocked in BLACKLIST:
+		if blocked.lower() in object_name.lower():
+			return True
+	return False
 def get_obj_name(data: dict, mat: bool):
 	if mat:
 		s = data["ObjectPath"]
@@ -425,24 +429,12 @@ def create_folders(self):
 				f.mkdir(parents=True)
 
 
+# ANCHOR: Classes
 # -------------------------- #
 
 
 
 
-
-
-# class ExpSettings:
-# 	def __init__(self,UESet):
-# 		self.aes = UESet.vAesKey
-# 		self.GameVersion = UESet.GVersion
-# 		self.paks_path = UESet.PPakFolder
-# 		self.export_path = UESet.PExportPath
-# 		self.assets_path = self.export_path.joinpath("export")
-# 		self.script_root = UESet.PPluginPath
-# 		self.umodel = self.script_root.joinpath("tools", "umodel.exe")
-# 		self.cue4extractor = self.script_root.joinpath("tools", "cue4extractor.exe")
-# 		self.cue4umapextractor = self.script_root.joinpath("tools", "CUE4UmapsExtractor.exe")
 
 
 
@@ -474,6 +466,7 @@ class Settings:
 		self.log = self.export_path.joinpath("import.log")
 		self.umap_list_path = self.importer_assets_path.joinpath("umaps.json")
 		self.umap_list = read_json(self.umap_list_path)
+		
 		self.selected_map = Map(UESet.fMapName, self.maps_path, self.umap_list)
 
 		self.shaders = [
@@ -558,6 +551,7 @@ class Map:
 
 class ActorDefs():
 	def __init__(self,Actor):
+		self.data = Actor
 		self.name = Actor["Name"]
 		self.type = Actor["Type"]
 		self.props = Actor["Properties"]

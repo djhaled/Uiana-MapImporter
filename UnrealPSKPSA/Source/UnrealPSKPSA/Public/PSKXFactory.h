@@ -23,7 +23,6 @@ public:
 	
 	UObject* Import(const FString Filename, UObject* Parent, const FName Name, const EObjectFlags Flags) const;
 	
-protected:
 	UClass* FactoryClass = UStaticMesh::StaticClass();
 	FString FactoryExtension = "pskx";
 	FString FactoryDescription = "ActorX Static Mesh";

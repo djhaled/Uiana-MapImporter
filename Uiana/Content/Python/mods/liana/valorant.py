@@ -26,17 +26,16 @@ def filter_umap(umap_data: dict) -> list:
 			umap_filtered.append(obj)
 
 	return umap_filtered, object_types
-
 def GetActualName(name):#\Game\Environments\Crag\Map\Crag_Game
 	newlen = name.rfind('\\') + 1
 	jc = name[newlen:len(name)]
 	return jc
+
 def get_objects(umap_data):
 	umap_objects = list()
 	umap_materials = list()
 	allobjes = list()
 	for obj in umap_data:
-
 		if "Properties" in obj:
 			if "StaticMesh" in obj["Properties"]:
 				if obj["Properties"]["StaticMesh"] is not None:
@@ -175,14 +174,15 @@ def get_texture_path_yo(s: str, f: str):
 
 
 class MapObject(object):
-	def __init__(self, settings: Settings, data: dict, umap_name: str):
+	def __init__(self, settings: Settings, data: dict, umap_name: str,umap_data:list):
 		self.umap = umap_name
 		self.map_folder = settings.selected_map.folder_path
 		self.objects_folder = settings.selected_map.objects_path
 		self.data = data
+		self.umapdata = umap_data
 		self.name = self.get_object_name()
-		self.uname = self.get_object_game_name()
 		self.objname = self.getOBJName()
+		self.uname = self.get_object_game_name()
 		self.object_path = self.get_object_path()
 		self.json = self.get_object_data_OG()
 		self.model_path = self.get_local_model_path(p=settings.assets_path)
@@ -200,7 +200,6 @@ class MapObject(object):
 		news = s[s.rfind(" ")+1:len(s)]
 		k = Path(news).stem
 		return k
-
 	def get_object_game_name(self) -> str:
 		s = self.data["Outer"]
 		return s

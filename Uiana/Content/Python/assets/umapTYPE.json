@@ -1,0 +1,1390 @@
+[
+    {
+        "Name": "Ascent_KillVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Lighting",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_DefPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Gameplay_Dynamic",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_VistaAtk",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_Mid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_A",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_B",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_Atk",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_Def",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Volumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_AtkPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_DefPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_AtkPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_BVProjectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Callout_Volumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_Env_VFX",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_APathMid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_VistaB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_VistaDef",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Audio",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_Vista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_NavMesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_Birthday",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Art_VistaA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Ascent_Mode_BombMode",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_Mode_SiteRush",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_Mode_QuickSpike",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_Mode_FFA",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_Camera",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_Mode_Alt8",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_TeamSpawnPoints",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_Greybox",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_GreyboxChanges",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_LightingBlockers",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Ascent_Profiling",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_Art_VistaB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Volumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_BVProjectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_DefPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_DefPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_AtkPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Callout_Volumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_B",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_AtkPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_AtkSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_VistaAtk",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_VistaA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_VistaDef",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_MidVent",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_BTower",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_Sewer",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_MidConstruction",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Audio",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_ATower",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Lighting",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_NavMesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_KillVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_ObserverCameras",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_Birthday",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_VFX",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Skybox",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_A",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_Mid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Art_DefSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Gameplay_Dynamic",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Bonsai_Yamtest",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_Greybox",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_Mode_BombMode",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_Mode_SiteRush",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_Mode_QuickSpike",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_Mode_FFA",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_TeamSpawnPoints",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_Mode_Alt8",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_Profiling",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_SpawnBarrierVisuals",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Bonsai_GreyboxReference",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Canyon_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_BSiteTunnel",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_AtkPathToBSite",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_AtkSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_BackPath",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_BackPathtoA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_Asite",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_VistaA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_MidCollider",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_VFX",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_BV_Projectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_CalloutVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_KillVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_ObserverCameras",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_BSite",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_Mid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_NavMesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_Lighting",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_BackPathToB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_Audio",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_AtkPathToASite",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Canyon_GreyboxReference",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Canyon_Mode_FFA",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Canyon_Greybox",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Canyon_ASidePath",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Canyon_Mode_SpikeRush",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Canyon_TeamSpawnPoints",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Canyon_BombGameMode_Only",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Canyon_APathNoMid",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_Audio",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_A",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Volumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_Def",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_Vista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_AtkPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_AtkPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_DefPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_DefPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_Mid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_TPArrivalRooms",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_Signage",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_MidPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_MidPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_Lantern",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_Destructibles",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_BVProjectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_CalloutVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_KillVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_ObserverCameras",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_Birthday",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_BathHouse",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_B",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Lighting",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_NavMesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_VFX",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Art_Atk",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Duality_Mode_FFA",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_SiteRushGameMode_Only",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_BombGameMode_Only",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_QuickSpikeGameMode_Only",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_Mode_Alt4",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_TeamSpawnPoints",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_Mode_Alt8",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_Greybox",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_GreyboxReference",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_Skybox",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_Profiling",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Duality_SpawnBarrier",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Foxtrot_Greybox",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_ObserverCameras",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_AtkPath_A",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_DefPath_B",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_Vista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_AtkPath_B",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_A_Tunnel",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_DefPath_Mid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Audio",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_Workshop",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_VistaShip",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_VFX",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_MidLower",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_MidUpper",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_CalloutVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_KillVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_BVProjectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_Birthday",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Lighting",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_NavMesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_A",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_B",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_Mid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_DefSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_Art_AtkSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Foxtrot_GreyboxReference",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Foxtrot_Inactive",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Foxtrot_Mode_BombMode",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Foxtrot_Mode_SpikeRush",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Foxtrot_Mode_FFA",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Foxtrot_TeamSpawnPoints",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Foxtrot_DesignChanges",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Pitt_Greybox",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_Blockmesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_ASite",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_Mid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_Vista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_DefPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_DefPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_AtkVista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_DefVista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_BVista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Audio",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Lighting",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_AtkPathMid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_AtkPathMidToA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_VFX",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_Signage",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Navmesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Kill_Volumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_CalloutVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_BVProjectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_DefSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_BSite",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_AtkSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_AtkPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Art_AtkPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Pitt_Mode_FFA",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Pitt_Mode_BombMode",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Pitt_GreyboxRefrence",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Pitt_Mode_SpikeRush",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Pitt_TeamSpawnPoints",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Pitt_Cameras",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Art_SnowAll",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_Birthday",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_AtkPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_DefPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_VistaA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_KillVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_BVProjectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_CalloutVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Audio",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_VFX",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_NavMesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_VistaB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_ObserverCameras",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_A",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_AtkSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_B",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_DefSpawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_Mid",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Art_Vista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Port_blockmesh_Yam",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_GreyboxReference",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_TeamSpawnPoints",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Lighting",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Mode_Alt8_Volumes",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_DesignChanges_1",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Mode_BombMode",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Mode_SpikeRush",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_GreyboxChanges",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Mode_Alt8",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Mode_FFA",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Greybox",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_Art_Snowball",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Port_LightingSnowball",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_AsylumDown",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Navmesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_AsylumUp",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Tower",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_VTOL",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Vegetation",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_JumpCourse",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_VFX",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_BMainInterior",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Vista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Bombsite",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_BVProjectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_AsylumBasement",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Lighting",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Boathouse",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Bridge",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Cemetery",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Gallery",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_Art_Hospital",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Range_NPE_Only_Gameplay",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Only_Gameplay",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Boathouse_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Bombsite_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Bridge_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Cemetery_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Gallery_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Hospital_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_JumpCourse_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Tower_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Vegetation_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Vista_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_JumpCourse_Outdated",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_VTOL_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_ClientOnly",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_AsylumDown_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_AsylumUp_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_BMainInterior_ClientOnly_CosmeticDetails",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Profiling",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Art_Boathouse_hide",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Range_Greybox+Jump_Reference",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Gameplay",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_ObserverCameras",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_B",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Audio_Spatial",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_Atk",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_Def",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_Basalt",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_Vista",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_AtkPathA",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_AtkPathB",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_AtkPathC",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_Vista_Destruction",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_BVProjectile",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_C_Destruction",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_VFX_Destruction",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_LightingDestruction",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_BVPawn",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Callout_Volumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_KillVolumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_Birthday",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Lighting",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_NavMesh",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_Destruction",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Volumes",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Audio",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_Skybox",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_Art_A",
+        "StreamingType": "LevelStreamingAlwaysLoaded"
+    },
+    {
+        "Name": "Triad_VFX",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Mode_BombMode",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Mode_Alt8",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_TeamSpawnPoints",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Mode_SiteRush",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Mode_QuickSpike",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Mode_FFA",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Alt5",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Mode_Alt6",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Art_Working",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Art_C",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Mode_Alt4",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_GreyboxReference",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Greybox",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Profiling",
+        "StreamingType": "LevelStreamingDynamic"
+    },
+    {
+        "Name": "Triad_Inactive",
+        "StreamingType": "LevelStreamingDynamic"
+    }
+]

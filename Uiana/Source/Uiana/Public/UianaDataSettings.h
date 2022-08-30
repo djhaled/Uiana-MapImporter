@@ -17,7 +17,6 @@ enum WeaponRole
 	CharacterSelect   UMETA(DisplayName = "CharacterSelect"),
 	Menu   UMETA(DisplayName = "Menu"),
 };
-
 UENUM()
 enum UE4Version
 {
@@ -77,10 +76,7 @@ public:
 		FDirectoryPath ExportFolder;
 	UPROPERTY(config, EditAnywhere, Category = "Settings Folders", meta = (RelativeToGameContentDir, ContentDir))
 		FDirectoryPath PaksFolder;
-	//UPROPERTY(config, EditAnywhere, Category = "Import Settings")
-		//TEnumAsByte<WeaponRole> Map;
-    /** Your map name thats in uiana/content/python/assets/umaps.json */
-    UPROPERTY(config, EditAnywhere, Category = "Game Settings")
+	UPROPERTY(config, EditAnywhere, Category = "Game Settings")
         FString MapName;
     UPROPERTY(config, EditAnywhere, Category = "Game Settings")
         TEnumAsByte<UE4Version> GameVersion;
