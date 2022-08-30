@@ -28,14 +28,14 @@ namespace cue4extractor
         /// <param name="gameUmaps">An option whose argument is parsed as a FileInfo</param>
         /// <param name="GameVersion">An option whose argument is parsed as a FileInfo</param>
         private static void Main(
-            string gameDirectory = @"D:\SteamLibrary\steamapps\common\Splitgate\PortalWars\Content\Paks",
-            string aesKey = "0xD73A797940208F2FB29256BE81A7CBC7B74CBF899441BB277F357F7F4577DBBB",
+            string gameDirectory = @"D:\FortOLD\FortniteGame\Content\Paks",
+            string aesKey = "0x2CCDFD22AD74FBFEE693A81AC11ACE57E6D10D0B8AC5FA90E793A130BC540ED4",
             string exportDirectory = @"D:\mapsCenat",
-            string mapName = "crag",
+            string mapName = "athena_poi_communitypark_001",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
-            string fileList = "",
+            string fileList = "D:\\ExportFortUE\\maps\\athena_poi_communitypark_001\\_assets_actors.txt",
             string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\BLANK\Plugins\Uiana\Content\Python\assets\umaps.json",
-            EGame GameVersion = EGame.GAME_Splitgate
+            EGame GameVersion = EGame.GAME_UE4_19
             )
         {
             //Console.WriteLine($"CUE4PARSE -  {gameDirectory}");
@@ -87,16 +87,20 @@ namespace cue4extractor
                 var folderType = filename switch
                 {
                     "_assets_objects" => "Objects",
+                    "_assets_actors" => "Actors",
                     "_assets_materials" => "Materials",
                     "_assets_materials_ovr" => "Override Materials",
                     _ => "",
                 };
 
-
                 if (File.Exists(currentList))
                     foreach (var line in File.ReadLines(currentList))
                     {
                         var objName = line.Split('\\')[^1];
+                        if (folderType == "Actors")
+                        {
+                            objName = line.Split('/')[^1];
+                        }
                         //Console.WriteLine($"INFO - CUE4Parse - Extracting : {objName}");
                         var objExports = provider.LoadObjectExports(line);
                         var objJSON = JsonConvert.SerializeObject(objExports, Formatting.Indented, settings);
