@@ -251,7 +251,10 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
 
 	# Check for blacklisted items
 	for og_model in filtered_list:
-		model_name_lower = get_obj_name(data=og_model, mat=False).lower()
+		objname = get_obj_name(data=og_model, mat=False)
+		if not objname :
+			continue
+		model_name_lower = objname.lower()
 
 		if is_blacklisted(model_name_lower):
 			continue
@@ -271,8 +274,13 @@ def get_obj_name(data: dict, mat: bool):
 		if HasKey("Properties",data) == False:
 			return "None"
 		if "StaticMesh" in data["Properties"]:
-			s = data["Properties"]["StaticMesh"]["ObjectPath"]
+			d = data["Properties"]["StaticMesh"]
+			if d == None:
+				return None
+			s = d["ObjectPath"]
 		else:
+			if not HasKey("Outer",data):
+				return None
 			s = data["Outer"]
 	k = get_name(s)
 	return k
@@ -375,10 +383,11 @@ def GetAttachScene(obj,OuterName,umapfile):
 		OuterName = obj["Name"]
 	for j in umapfile:
 		tipo = j["Type"]
+		if not HasKey("Outer",j):
+			continue
 		outer = j["Outer"]
 		if outer == "PersistentLevel":
 			outer = j["Name"]
-		#print(f'OuterName trying to find is {OuterName} and current outer is {outer} // also tipo is {tipo}')
 		if not HasKey("Properties",j):
 			continue
 		KeyOuter = HasKey("AttachParent",j["Properties"])
@@ -545,6 +554,7 @@ class Map:
 		self.materials_path = self.folder_path.joinpath("materials")
 		self.materials_ovr_path = self.folder_path.joinpath("materials_ovr")
 		self.objects_path = self.folder_path.joinpath("objects")
+		self.actors_path = self.folder_path.joinpath("actors")
 		self.scenes_path = self.folder_path.joinpath("scenes")
 		self.umaps_path = self.folder_path.joinpath("umaps")
 		create_folders(self)
@@ -554,6 +564,6 @@ class ActorDefs():
 		self.data = Actor
 		self.name = Actor["Name"]
 		self.type = Actor["Type"]
-		self.props = Actor["Properties"]
+		self.props = Actor["Properties"] if HasKey("Properties",Actor) else None
 		self.outer = Actor["Outer"]
 		self.transform = HasTransform(self.props)

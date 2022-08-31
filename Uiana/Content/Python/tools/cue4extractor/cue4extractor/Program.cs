@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Meshes;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
 using Newtonsoft.Json;
@@ -28,7 +30,7 @@ namespace cue4extractor
         /// <param name="gameUmaps">An option whose argument is parsed as a FileInfo</param>
         /// <param name="GameVersion">An option whose argument is parsed as a FileInfo</param>
         private static void Main(
-            string gameDirectory = @"D:\FortOLD\FortniteGame\Content\Paks",
+string allMeshes,string allextracts, string gameDirectory = @"D:\FortOLD\FortniteGame\Content\Paks",
             string aesKey = "0x2CCDFD22AD74FBFEE693A81AC11ACE57E6D10D0B8AC5FA90E793A130BC540ED4",
             string exportDirectory = @"D:\mapsCenat",
             string mapName = "athena_poi_communitypark_001",
@@ -92,7 +94,6 @@ namespace cue4extractor
                     "_assets_materials_ovr" => "Override Materials",
                     _ => "",
                 };
-
                 if (File.Exists(currentList))
                     foreach (var line in File.ReadLines(currentList))
                     {
@@ -110,7 +111,6 @@ namespace cue4extractor
                         //Console.WriteLine($"INFO - CUE4Parse - {objName}");
                         File.WriteAllText(objJSONPath, objJSON);
                     }
-
                 sWatch.Stop();
                 var swms = sWatch.ElapsedMilliseconds;
                 Console.WriteLine($"INFO - CUE4Parse - Extracted MAP : {folderType} / {swms}ms");

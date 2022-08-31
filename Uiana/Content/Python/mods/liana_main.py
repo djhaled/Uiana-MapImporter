@@ -43,34 +43,29 @@ def CUE4ParseToUmodel(parse):
 	end = NewMid.replace("_",".")
 	print(end)
 	return end
-def extract_assets(settings: Settings):
-	bDoes = settings.assets_path.joinpath("exported.yo").exists()
-	if bDoes:
-		pass
-	else:
-		uever = CUE4ParseToUmodel(settings.GameVersion)
+def extract_assets(settings: Settings,assetobjects):
+	uever = CUE4ParseToUmodel(settings.GameVersion)
+	if assetobjects == None:
 		assetobjects = settings.selected_map.folder_path.joinpath("AllAssets.txt")
-		args = [settings.umodel.__str__(),
-				f"-path={settings.paks_path.__str__()}",
-				f"-game={uever}",
-				f"-aes={settings.aes}",
-				f"-files={assetobjects}",
-				"-export",
-				"-nomesh",
-				"-noanim",
-				"-nooverwrite",
-				f"-{settings.texture_format.replace('.', '')}",
-				f"-out={settings.assets_path.__str__()}"]
-		with open(settings.assets_path.joinpath('exported.yo').__str__(), 'w') as out_file:
-			out_file.write("")
-		subprocess.call(args,stderr=subprocess.DEVNULL)
+	args = [settings.umodel.__str__(),
+			f"-path={settings.paks_path.__str__()}",
+			f"-game={uever}",
+			f"-aes={settings.aes}",
+			f"-files={assetobjects}",
+			"-export",
+			"-nomesh",
+			"-noanim",
+			"-nooverwrite",
+			f"-{settings.texture_format.replace('.', '')}",
+			f"-out={settings.assets_path.__str__()}"]
+	subprocess.call(args,stderr=subprocess.DEVNULL)
 
 def extract_data(settings: Settings, export_directory: str, asset_list_txt: str = ""):
 	args = [settings.cue4extractor.__str__(),
 			"--game-directory", settings.paks_path.__str__(),
 			"--aes-key", settings.aes,
 			"--export-directory", export_directory.__str__(),
-			"--map-name", settings.selected_map.name,
+				"--map-name", settings.selected_map.name,
 			"--file-list", asset_list_txt,
 			"--game-umaps", settings.umap_list_path.__str__(),
 			"--game-version", settings.GameVersion
@@ -88,6 +83,7 @@ def get_map_assets(settings: Settings):
 		umap: Path
 		allassets =list()
 		object_list = list()
+		actor_list = list()
 		materials_ovr_list = list()
 		materials_list = list()
 
@@ -99,12 +95,26 @@ def get_map_assets(settings: Settings):
 			save_json(umap.__str__(), umap_json)
 
 			# get objects
-			umap_objects, umap_materials,allumapassets = get_objects(umap_json)
+			umap_objects, umap_materials,allumapassets,umap_actors = get_objects(umap_json)
 			allassets.append(allumapassets)
-
+			actor_list.append(umap_actors)
 			object_list.append(umap_objects)
 			materials_ovr_list.append(umap_materials)
-
+		######## ACTORS
+		actor_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(f"_assets_actors.txt"), lines=actor_list)
+		extract_data(settings, export_directory=settings.selected_map.actors_path,asset_list_txt=actor_txt)
+		actors = get_files(path=settings.selected_map.actors_path.__str__(), extension=".json")
+		ActorObjects = list()
+		ActorMaterials = list()
+		allActorAssets = list()
+		local4list = list()
+		for ac in actors:
+			actor_json = read_json(ac)
+			ActorObjects, ActorMaterials,allActorAssets,local4list = get_objects(actor_json)
+			allassets.append(allActorAssets)
+			object_list.append(ActorObjects)
+			materials_ovr_list.append(ActorMaterials)
+		#### next
 		object_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
 			f"_assets_objects.txt"), lines=object_list)
 		mats_ovr_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
@@ -141,7 +151,7 @@ def get_map_assets(settings: Settings):
 
 		with open(settings.selected_map.folder_path.joinpath('exported.yo').__str__(), 'w') as out_file:
 			out_file.write("")
-		extract_assets(settings)
+		extract_assets(settings,None)
 
 	else:
 		umaps = get_files(
@@ -212,6 +222,12 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 				continue
 			if prop_name not in BasePropsBlacklist:
 				BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
+				try:
+					BasePropOverride.set_editor_property(prop_name, prop_value)
+				except:
+					print(f'BasePropOverride failed {prop_name}')
+					continue
+
 				BasePropOverride.set_editor_property(prop_name, prop_value)
 	
 	if "StaticParameters" in mat_props:
@@ -263,6 +279,8 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 	for param in mat_props["TextureParameterValues"]:
 		vector_name = []
 		tex_game_path = get_texture_path(s=param, f=Set.texture_format)
+		if not tex_game_path:
+			continue
 		tex_local_path = Set.assets_path.joinpath(tex_game_path).__str__()
 		param_name = param['ParameterInfo']['Name'].lower()
 		tex_name = Path(tex_local_path).stem
@@ -272,13 +290,13 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 				ImportedTexture = unreal.load_asset(f'/Game/ValorantContent/Textures/{tex_name}')
 			if not ImportedTexture:
 				continue
-			if "diffuse" == param_name or "albedo" == param_name:
+			if "diffuse" == param_name or "albedo" == param_name or "base color" == param_name or "basecolor" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Diffuse', ImportedTexture)
 			if "diffuse a" == param_name  or "texture a" == param_name or "albedo a" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Diffuse A', ImportedTexture)
 			if "diffuse b" == param_name  or "texture b" == param_name or "albedo b" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Diffuse B', ImportedTexture)
-			if  "texture a normal" == param_name or "normal a" == param_name:
+			if  "texture a normal" == param_name or "normal a" == param_name or "normals" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Texture A Normal', ImportedTexture)
 			if  "texture b normal" == param_name or "normal b" == param_name:
 				MatParameterValue = set_texture_param(MatRef, 'Texture B Normal', ImportedTexture)
@@ -307,6 +325,8 @@ def SetAllSettings(asset,Comp):
 		bHasIt = HasSetting(Setting,Comp,blackmisc)
 		if bHasIt :
 			ActorSetting = asset[Setting]
+			if ActorSetting == None:
+				continue
 			if Setting in blackmisc:
 				continue
 			try:
@@ -361,7 +381,10 @@ def SetLightmassSetting(ActorSetting,Evalu):
 		if val.startswith("b"):
 			num = 2
 		newstr = re.sub('([A-Z])', r'_\1', val)
-		Set.set_editor_property(newstr[num:len(newstr)].lower(),ActorSetting[val])
+		try:
+			Set.set_editor_property(newstr[num:len(newstr)].lower(),ActorSetting[val])
+		except:
+			print(f'Property LightMass {newstr[num:len(newstr)].lower()} doesnt exist')
 	return Set
 
 	#################### Spawners
@@ -371,8 +394,10 @@ def ImportLights(OBJData, ArrObjsImport):
 	LightTypeNoComp = ActorInfo.type.replace("Component","")
 	LightType = eval(f'unreal.{LightTypeNoComp}')
 			########SpawnLightAndGetReferenceForComp#######
+	#if not ActorInfo.transform:
+		#ActorInfo.transform = GetAttachScene(OBJData,ActorInfo.outer,ArrObjsImport)
 	if not ActorInfo.transform:
-		ActorInfo.transform = GetAttachScene(OBJData,ActorInfo.outer,ArrObjsImport)
+		return
 	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, ActorInfo.transform.translation, ActorInfo.transform.rotation.rotator())
 	LightActor.set_folder_path(f'Lights/{LightTypeNoComp}')
 	LightActor.set_actor_label(ActorInfo.name)
@@ -439,8 +464,8 @@ def ImportMesh(MeshData,MapObj):
 		return
 	PathToGo = ConvertToLoadableUE(MeshActor.props["StaticMesh"],"StaticMesh ","Meshes")
 	Transform = GetTransform(MeshActor.props)
-	if not HasTransform(MeshActor.props):
-		Transform = GetAttachScene(MeshActor.data,MeshActor.outer,MapObj.umapdata)
+	#if not HasTransform(MeshActor.props):
+		#Transform = GetAttachScene(MeshActor.data,MeshActor.outer,MapObj.umapdata)
 	if type(Transform) == bool:
 		Transform = GetTransform(MeshActor.props)
 	if not Transform:
@@ -522,6 +547,7 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	map_object = None
 	test = []
 	objectsToImport = filter_objects(umap_data)
+	skip = 0
 	for objectIndex, object_data in enumerate(objectsToImport):
 		objectIndex = f"{objectIndex:03}"
 		object_type = get_object_type(object_data)
@@ -533,6 +559,11 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 			ImportDecal(object_data)
 		if object_type == "light" and settings.import_lights:
 			ImportLights(object_data,objectsToImport)
+		if object_type == "blueprint":
+			if skip < 2:
+				skip += 1
+				continue
+			ImportBP(object_data,objectsToImport)
 def LevelStreamingStuff():
 	world = unreal.EditorLevelLibrary.get_editor_world()
 	for j in AllLevelPaths:
@@ -545,6 +576,25 @@ def LevelStreamingStuff():
 			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
 			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
 # ANCHOR: Functions
+def ImportBP(bpdata,umapdata):
+	BPActor = ActorDefs(bpdata)
+	Transform = GetTransform(BPActor.props)
+	if not HasTransform(BPActor.props):
+		Transform = GetAttachScene(BPActor.data,BPActor.outer,umapdata)
+	if type(Transform) == bool:
+		Transform = GetTransform(BPActor.props)
+	if not Transform:
+		return
+	BPName = BPActor.type[0:len(BPActor.type)-2]
+	BPObject = unreal.load_asset(f"/Game/ValorantContent/Blueprints/{BPName}.{BPName}")
+	BP = unreal.EditorLevelLibrary.spawn_actor_from_object(BPObject,Transform.translation,Transform.rotation.rotator())
+	if not BP:
+		print(f'{BPName} didnt spawn')
+		return
+	BP.set_actor_label(BPActor.name)
+	BP.set_actor_scale3d(Transform.scale3d)
+
+
 def SetPostProcessSettings(AllSettings,Comp):
 	for Setting in AllSettings:
 		FinalSettingName = CheckForNewer(Setting)
@@ -662,6 +712,44 @@ def ExportAllTextures():
 		MatJson = read_json(entireovrpath)
 		ImportAllTexturesFromMaterial(MatJson)
 	unreal.BPFL.import_textures(AllTextures)
+def CreateBP(data,BPName):
+	BPName = BPName.replace(".json","")
+	Actor = unreal.load_asset(f'/Game/ValorantContent/Blueprints/{BPName}')
+	if not Actor:
+		Actor = AssetTools.create_asset(BPName,'/Game/ValorantContent/Blueprints/', unreal.Blueprint, unreal.BlueprintFactory())
+	else:
+		return
+	data.reverse()
+	for smbp in data:
+		if "Component" in smbp["Type"] and smbp["Type"]:
+			try:
+				uClass = eval(f'unreal.{smbp["Type"]}')
+			except:
+				continue
+			Comp = unreal.BPFL.create_bp_comp(Actor,uClass,smbp["Name"])
+			if HasKey("Properties",smbp):
+				smbpProps = smbp["Properties"]
+				SetAllSettings(smbpProps,Comp)
+				Transform = GetTransform(smbp["Properties"])
+				if HasKey("RelativeRotation",smbpProps):
+					Comp.set_editor_property('relative_rotation',Transform.rotation.rotator())
+				if HasKey("RelativeLocation",smbpProps):
+					Comp.set_editor_property('relative_location',Transform.translation)
+				if HasKey("RelativeScale3D",smbpProps):
+					Comp.set_editor_property('relative_scale3d',Transform.scale3d)
+				if HasKey("StaticMesh",smbpProps):
+					if smbpProps["StaticMesh"] == None:
+						continue
+					ConvertLoad = ConvertToLoadableUE(smbpProps["StaticMesh"],"StaticMesh ","Meshes")
+					MeshAsset = unreal.load_asset(ConvertLoad)
+					Comp.set_editor_property('static_mesh',MeshAsset)
+def ExportAllBlueprints():
+	BPath = Seting.selected_map.actors_path
+	ListBPath = os.listdir(BPath)
+	for bp in ListBPath:
+		NewBPath = BPath.joinpath(bp)
+		BPJson = read_json(NewBPath)
+		CreateBP(BPJson,bp)
 
 def ExportAllMaterials():
 	MatPath = Seting.selected_map.materials_path
@@ -704,6 +792,7 @@ def import_map(Setting):
 	if Seting.import_Mesh:
 		ExportAllMeshes()
 	print("--- %s seconds to create meshes ---" % (time.time() - Mstart_time))
+	ExportAllBlueprints()
 	###### above takes 0.09 might fix #######
 	umap_json_path: Path
 	Ltart_time = time.time()

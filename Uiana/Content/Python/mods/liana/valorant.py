@@ -16,13 +16,13 @@ def filter_umap(umap_data: dict) -> list:
 		object_types.append(ObjType)
 		if ObjType.lower() in mesh_types:
 			if "Properties" in obj:
-				if "StaticMesh" in obj["Properties"]:
-					if obj["Properties"]["StaticMesh"] is not None and "bVisible" not in obj["Properties"]:
-						umap_filtered.append(obj)
+				umap_filtered.append(obj)
 
 		if ObjType.lower() in gen_types:
 			umap_filtered.append(obj)
 		if ObjType.lower() in decal_types:
+			umap_filtered.append(obj)
+		if ObjType.lower().endswith("_c"):	
 			umap_filtered.append(obj)
 
 	return umap_filtered, object_types
@@ -35,29 +35,37 @@ def get_objects(umap_data):
 	umap_objects = list()
 	umap_materials = list()
 	allobjes = list()
+	umap_actors = list()
+	idx = 0 
 	for obj in umap_data:
+		if obj["Type"].endswith("_C") and HasKeyzin("Template",obj):	
+			if idx == 0:	
+				idx = idx + 1	
+				continue	
+			oType = obj["Template"]	
+			umap_actors.append(oType)	
 		if "Properties" in obj:
 			if "StaticMesh" in obj["Properties"]:
 				if obj["Properties"]["StaticMesh"] is not None:
 					obj_path = get_object_path(data=obj, mat=False)
 					umap_objects.append(obj_path)
-					allobjes.append(GetActualName(obj_path))
+					allobjes.append(fix_path(obj_path))
 
 					if "OverrideMaterials" in obj["Properties"]:
 						for mat in obj["Properties"]["OverrideMaterials"]:
 							if mat is not None:
 								ovrmat = get_object_path(data=mat, mat=True)
 								umap_materials.append(ovrmat)
-								allobjes.append(GetActualName(ovrmat))
+								allobjes.append(fix_path(ovrmat))
 
 			elif "DecalMaterial" in obj["Properties"]:
 				mat = obj["Properties"]["DecalMaterial"]
 				if mat is not None:
 					decalmat = get_object_path(data=mat, mat=True)
 					umap_materials.append(decalmat)
-					allobjes.append(GetActualName(decalmat))
+					allobjes.append(fix_path(decalmat))
 
-	return umap_objects, umap_materials, allobjes
+	return umap_objects, umap_materials, allobjes,umap_actors
 
 
 def get_object_path(data: dict, mat: bool):
@@ -76,12 +84,14 @@ def get_object_type(model_data: dict) -> str:
 	meshes = ["StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent"]
 	decals = ["DecalComponent"]
 	blueprint = ["SceneComponent"]
-	if model_data["Type"] in meshes and HasKeyzin("StaticMesh",model_data["Properties"]):
+	if model_data["Type"] in meshes and HasKeyzin("StaticMesh",model_data["Properties"]) and  HasKeyzin("Template",model_data) == False:
 		return "mesh"
 	if model_data["Type"] in lights:
 		return "light"
 	if model_data["Type"] in decals:
 		return "decal"
+	if model_data["Type"].endswith("_C"):	
+		return "blueprint"
 
 
 def get_object_materials(model_json: dict):
@@ -96,7 +106,7 @@ def get_object_materials(model_json: dict):
 					if mat["MaterialInterface"] is not None:
 						material = mat["MaterialInterface"]
 						MInter = get_object_path(data=material, mat=True)
-						allmates.append(GetActualName(MInter))
+						allmates.append(fix_path(MInter))
 						model_materials.append(MInter)
 
 	return model_materials, allmates
