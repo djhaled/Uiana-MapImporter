@@ -20,6 +20,13 @@ namespace cue4extractor
 
             return dict[mapName];
         }
+        private static Dictionary<string, string[]> GetUmapDict(string mapName, string jsonPath)
+        {
+            var jsonContent = File.ReadAllText(jsonPath);
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(jsonContent);
+
+            return dict;
+        }
 
 
         /// <param name="gameDirectory">An option whose argument is parsed as an int</param>
@@ -33,9 +40,9 @@ namespace cue4extractor
 string allMeshes,string allextracts, string gameDirectory = @"D:\FortOLD\FortniteGame\Content\Paks",
             string aesKey = "0x2CCDFD22AD74FBFEE693A81AC11ACE57E6D10D0B8AC5FA90E793A130BC540ED4",
             string exportDirectory = @"D:\mapsCenat",
-            string mapName = "athena_poi_communitypark_001",
+            string mapName = "athena_poi_foundations",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
-            string fileList = "D:\\ExportFortUE\\maps\\athena_poi_communitypark_001\\_assets_actors.txt",
+            string fileList = "",//"D:\\ExportFortUE\\maps\\athena_poi_communitypark_001\\_assets_actors.txt",
             string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\BLANK\Plugins\Uiana\Content\Python\assets\umaps.json",
             EGame GameVersion = EGame.GAME_UE4_19
             )
@@ -121,22 +128,27 @@ string allMeshes,string allextracts, string gameDirectory = @"D:\FortOLD\Fortnit
                     return;
 
                 var umapList = GetUmapList(mapName.ToLower(), gameUmaps);
-
+                var umapDict = GetUmapDict(mapName.ToLower(), gameUmaps);
                 foreach (var umap in umapList)
                 {
                     var sWatch = Stopwatch.StartNew();
+                    var umapname = umap.ToLower().Substring(umap.ToString().LastIndexOf('/')+1);
+                    var ActualUmap = umapDict[umapname];
+                    for (int z = 0; z < ActualUmap.Count(); z++)
+                    {
+                        var umapInternalPath = $"{ActualUmap[z]}";
+                        var umapExportFull = provider.LoadObjectExports(umapInternalPath);
+                        var filename = Path.GetFileNameWithoutExtension(umapInternalPath);
+                        var umapJSON = JsonConvert.SerializeObject(umapExportFull, Formatting.Indented, settings);
 
-                    var umapInternalPath = $"{umap}";
-                    var umapExportFull = provider.LoadObjectExports(umapInternalPath);
-                    var filename = Path.GetFileNameWithoutExtension(umapInternalPath);
-                    var umapJSON = JsonConvert.SerializeObject(umapExportFull, Formatting.Indented, settings);
+                        var umapJSONPath = Path.Combine(folder, $"{filename}.json");
 
-                    var umapJSONPath = Path.Combine(folder, $"{filename}.json");
+                        File.WriteAllText(umapJSONPath, umapJSON);
+                        sWatch.Stop();
+                        var swms = sWatch.ElapsedMilliseconds;
+                        Console.WriteLine($"INFO - CUE4Parse - Extracted MAP : {filename} / {swms}ms");
 
-                    File.WriteAllText(umapJSONPath, umapJSON);
-                    sWatch.Stop();
-                    var swms = sWatch.ElapsedMilliseconds;
-                    Console.WriteLine($"INFO - CUE4Parse - Extracted MAP : {filename} / {swms}ms");
+                    }
                 }
             }
         }

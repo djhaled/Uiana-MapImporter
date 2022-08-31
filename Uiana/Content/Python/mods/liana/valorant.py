@@ -24,6 +24,9 @@ def filter_umap(umap_data: dict) -> list:
 			umap_filtered.append(obj)
 		if ObjType.lower().endswith("_c"):	
 			umap_filtered.append(obj)
+		if "buildingfoundation" in ObjType.lower():
+			umap_filtered.append(obj)
+
 
 	return umap_filtered, object_types
 def GetActualName(name):#\Game\Environments\Crag\Map\Crag_Game
@@ -92,6 +95,8 @@ def get_object_type(model_data: dict) -> str:
 		return "decal"
 	if model_data["Type"].endswith("_C"):	
 		return "blueprint"
+	if "BuildingFoundation" in model_data["Type"]:
+		return "foundation"
 
 
 def get_object_materials(model_json: dict):

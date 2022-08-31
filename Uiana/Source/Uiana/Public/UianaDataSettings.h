@@ -92,5 +92,7 @@ public:
 		bool ImportDecals;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		bool ImportLights;
+    UPROPERTY(config, EditAnywhere, Category = "Import Settings")
+        bool ImportBlueprints;
 
 };

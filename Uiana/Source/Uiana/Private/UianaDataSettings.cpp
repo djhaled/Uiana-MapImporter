@@ -13,4 +13,5 @@ UUianaDataSettings::UUianaDataSettings(const FObjectInitializer& ObjectInitializ
 	ImportDecals = false;
 	ImportLights = true;
 	UseSubLevels = true;
+	ImportBlueprints = true;
 }

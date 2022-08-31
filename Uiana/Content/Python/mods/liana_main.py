@@ -13,6 +13,7 @@ from mods.liana.valorant import *
 
 Seting = None
 LoadableMaterials = {}
+SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 AllMeshes = [] 
 AllTextures= []
 object_types = []
@@ -559,11 +560,35 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 			ImportDecal(object_data)
 		if object_type == "light" and settings.import_lights:
 			ImportLights(object_data,objectsToImport)
-		if object_type == "blueprint":
+		if object_type == "blueprint" and settings.import_blueprints:
 			if skip < 2:
 				skip += 1
 				continue
 			ImportBP(object_data,objectsToImport)
+		if object_type == "foundation":
+			ImportFoundation(object_data,objectsToImport)
+def ImportFoundation(foundata,umapdata):
+	currentWorld = unreal.EditorLevelLibrary.get_editor_world()
+	Transform = GetTransform(foundata["Properties"])
+	if not HasTransform(foundata["Properties"]):
+		Transform = GetAttachScene(foundata,foundata["Outer"],umapdata)
+	if type(Transform) == bool:
+		Transform = GetTransform(foundata["Properties"])
+	if not Transform:
+		return
+	if not HasKey("AdditionalWorlds",foundata["Properties"]):
+		print(foundata)
+		return
+	worlds = foundata["Properties"]["AdditionalWorlds"]
+	for wrld in worlds:
+		AssetPathWorld = wrld["AssetPathName"]
+		NewPathName = AssetPathWorld[AssetPathWorld.rfind('.')+1:len(AssetPathWorld)]
+		LevelPackage = f'/Game/ValorantContent/Maps/athena/{NewPathName}.{NewPathName}'
+		unreal.EditorLevelUtils.add_level_to_world_with_transform(currentWorld,LevelPackage,unreal.LevelStreamingAlwaysLoaded,Transform)
+
+
+
+
 def LevelStreamingStuff():
 	world = unreal.EditorLevelLibrary.get_editor_world()
 	for j in AllLevelPaths:
@@ -572,7 +597,6 @@ def LevelStreamingStuff():
 		unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
 		ReadableMapType = GetReadableUMapType(JAfterSlash)
 		if ReadableMapType == "LevelStreamingDynamic":
-			SubSys = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
 			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
 # ANCHOR: Functions
@@ -792,11 +816,15 @@ def import_map(Setting):
 	if Seting.import_Mesh:
 		ExportAllMeshes()
 	print("--- %s seconds to create meshes ---" % (time.time() - Mstart_time))
-	ExportAllBlueprints()
+	if Seting.import_blueprints:
+		ExportAllBlueprints()
 	###### above takes 0.09 might fix #######
 	umap_json_path: Path
 	Ltart_time = time.time()
-	for index, umap_json_path in reversed(list(enumerate(umap_json_paths))):
+	MapName = Seting.map_name
+	ListPaths = list(umap_json_paths)
+	## fix dis
+	for index, umap_json_path in reversed(enumerate(ListPaths)):
 		umap_data = read_json(umap_json_path)
 		umap_name = umap_json_path.stem
 		if Seting.import_sublevel :
@@ -804,8 +832,8 @@ def import_map(Setting):
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
 		if Seting.import_sublevel :
 			unreal.EditorLevelLibrary.save_current_level()
-	if Seting.import_sublevel :
-		LevelStreamingStuff()
+	#if Seting.import_sublevel :
+		#LevelStreamingStuff()
 	SetSMSettings()
 	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
 	winsound.Beep(26000, 1500)

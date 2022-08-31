@@ -460,6 +460,7 @@ class Settings:
 		self.importer_assets_path = self.script_root.joinpath("assets")
 		self.paks_path = UESet.PPakFolder
 		self.import_decals = UESet.bImportDecal
+		self.import_blueprints = UESet.bImportBlueprint
 		self.import_lights = UESet.bImportLights
 		self.import_Mesh = UESet.bImportMesh
 		self.import_materials = UESet.bImportMaterial
@@ -475,8 +476,8 @@ class Settings:
 		self.log = self.export_path.joinpath("import.log")
 		self.umap_list_path = self.importer_assets_path.joinpath("umaps.json")
 		self.umap_list = read_json(self.umap_list_path)
-		
 		self.selected_map = Map(UESet.fMapName, self.maps_path, self.umap_list)
+		self.map_name = UESet.fMapName
 
 		self.shaders = [
 			"VALORANT_Base",
