@@ -73,6 +73,9 @@ def GetUMapType(mapname):
 def ImportShader(Shader):
 	BaseShader = unreal.load_asset(f'/Uiana/Materials/{Shader}')
 	return BaseShader
+def ImportBaseShader():
+	Shader = unreal.load_asset(f'/Uiana/SuperGrid/StarterPack/Materials/Base/M_SuperGrid_SingleColor')
+	return Shader
 def CheckForNewer(settingName):
 	returnstr = ''
 	if settingName == "GrainIntensity":
@@ -463,6 +466,7 @@ class Settings:
 		self.import_blueprints = UESet.bImportBlueprint
 		self.import_lights = UESet.bImportLights
 		self.import_Mesh = UESet.bImportMesh
+		self.has_shader_support = UESet.bShaderSupport
 		self.import_materials = UESet.bImportMaterial
 		self.import_sublevel = UESet.bImportSubLevels
 		self.combine_umaps = False

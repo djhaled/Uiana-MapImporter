@@ -95,6 +95,7 @@ FReply FUianaModule::ExecuteMapFunction()
 	bool ImportLights = Stun->ImportLights;
 	bool ImportSubLevels = Stun->UseSubLevels;
 	bool ImportBlueprint = Stun->ImportBlueprints;
+	bool HasShader = Stun->bHasShaderSupport;
 	FString MapName = Stun->MapName;
 	FString ExportPath = Stun->ExportFolder.Path;
 	FString PakFolder = Stun->PaksFolder.Path;
@@ -103,6 +104,7 @@ FReply FUianaModule::ExecuteMapFunction()
 	FString GVersion = UEnum::GetDisplayValueAsText(Stun->GameVersion).ToString();
 	Stun->SaveConfig();
 	TArray< FStringFormatArg > args;
+	args.Add(FStringFormatArg(HasShader));
 	args.Add(FStringFormatArg(ImportBlueprint));
 	args.Add(FStringFormatArg(ImportSubLevels));
 	args.Add(FStringFormatArg(ImportMesh));
@@ -115,7 +117,7 @@ FReply FUianaModule::ExecuteMapFunction()
 	args.Add(FStringFormatArg(CurrentPath));
 	args.Add(FStringFormatArg(GVersion));
 	args.Add(FStringFormatArg(AesKK));
-	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\"\"{9}\"\"{10}\"\"{11}\""), args);
+	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\"\"{9}\"\"{10}\"\"{11}\"\"{12}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
 	GEngine->Exec(NULL, TCharCommand);
 	return FReply::Handled();

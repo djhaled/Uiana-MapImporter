@@ -337,8 +337,12 @@ def SetAllSettings(asset,Comp):
 				continue
 			classname = GetClassName(PropSet)
 			if type(ActorSetting) == int or type(ActorSetting) == float or type(ActorSetting) == bool :
-				Comp.set_editor_property(Setting, ActorSetting)
-				continue
+				try:
+					Comp.set_editor_property(Setting, ActorSetting)
+					continue
+				except:
+					print(f'UianaLog: {Setting} could not be set')
+					continue
 			if type(ActorSetting) == str:
 				ActorSetting = ActorSetting.upper()
 			if "::" in ActorSetting:
@@ -592,13 +596,7 @@ def ImportFoundation(foundata,umapdata):
 def LevelStreamingStuff():
 	world = unreal.EditorLevelLibrary.get_editor_world()
 	for j in AllLevelPaths:
-		JAfterSlash = ReturnFormattedString(j,"/")
-		MapType = GetUMapType(JAfterSlash)
-		unreal.EditorLevelUtils.add_level_to_world(world, j, MapType)
-		ReadableMapType = GetReadableUMapType(JAfterSlash)
-		if ReadableMapType == "LevelStreamingDynamic":
-			Level2 = unreal.LevelEditorSubsystem.get_current_level(SubSys)
-			unreal.EditorLevelUtils.set_level_visibility(Level2,False,False)
+		unreal.EditorLevelUtils.add_level_to_world(world, j, unreal.LevelStreamingAlwaysLoaded)
 # ANCHOR: Functions
 def ImportBP(bpdata,umapdata):
 	BPActor = ActorDefs(bpdata)
@@ -681,8 +679,8 @@ def CreateMaterial(mat):
 			ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])
 		Mat = unreal.MaterialInstanceConstant.cast(Mat)
 		MatBase = ImportShader(ParentToImport)
-		if not MatBase:
-			print(ParentToImport)
+		if not Seting.has_shader_support:
+			MatBase = ImportBaseShader()
 		Parent = Mat.set_editor_property('parent', MatBase)
 	else:
 		Mat = AssetTools.create_asset(mat_name,'/Game/ValorantContent/Materials/', unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
@@ -691,8 +689,8 @@ def CreateMaterial(mat):
 		if HasKey("Parent",MatProps):
 			ParentToImport = ReturnParent(MatProps["Parent"]["ObjectName"])
 		MatBase = ImportShader(ParentToImport)
-		if not MatBase:
-			print(ParentToImport)
+		if not Seting.has_shader_support:
+			MatBase = ImportBaseShader()
 		Mat.set_editor_property('parent', MatBase)
 
 	if mat_name not in LoadableMaterials:
@@ -772,6 +770,8 @@ def ExportAllBlueprints():
 	ListBPath = os.listdir(BPath)
 	for bp in ListBPath:
 		NewBPath = BPath.joinpath(bp)
+		if str(NewBPath).endswith('_C.json'):
+			continue
 		BPJson = read_json(NewBPath)
 		CreateBP(BPJson,bp)
 
@@ -791,6 +791,13 @@ def ExportAllMaterials():
 		entireovrpath = MatOverridePath.joinpath(pathovr)
 		MatJson = read_json(entireovrpath)
 		CreateMaterial(MatJson)
+def ForceFirst(MapName,List):
+	NewName = Path(Seting.selected_map.umaps_path.__str__() + f'\\{MapName}.json')
+	if NewName in List:
+		jl = List.remove(NewName)
+		jb = List.insert(len(List),NewName)
+	print(List)
+	return List
 
 ################# Initial Main Function
 def import_map(Setting):
@@ -822,18 +829,18 @@ def import_map(Setting):
 	umap_json_path: Path
 	Ltart_time = time.time()
 	MapName = Seting.map_name
-	ListPaths = list(umap_json_paths)
-	## fix dis
-	for index, umap_json_path in reversed(enumerate(ListPaths)):
+	ListPaths = ForceFirst(Seting.map_name,list(umap_json_paths))
+	### fix map name to be first in index
+	for index, umap_json_path in (enumerate(ListPaths)):
 		umap_data = read_json(umap_json_path)
 		umap_name = umap_json_path.stem
-		if Seting.import_sublevel :
+		if Seting.import_sublevel:
 			CreateNewLevel(umap_name)
 		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
 		if Seting.import_sublevel :
 			unreal.EditorLevelLibrary.save_current_level()
-	#if Seting.import_sublevel :
-		#LevelStreamingStuff()
+	if Seting.import_sublevel :
+		LevelStreamingStuff()
 	SetSMSettings()
 	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
 	winsound.Beep(26000, 1500)

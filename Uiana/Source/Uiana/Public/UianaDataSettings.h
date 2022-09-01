@@ -82,6 +82,8 @@ public:
         TEnumAsByte<UE4Version> GameVersion;
     UPROPERTY(config, EditAnywhere, Category = "Game Settings")
         FString AesKey;
+    UPROPERTY(config, EditAnywhere, Category = "Material Settings")
+        bool bHasShaderSupport;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		bool ImportMeshes;
 	UPROPERTY(config, EditAnywhere, Category = "SubLevels")

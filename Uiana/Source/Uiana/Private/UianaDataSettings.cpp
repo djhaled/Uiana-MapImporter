@@ -12,6 +12,7 @@ UUianaDataSettings::UUianaDataSettings(const FObjectInitializer& ObjectInitializ
 	ImportMaterials = true;
 	ImportDecals = false;
 	ImportLights = true;
+	bHasShaderSupport = true;
 	UseSubLevels = true;
 	ImportBlueprints = true;
 }
