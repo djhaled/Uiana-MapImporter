@@ -13,13 +13,3 @@ UUianaCPPDataSettings::UUianaCPPDataSettings(const FObjectInitializer& ObjectIni
 	ImportLights = true;
 	UseSubLevels = true;
 }
-
-FString UUianaCPPDataSettings::GetExportAssetsFolder()
-{
-	return FPaths::Combine(ExportFolder, "/export");
-}
-
-FString UUianaCPPDataSettings::GetExportMapsFolder()
-{
-	return FPaths::Combine(ExportFolder, "/maps");
-}

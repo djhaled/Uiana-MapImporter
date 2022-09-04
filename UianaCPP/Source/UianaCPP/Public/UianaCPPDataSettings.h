@@ -25,17 +25,7 @@ class UianaCPP_API UUianaCPPDataSettings : public UObject
 {
 	GENERATED_BODY()
 public:
-	UUianaCPPDataSettings(const FObjectInitializer& ObjectInitializer);
-	FString GetExportAssetsFolder();
-	FString GetExportMapsFolder();
-	UPROPERTY(Config, EditAnywhere, Category = "Import Settings")
-	FString AesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6";
-	UPROPERTY(Config, EditAnywhere, Category = "Import Settings")
-	FString TextureFormat = ".png";
-	UPROPERTY(Config, EditAnywhere, Category = "Import Settings")
-	FDirectoryPath ToolsPath;
-	UPROPERTY(Config, EditAnywhere, Category = "Import Settings")
-	FDirectoryPath AssetsPath;
+	// Properties visible to end-user
 	UPROPERTY(config, EditAnywhere, Category = "Settings Folders", meta = (RelativeToGameContentDir, ContentDir))
 	FDirectoryPath ExportFolder;
 	UPROPERTY(config, EditAnywhere, Category = "Settings Folders", meta = (RelativeToGameContentDir, ContentDir))
@@ -52,4 +42,7 @@ public:
 	bool ImportDecals;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 	bool ImportLights;
+	
+	// Functions
+	UUianaCPPDataSettings(const FObjectInitializer& ObjectInitializer);
 };

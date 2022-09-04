@@ -671,7 +671,7 @@ def import_map(Setting):
 	settings = Settings(Setting)
 	global Seting
 	Seting = settings
-	umap_json_paths = get_map_assets(Seting)
+	 = get_map_assets(Seting)
 	if not Seting.import_sublevel:
 		CreateNewLevel(settings.selected_map.name)
 	ClearLevel()
