@@ -5,10 +5,11 @@ UUianaDataSettings::UUianaDataSettings(const FObjectInitializer& ObjectInitializ
 {
 	ExportFolder.Path = "C:/Exports";
 	PaksFolder.Path = "C:/Riot Games/VALORANT/live/ShooterGame/Content/Paks";
-	Map = Ascent;
+	Map = Split;
 	ImportMeshes = true;
 	ImportMaterials = true;
-	ImportDecals = false;
+	ImportDecals = true;
 	ImportLights = true;
-	UseSubLevels = true;
+	UseSubLevels = false;
+	LightmapResolutionMultiplier = 1;
 }

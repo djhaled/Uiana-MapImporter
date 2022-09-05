@@ -283,7 +283,7 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 	mat_name = mat_data["Name"]
 	if "diffuse a" in texture_name:
 		if "diffuse b" not in texture_name:
-			if "Wood_M15" in mat_name:
+			if "Wood_M15" in mat_name or "Stone_M0_SquareTiles" in mat_name:
 				set_switch_param(MatRef, 'WoodFix',True)
 
 	unreal.MaterialEditingLibrary.update_material_instance(MatRef)
@@ -461,7 +461,8 @@ def ImportMesh(MeshData,MapObj):
 		MatOver = GetMaterialToOverride(MeshActor.data)
 		if MatOver:
 			Instance.set_editor_property('override_materials',MatOver) 
-def SetSMSettings():
+def SetSMSettings(settings: Settings):
+	Mult = settings.manual_lmres_mult
 	OBJPath = Seting.selected_map.objects_path
 	### first normal mats #######
 	ListObjs = os.listdir(OBJPath)
@@ -476,10 +477,10 @@ def SetSMSettings():
 				Props = sm["Properties"]
 				Name = sm["Name"]
 				LmCoord = 0
-				LMRes = 256
+				LMRes = round(256*Mult/4)*4 								#multiple of 4
 				#########Set LightMapSettings
 				if HasKey("LightMapResolution",Props):
-					LMRes = Props["LightMapResolution"]
+					LMRes = round(Props["LightMapResolution"]*Mult/4)*4 	#multiple of 4
 				if HasKey("LightMapCoordinateIndex",Props):
 					LmCoord = Props["LightMapCoordinateIndex"]
 				MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Name}")
@@ -668,7 +669,10 @@ def ExportAllMaterials():
 
 ################# Initial Main Function
 def import_map(Setting):
-	unreal.BPFL.change_project_settings()
+		command_list = []
+	for command in command_list:
+		unreal.SystemLibrary.execute_console_command(None, command)
+	#unreal.BPFL.change_project_settings()
 	AllLevelPaths.clear()
 	settings = Settings(Setting)
 	global Seting
@@ -703,6 +707,6 @@ def import_map(Setting):
 			unreal.EditorLevelLibrary.save_current_level()
 	if Seting.import_sublevel :
 		LevelStreamingStuff()
-	SetSMSettings()
+	SetSMSettings(settings)
 	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
 	winsound.Beep(26000, 1500)

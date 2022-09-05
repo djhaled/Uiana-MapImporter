@@ -25,6 +25,7 @@
     "/Game/Maps/Triad/Triad_Volumes",
     "/Game/Maps/Triad/Triad_Art_Skybox",
     "/Game/Maps/Triad/Triad_Art_A",
+    "/Game/Maps/Triad/Triad_Art_VFX",
     "ShooterGame/Content/Maps/Triad/Triad"
   ],
   "pearl": [
@@ -47,6 +48,7 @@
     "/Game/Maps/Pitt/Pitt_Art_AtkSpawn",
     "/Game/Maps/Pitt/Pitt_Art_AtkPathB",
     "/Game/Maps/Pitt/Pitt_Art_AtkPathA",
+    "/Game/Maps/Pitt/Pitt_Art_VFX",
     "ShooterGame/Content/Maps/Pitt/Pitt"
   ],
   "fracture": [
@@ -64,6 +66,7 @@
     "/Game/Maps/Canyon/Canyon_Lighting",
     "/Game/Maps/Canyon/Canyon_BackPathToB",
     "/Game/Maps/Canyon/Canyon_AtkPathToASite",
+    "/Game/Maps/Canyon/Canyon_VFX",
     "ShooterGame/Content/Maps/Canyon/Canyon"
   ],
   "range": [
@@ -84,6 +87,7 @@
     "/Game/Maps/Poveglia/Range_Art_Cemetery",
     "/Game/Maps/Poveglia/Range_Art_Gallery",
     "/Game/Maps/Poveglia/Range_Art_Hospital",
+    "/Game/Maps/Poveglia/Range_Art_VFX",
     "ShooterGame/Content/Maps/Poveglia/Range"
   ],
   "split": [
@@ -110,6 +114,7 @@
     "/Game/Maps/Bonsai/Bonsai_Art_Mid",
     "/Game/Maps/Bonsai/Bonsai_Art_DefSpawn",
     "/Game/Maps/Bonsai/Bonsai_Gameplay_Dynamic",
+    "/Game/Maps/Bonsai/Bonsai_Art_VFX",
     "ShooterGame/Content/Maps/Bonsai/Bonsai"
   ],
   "bind": [
@@ -135,6 +140,7 @@
     "/Game/Maps/Duality/Duality_Art_B",
     "/Game/Maps/Duality/Duality_Lighting",
     "/Game/Maps/Duality/Duality_Art_Atk",
+    "/Game/Maps/Duality/Duality_Art_VFX",
     "ShooterGame/Content/Maps/Duality/Duality"
   ],
   "breeze": [
@@ -155,6 +161,7 @@
     "/Game/Maps/Foxtrot/Foxtrot_Art_Mid",
     "/Game/Maps/Foxtrot/Foxtrot_Art_DefSpawn",
     "/Game/Maps/Foxtrot/Foxtrot_Art_AtkSpawn",
+    "/Game/Maps/Foxtrot/Foxtrot_Art_VFX",
     "ShooterGame/Content/Maps/Foxtrot/Foxtrot"
   ],
   "ascent": [
@@ -177,6 +184,7 @@
     "/Game/Maps/Ascent/Ascent_Art_Vista",
     "/Game/Maps/Ascent/Ascent_Gameplay",
     "/Game/Maps/Ascent/Ascent_Art_VistaA",
+    "/Game/Maps/Ascent/Ascent_Art_VFX",
     "ShooterGame/Content/Maps/Ascent/Ascent"
   ],
   "icebox": [
@@ -193,6 +201,7 @@
     "/Game/Maps/Port/Port_Lighting",
     "/Game/Maps/Port/Port_Art_Vista",
     "/Game/Maps/Port/Port_Gameplay",
+    "/Game/Maps/Port/Port_Art_VFX",
     "ShooterGame/Content/Maps/Port/Port"
   ],
   "menu": [

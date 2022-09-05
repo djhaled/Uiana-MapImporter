@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 from mods.liana_main import *
 parser = argparse.ArgumentParser()
+parser.add_argument('ManualLMResMult',type=str,help='Manually Increase Lightmap Resolution')
 parser.add_argument('ImportSubLevels',type=int,help='ImportSubLevels')
 parser.add_argument('ImportMesh',type=int,help='ImportMesh')
 parser.add_argument('ImportMaterial',type=int,help='ImportMaterial')
@@ -23,6 +24,7 @@ class UeSettings:
 	if fMapName == "characterSelect":
 		fMapName = "character select"
 	vAesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6"
+	iManualLMResMult = float(args.ManualLMResMult)
 	bImportSubLevels = bool(args.ImportSubLevels)
 	PExportPath = Path(args.ExportPath)
 	PakFolha = args.PakFolder

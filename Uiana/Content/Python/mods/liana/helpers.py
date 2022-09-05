@@ -51,13 +51,11 @@ BLACKLIST = [
 	"windstreaks_plane",
 	"sm_port_snowflakes_boundmesh",
 	"sm_barrierduality",
-	"M_Pitt_Caustics_Box",
 	"box_for_volumes", 
 	"BombsiteMarker_0_BombsiteA_Glow",
 	"BombsiteMarker_0_BombsiteB_Glow",
 	"supergrid",
 	"_col",
-	"M_Pitt_Lamps_Glow",
 	"Bombsite_0_ASiteSide",
 	"Bombsite_0_BSiteSide"
 	"for_volumes",
@@ -65,6 +63,14 @@ BLACKLIST = [
 	"Foxtrot_ASite_Side_DU",
 	"BombsiteMarker_0_BombsiteA_Glow",
 	"BombsiteMarker_0_BombsiteB_Glow",
+]
+VFX_WHITELIST = [
+"SM_VentSmoke_Duo",
+"M_Pitt_Lamps_Glow",
+"SM_Pitt_Dome_Glass",
+"SM_Pitt_Water_Surface",
+"LightShaft",
+
 ]
 def GetUMapType(mapname):
 	for j in JsonMapTypeData:
@@ -437,6 +443,7 @@ class Settings:
 		self.import_Mesh = UESet.bImportMesh
 		self.import_materials = UESet.bImportMaterial
 		self.import_sublevel = UESet.bImportSubLevels
+		self.manual_lmres_mult = UESet.iManualLMResMult
 		self.combine_umaps = False
 		self.export_path = UESet.PExportPath
 		self.assets_path = self.export_path.joinpath("export")
