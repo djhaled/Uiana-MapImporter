@@ -54,7 +54,7 @@ Before you download the addon, you must download these first.
 - TheyCallMeSpy (Shader and ideas)
 - Patchzy (Shader and ideas)
 - BK
--Halfuwu (PSKX importer)
+- Halfuwu (PSKX importer)
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
