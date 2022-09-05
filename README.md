@@ -38,7 +38,6 @@ Before you download the addon, you must download these first.
                     // ..Riot Games\VALORANT\live\ShooterGame\Content\Paks\
    ```
 6. Select your preferable settings and hit "Generate Map" on bottom right.
-7. Voi-La
    
 
 
@@ -50,13 +49,12 @@ Before you download the addon, you must download these first.
 
 
 ## Credits
-- Luviana
-- floxay
-- CoRe | Janik.M
-- Rata
-- Drice
-- Devo
-- Zertox
+- Whole Piana team (Luviana,floxay,CoRe | Janik.M,Rata,Drice,Devo,Zertox)
+- Zain (Scripting and Shader)
+- TheyCallMeSpy (Shader and ideas)
+- Patchzy (Shader and ideas)
+- BK
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
