@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from mods.liana_main import *
+from mods.main import *
 parser = argparse.ArgumentParser()
 parser.add_argument('ManualLMResMult',type=str,help='Manually Increase Lightmap Resolution')
 parser.add_argument('ImportSubLevels',type=int,help='ImportSubLevels')
@@ -14,7 +14,6 @@ parser.add_argument('PakFolder',type=str,help='PakFolder')
 parser.add_argument('PluginPath',type=str,help='PluginPath')
 args = parser.parse_args()
 
-print(args.MapName)
 class UeSettings:
 	bImportMaterial = bool(args.ImportMaterial)
 	bImportMesh = bool(args.ImportMesh)
