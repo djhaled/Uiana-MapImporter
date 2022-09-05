@@ -51,11 +51,13 @@ BLACKLIST = [
 	"windstreaks_plane",
 	"sm_port_snowflakes_boundmesh",
 	"sm_barrierduality",
+	"M_Pitt_Caustics_Box",
 	"box_for_volumes", 
 	"BombsiteMarker_0_BombsiteA_Glow",
 	"BombsiteMarker_0_BombsiteB_Glow",
 	"supergrid",
 	"_col",
+	"M_Pitt_Lamps_Glow",
 	"Bombsite_0_ASiteSide",
 	"Bombsite_0_BSiteSide"
 	"for_volumes",
@@ -70,7 +72,6 @@ VFX_WHITELIST = [
 "SM_Pitt_Dome_Glass",
 "SM_Pitt_Water_Surface",
 "LightShaft",
-
 ]
 def GetUMapType(mapname):
 	for j in JsonMapTypeData:
@@ -104,6 +105,13 @@ def ConvertToLoadableUE(Mesh,Type,ActualType):
 	NewName = Name.replace(f'{Type}', "")
 	PathToGo = f'/Game/ValorantContent/{ActualType}/{NewName}'
 	return PathToGo
+def path_convert(path: str) -> str:
+    b, c, rest = path.split("\\", 2)
+    if b == "ShooterGame":
+        b = "Game"
+    if c == "Content":
+        c = ""
+    return "\\".join((b, c, rest))
 def GetTransform(Prop):
 	TransformData = None
 	bIsInstanced = False

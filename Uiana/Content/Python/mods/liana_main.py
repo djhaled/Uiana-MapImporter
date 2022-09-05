@@ -39,20 +39,16 @@ def GetMaterialToOverride(Data):
 	return MaterialArray
 
 def extract_assets(settings: Settings):
-	if settings.assets_path.joinpath("exported.yo").exists():
-		pass
-	else:
-		args = [settings.umodel.__str__(),
-				f"-path={settings.paks_path.__str__()}",
-				f"-game=valorant",
-				f"-aes={settings.aes}",
-				"*.uasset",
-				"-export",
-				"-noanim",
-				"-nooverwrite",
-				f"-{settings.texture_format.replace('.', '')}",
-				f"-out={settings.assets_path.__str__()}"]
-		subprocess.call(args,stderr=subprocess.DEVNULL)
+	assetobjects = settings.selected_map.folder_path.joinpath("all_assets.txt")
+	args = [settings.umodel.__str__(),
+			f"-path={settings.paks_path.__str__()}",
+			f"-game=valorant",
+			f"-aes={settings.aes}",
+			f"-files={assetobjects}",
+			"-export",
+			f"-{settings.texture_format.replace('.', '')}",
+			f"-out={settings.assets_path.__str__()}"]
+	subprocess.call(args,stderr=subprocess.DEVNULL)
 
 def extract_data(settings: Settings, export_directory: str, asset_list_txt: str = ""):
 	args = [settings.cue4extractor.__str__(),
@@ -119,12 +115,16 @@ def get_map_assets(settings: Settings):
 			# ...
 
 			materials_list.append(model_materials)
-
+		save_list(filepath=settings.selected_map.folder_path.joinpath("all_assets.txt"), lines=[
+            [
+                path_convert(path) for path in _list
+            ] for _list in object_list + materials_list + materials_ovr_list
+        ])
 		mats_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
 			f"_assets_materials.txt"), lines=materials_list)
 		extract_data(settings, export_directory=settings.selected_map.materials_path,
 					 asset_list_txt=mats_txt)
-
+		extract_assets(settings)
 		with open(settings.selected_map.folder_path.joinpath('exported.yo').__str__(), 'w') as out_file:
 			out_file.write("")
 		with open(settings.assets_path.joinpath('exported.yo').__str__(), 'w') as out_file:
@@ -461,8 +461,7 @@ def ImportMesh(MeshData,MapObj):
 		MatOver = GetMaterialToOverride(MeshActor.data)
 		if MatOver:
 			Instance.set_editor_property('override_materials',MatOver) 
-def SetSMSettings(settings: Settings):
-	Mult = settings.manual_lmres_mult
+def SetSMSettings():
 	OBJPath = Seting.selected_map.objects_path
 	### first normal mats #######
 	ListObjs = os.listdir(OBJPath)
@@ -477,10 +476,10 @@ def SetSMSettings(settings: Settings):
 				Props = sm["Properties"]
 				Name = sm["Name"]
 				LmCoord = 0
-				LMRes = round(256*Mult/4)*4 								#multiple of 4
+				LMRes = 256
 				#########Set LightMapSettings
 				if HasKey("LightMapResolution",Props):
-					LMRes = round(Props["LightMapResolution"]*Mult/4)*4 	#multiple of 4
+					LMRes = Props["LightMapResolution"]
 				if HasKey("LightMapCoordinateIndex",Props):
 					LmCoord = Props["LightMapCoordinateIndex"]
 				MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Name}")
@@ -669,10 +668,7 @@ def ExportAllMaterials():
 
 ################# Initial Main Function
 def import_map(Setting):
-		command_list = []
-	for command in command_list:
-		unreal.SystemLibrary.execute_console_command(None, command)
-	#unreal.BPFL.change_project_settings()
+	unreal.BPFL.change_project_settings()
 	AllLevelPaths.clear()
 	settings = Settings(Setting)
 	global Seting
@@ -707,6 +703,6 @@ def import_map(Setting):
 			unreal.EditorLevelLibrary.save_current_level()
 	if Seting.import_sublevel :
 		LevelStreamingStuff()
-	SetSMSettings(settings)
+	SetSMSettings()
 	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
 	winsound.Beep(26000, 1500)
