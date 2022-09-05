@@ -43,8 +43,9 @@ Before you download the addon, you must download these first.
 
 
 ## Contact 
-* Discord : bK#6198
-
+* Discord
+  - bK#6198
+  - Zain#1873
 
 
 ## Credits
