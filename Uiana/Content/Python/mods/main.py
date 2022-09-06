@@ -467,6 +467,7 @@ def SetTransform(inst,TForm):
 	inst.set_editor_property('relative_location',TForm.translation)
 	inst.set_editor_property('relative_rotation',TForm.rotation.rotator())
 def SetSMSettings(settings: Settings):
+	Mult = settings.manual_lmres_mult
 	OBJPath = Seting.selected_map.objects_path
 	### first normal mats #######
 	ListObjs = os.listdir(OBJPath)
