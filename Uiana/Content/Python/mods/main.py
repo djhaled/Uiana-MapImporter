@@ -672,6 +672,7 @@ def ExportAllMaterials():
 def import_map(Setting):
 	unreal.BPFL.change_project_settings()
 	unreal.BPFL.execute_console_command('r.DefaultFeature.LightUnits 0')
+	unreal.BPFL.execute_console_command('r.DynamicGlobalIlluminationMethod 0')
 	AllLevelPaths.clear()
 	settings = Settings(Setting)
 	global Seting
