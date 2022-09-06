@@ -466,7 +466,7 @@ def SetTransform(inst,TForm):
 	inst.set_editor_property('relative_scale3d',TForm.scale3d)
 	inst.set_editor_property('relative_location',TForm.translation)
 	inst.set_editor_property('relative_rotation',TForm.rotation.rotator())
-def SetSMSettings():
+def SetSMSettings(settings: Settings):
 	OBJPath = Seting.selected_map.objects_path
 	### first normal mats #######
 	ListObjs = os.listdir(OBJPath)
@@ -481,10 +481,10 @@ def SetSMSettings():
 				Props = sm["Properties"]
 				Name = sm["Name"]
 				LmCoord = 0
-				LMRes = 256
+				LMRes = LMRes = round(256*Mult/4)*4 								#multiple of 4
 				#########Set LightMapSettings
 				if HasKey("LightMapResolution",Props):
-					LMRes = Props["LightMapResolution"]
+					LMRes = round(Props["LightMapResolution"]*Mult/4)*4 	#multiple of 4
 				if HasKey("LightMapCoordinateIndex",Props):
 					LmCoord = Props["LightMapCoordinateIndex"]
 				MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Name}")
@@ -704,6 +704,6 @@ def import_map(Setting):
 			unreal.EditorLevelLibrary.save_current_level()
 	if Seting.import_sublevel :
 		LevelStreamingStuff()
-	SetSMSettings()
+	SetSMSettings(settings)
 	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
 	winsound.Beep(26000, 1500)
