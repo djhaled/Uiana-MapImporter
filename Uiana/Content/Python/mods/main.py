@@ -670,6 +670,7 @@ def ExportAllMaterials():
 ################# Initial Main Function
 def import_map(Setting):
 	unreal.BPFL.change_project_settings()
+	unreal.BPFL.execute_console_command('r.DefaultFeature.LightUnits 0')
 	AllLevelPaths.clear()
 	settings = Settings(Setting)
 	global Seting

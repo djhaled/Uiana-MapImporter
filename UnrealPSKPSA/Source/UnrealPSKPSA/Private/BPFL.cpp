@@ -155,7 +155,14 @@ void UBPFL::ChangeProjectSettings()
 	Settings->Reflections == EReflectionMethod::None;
 	Settings->SaveConfig();
 }
-
+void UBPFL::ExecuteConsoleCommand(FString ConsoleCommand) {
+	if (GEditor) {
+		UWorld* World = GEditor->GetEditorWorldContext().World();
+		if (World) {
+			GEditor->Exec(World, *ConsoleCommand, *GLog);
+		}
+	}
+}
 void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 {
 	auto AutomatedData = NewObject<UAutomatedAssetImportData>();
