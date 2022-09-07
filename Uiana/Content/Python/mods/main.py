@@ -176,30 +176,35 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 
 	BasePropsBlacklist = ['bVertexFog','bOverride_DecalDiffuseLighting','bDecalDiffuseLighting','bDitherOpacityMask','DecalDiffuseLighting','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	if "BasePropertyOverrides" in mat_props:
-		for prop_name, prop_value in mat_props["BasePropertyOverrides"].items():
-			if "BlendMode" == prop_name:
-				if "BLEND_Translucent" in prop_value:
-					unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'BLENDTranslucent',True)
-					blend_mode = unreal.BlendMode.BLEND_TRANSLUCENT
-				elif "BLEND_Masked" in prop_value:
-					blend_mode = unreal.BlendMode.BLEND_MASKED
-				elif "BLEND_Additive" in prop_value:
-					blend_mode = unreal.BlendMode.BLEND_ADDITIVE
-				elif "BLEND_Modulate" in prop_value:
-					blend_mode = unreal.BlendMode.BLEND_MODULATE
-				elif "BLEND_AlphaComposite" in prop_value:
-					blend_mode = unreal.BlendMode.BLEND_ALPHA_COMPOSITE
-				elif "BLEND_AlphaHoldout" in prop_value:
-					blend_mode = unreal.BlendMode.BLEND_BLEND_ALPHA_HOLDOUT
-				BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
-				BasePropOverride.set_editor_property('bOverride_BlendMode', True)
-				BasePropOverride.set_editor_property('blend_mode', blend_mode)
-				UEMat.set_editor_property('BasePropertyOverrides',BasePropOverride)
-				unreal.MaterialEditingLibrary.update_material_instance(UEMat)
-				continue
-			if prop_name not in BasePropsBlacklist:
-				BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
-				BasePropOverride.set_editor_property(prop_name, prop_value)
+		BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
+		if "TwoSided" in mat_props["BasePropertyOverrides"]:
+			value = mat_props["BasePropertyOverrides"]["TwoSided"]
+			BasePropOverride.set_editor_property('override_two_sided', True)
+			BasePropOverride.set_editor_property('two_sided', value)
+		if "BlendMode" in mat_props["BasePropertyOverrides"]:
+			prop_value = mat_props["BasePropertyOverrides"]["BlendMode"]
+			blend_mode = unreal.BlendMode.BLEND_OPAQUE
+			if "BLEND_Translucent" in prop_value:
+				unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(UEMat, 'BLENDTranslucent',True)
+				blend_mode = unreal.BlendMode.BLEND_TRANSLUCENT
+			elif "BLEND_Masked" in prop_value:
+				blend_mode = unreal.BlendMode.BLEND_MASKED
+			elif "BLEND_Additive" in prop_value:
+				blend_mode = unreal.BlendMode.BLEND_ADDITIVE
+			elif "BLEND_Modulate" in prop_value:
+				blend_mode = unreal.BlendMode.BLEND_MODULATE
+			elif "BLEND_AlphaComposite" in prop_value:
+				blend_mode = unreal.BlendMode.BLEND_ALPHA_COMPOSITE
+			elif "BLEND_AlphaHoldout" in prop_value:
+				blend_mode = unreal.BlendMode.BLEND_BLEND_ALPHA_HOLDOUT
+			BasePropOverride.set_editor_property('bOverride_BlendMode', True)
+			BasePropOverride.set_editor_property('blend_mode', blend_mode)
+		UEMat.set_editor_property('BasePropertyOverrides',BasePropOverride)
+		unreal.MaterialEditingLibrary.update_material_instance(UEMat)
+
+			#if prop_name not in BasePropsBlacklist:
+			#	BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
+			#	BasePropOverride.set_editor_property(prop_name, prop_value)
 	
 	if "StaticParameters" in mat_props:
 		if "StaticSwitchParameters" in mat_props["StaticParameters"]:

@@ -65,6 +65,7 @@ BLACKLIST = [
 	"Foxtrot_ASite_Side_DU",
 	"BombsiteMarker_0_BombsiteA_Glow",
 	"BombsiteMarker_0_BombsiteB_Glow",
+	"DirtSkirt",
 ]
 VFX_WHITELIST = [
 "SM_VentSmoke_Duo",
