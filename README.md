@@ -27,7 +27,7 @@ Before you download the addon, you must download these first.
 ## 🔧 Installation & Usage
 1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases/download/publish/Uiana-1.02.zip)**
 2. Create a Plugins folder on your project if you don't already have
-3. Drag "UIANA" and "UnrealPSKPSA" from the .zip file and put it on the Plugins folder
+3. Drag "UIANA" and "UnrealPSKPSA" from the .zip file and put it in your **project's** "Plugins" folder (NOT engine Plugins!)
 4. Press Uiana button (Valorant Icon) on top of the UI to open the tool
 5. Inside Uiana's UI, go to Settings and fill the inputs as follows.
    ```js
