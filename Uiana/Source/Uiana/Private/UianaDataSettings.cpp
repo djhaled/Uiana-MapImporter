@@ -10,6 +10,7 @@ UUianaDataSettings::UUianaDataSettings(const FObjectInitializer& ObjectInitializ
 	ImportMaterials = true;
 	ImportDecals = true;
 	ImportLights = true;
+	ImportBlueprints = true;
 	UseSubLevels = false;
 	LightmapResolutionMultiplier = 1;
 }

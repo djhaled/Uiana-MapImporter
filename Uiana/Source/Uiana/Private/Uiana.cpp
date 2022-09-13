@@ -130,6 +130,7 @@ FReply FUianaModule::ExecuteFunction()
 	bool ImportDecal = Stun->ImportDecals;
 	bool ImportLights = Stun->ImportLights;
 	bool ImportSubLevels = Stun->UseSubLevels;
+	bool ImportBlueprint = Stun->ImportBlueprints;
 	float ManualLMResMult = Stun->LightmapResolutionMultiplier;
 	FString MapName = GetMapName(Stun->Map.GetValue());
 	FString ExportPath = Stun->ExportFolder.Path;
@@ -137,6 +138,7 @@ FReply FUianaModule::ExecuteFunction()
 	FString CurrentPath = FPaths::ProjectPluginsDir();
 	Stun->SaveConfig();
 	TArray< FStringFormatArg > args;
+	args.Add(FStringFormatArg(ImportBlueprint));
 	args.Add(FStringFormatArg(ManualLMResMult));
 	args.Add(FStringFormatArg(ImportSubLevels));
 	args.Add(FStringFormatArg(ImportMesh));
@@ -147,7 +149,7 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(ExportPath));
 	args.Add(FStringFormatArg(PakFolder));
 	args.Add(FStringFormatArg(CurrentPath));
-	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\" \"{9}\""), args);
+	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\" \"{9}\"\"{10}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
 	GEngine->Exec(NULL, TCharCommand);
 	return FReply::Handled();

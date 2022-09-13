@@ -7,11 +7,14 @@
 #include "GameFramework/Actor.h"
 #include "VectorTypes.h"
 #include "Engine/StaticMesh.h"
+#include "AssetToolsModule.h"
+#include "Engine/SCS_Node.h"
 #include "json.hpp"
 #include "KismetProceduralMeshLibrary.h"
 #include "AutomatedAssetImportData.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Engine/World.h"
+#include "Kismet2/KismetEditorUtilities.h"
 #include "Misc/FileHelper.h"
 #include "Factories/TextureFactory.h"
 #include "StaticMeshDescription.h"
@@ -19,6 +22,16 @@
 #include "PSKReader.h"
 #include "Engine/RendererSettings.h"
 #include "PSKXFactory.h"
+UActorComponent* UBPFL::CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName)
+{
+	IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	UBlueprint* Blueprint = Cast<UBlueprint>(Object);
+	USCS_Node* Node = Blueprint->SimpleConstructionScript->CreateNode(ClassToUse, CompName);
+	auto Component = Node->ComponentTemplate;
+	Blueprint->SimpleConstructionScript->AddNode(Node);
+	FKismetEditorUtilities::CompileBlueprint(Blueprint);
+	return Component.Get();
+}
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
 {
 	TArray<FColor> FinalColors;

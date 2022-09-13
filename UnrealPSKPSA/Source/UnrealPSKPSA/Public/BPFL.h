@@ -19,6 +19,8 @@ class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
+	static UActorComponent* CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName);
+	UFUNCTION(BlueprintCallable, Category = VertexPainting)
 	static void PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
 	static FColor ReturnFromHex(FString Beka);

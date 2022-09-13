@@ -16,13 +16,13 @@ def filter_umap(umap_data: dict) -> list:
 		object_types.append(ObjType)
 		if ObjType.lower() in mesh_types:
 			if "Properties" in obj:
-				if "StaticMesh" in obj["Properties"]:
-					if obj["Properties"]["StaticMesh"] is not None and "bVisible" not in obj["Properties"]:
-						umap_filtered.append(obj)
+				umap_filtered.append(obj)
 
 		if ObjType.lower() in gen_types:
 			umap_filtered.append(obj)
 		if ObjType.lower() in decal_types:
+			umap_filtered.append(obj)
+		if ObjType.lower().endswith("_c"):	
 			umap_filtered.append(obj)
 
 	return umap_filtered, object_types
@@ -31,9 +31,15 @@ def filter_umap(umap_data: dict) -> list:
 def get_objects(umap_data):
 	umap_objects = list()
 	umap_materials = list()
-
+	umap_actors = list()
+	idx = 0 
 	for obj in umap_data:
-
+		if obj["Type"].endswith("_C") and HasKeyzin("Template",obj):	
+			if idx == 0:
+				idx = idx + 1
+				continue
+			oType = obj["Template"]
+			umap_actors.append(oType)
 		if "Properties" in obj:
 			if "StaticMesh" in obj["Properties"]:
 				if obj["Properties"]["StaticMesh"] is not None:
@@ -50,7 +56,7 @@ def get_objects(umap_data):
 				if mat is not None:
 					umap_materials.append(get_object_path(data=mat, mat=True))
 
-	return umap_objects, umap_materials
+	return umap_objects, umap_materials,umap_actors
 
 
 def get_object_path(data: dict, mat: bool):
@@ -69,12 +75,14 @@ def get_object_type(model_data: dict) -> str:
 	meshes = ["StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent"]
 	decals = ["DecalComponent"]
 	blueprint = ["SceneComponent"]
-	if model_data["Type"] in meshes and HasKeyzin("StaticMesh",model_data["Properties"]):
+	if model_data["Type"] in meshes and HasKeyzin("StaticMesh",model_data["Properties"]) and  HasKeyzin("Template",model_data) == False:
 		return "mesh"
 	if model_data["Type"] in lights:
 		return "light"
 	if model_data["Type"] in decals:
 		return "decal"
+	if model_data["Type"].endswith("_C"):
+		return "blueprint"
 
 
 def get_object_materials(model_json: dict):

@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 from mods.main import *
 parser = argparse.ArgumentParser()
+parser.add_argument('ImportBlueprints',type=int,help='ImportBlueprints')
 parser.add_argument('ManualLMResMult',type=str,help='Manually Increase Lightmap Resolution')
 parser.add_argument('ImportSubLevels',type=int,help='ImportSubLevels')
 parser.add_argument('ImportMesh',type=int,help='ImportMesh')
@@ -19,6 +20,7 @@ class UeSettings:
 	bImportMesh = bool(args.ImportMesh)
 	bImportDecal = bool(args.ImportDecal)
 	bImportLights = bool(args.ImportLights)
+	bImportBlueprint = bool(args.ImportBlueprints)
 	fMapName = args.MapName
 	if fMapName == "characterSelect":
 		fMapName = "character select"

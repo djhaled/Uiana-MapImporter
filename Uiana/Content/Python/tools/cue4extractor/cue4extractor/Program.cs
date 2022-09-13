@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Meshes;
+using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
 using Newtonsoft.Json;
@@ -77,6 +79,7 @@ namespace cue4extractor
                 var folderType = filename switch
                 {
                     "_assets_objects" => "Objects",
+                    "_assets_actors" => "Actors",
                     "_assets_materials" => "Materials",
                     "_assets_materials_ovr" => "Override Materials",
                     _ => "",
@@ -87,7 +90,11 @@ namespace cue4extractor
                     foreach (var line in File.ReadLines(currentList))
                     {
                         var objName = line.Split('\\')[^1];
-                        //Console.WriteLine($"INFO - CUE4Parse - Extracting : {objName}");
+                        if (folderType == "Actors")
+                        {
+                            objName = line.Split('/')[^1];
+                        }
+                            //Console.WriteLine($"INFO - CUE4Parse - Extracting : {objName}");
                         var objExports = provider.LoadObjectExports(line);
                         var objJSON = JsonConvert.SerializeObject(objExports, Formatting.Indented, settings);
 
