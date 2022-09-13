@@ -14,6 +14,7 @@ Seting = None
 LoadableMaterials = {}
 AllMeshes = [] 
 AllTextures= []
+AllBps = {}
 object_types = []
 AllLevelPaths = []
 file = "snd.mp3"
@@ -34,8 +35,7 @@ def GetMaterialToOverride(Data):
 		if "MaterialInstanceDynamic" in CheckLoaded:
 			MaterialArray.append(None)
 			continue
-		Material = LoadableMaterials[CheckLoaded]
-		MaterialArray.append(Material)
+		MaterialArray.append(unreal.load_asset(f'/Game/ValorantContent/Materials/{CheckLoaded}'))
 	return MaterialArray
 
 def extract_assets(settings: Settings):
@@ -322,7 +322,6 @@ def SetAllSettings(asset,Comp):
 			try:
 				PropSet = Comp.get_editor_property(Setting)
 			except:
-				print(f"ReadProtected {Setting}")
 				continue
 			classname = GetClassName(PropSet)
 			if type(ActorSetting) == int or type(ActorSetting) == float or type(ActorSetting) == bool :
@@ -448,8 +447,35 @@ def ImportDecal(DecalData):
 	for propName,PropValue in ActorInfo.props.items():
 		if propName not in BlacklistDecal:
 			SetAllSettings(DecalData,DecalComponent)
+
+def FixActorBP(MData):
+	try:
+		CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
+	except:
+		return
+	if not CompToUse:
+		return
+	if HasKey("StaticMesh",MData.props):
+		PathToGo = ConvertToLoadableUE(MData.props["StaticMesh"],"StaticMesh ","Meshes")
+		MeshToLoad = unreal.load_asset(PathToGo)
+		CompToUse.set_editor_property('static_mesh',MeshToLoad)
+	Transform = GetTransform(MData.props)
+	#CompToUse.set_relative_transform(Transform,False,False)
+	SetTransform(CompToUse,Transform)
+	#CompToUse.set_relative_location(Transform.translation,False,False)
+	if HasKey("OverrideMaterials",MData.props):
+		if not Seting.import_materials:
+			return
+		MatOver = GetMaterialToOverride(MData.data)
+		if MatOver:
+			CompToUse.set_editor_property('override_materials',MatOver)
+	SetAllSettings(MData.props,CompToUse)
+
 def ImportMesh(MeshData,MapObj):
 	MeshActor = ActorDefs(MeshData)
+	if HasKey("Template",MeshActor.data):
+		FixActorBP(MeshActor)
+		return
 	OvrVertexes = []
 	HasVCol = False
 	if not HasKey("StaticMesh",MeshActor.props):
@@ -497,6 +523,7 @@ def ImportMesh(MeshData,MapObj):
 def SetTransform(inst,TForm):
 	inst.set_editor_property('relative_scale3d',TForm.scale3d)
 	inst.set_editor_property('relative_location',TForm.translation)
+	inst.set_editor_property('relative_translation',TForm.translation)
 	inst.set_editor_property('relative_rotation',TForm.rotation.rotator())
 def SetSMSettings(settings: Settings):
 	Mult = settings.manual_lmres_mult
@@ -545,6 +572,13 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	objectsToImport = filter_objects(umap_data)
 	skip = 0
 	for objectIndex, object_data in enumerate(objectsToImport):
+		object_type = get_object_type(object_data)
+		if object_type == "blueprint" and settings.import_blueprints:
+			if skip < 2:
+				skip += 1
+				continue
+			ImportBP(object_data,objectsToImport)
+	for objectIndex, object_data in enumerate(objectsToImport):
 		objectIndex = f"{objectIndex:03}"
 		object_type = get_object_type(object_data)
 		if object_type == "mesh" and Seting.import_Mesh :
@@ -555,11 +589,6 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 			ImportDecal(object_data)
 		if object_type == "light" and settings.import_lights:
 			ImportLights(object_data,objectsToImport)
-		if object_type == "blueprint" and settings.import_blueprints:
-			if skip < 2:
-				skip += 1
-				continue
-			ImportBP(object_data,objectsToImport)
 def LevelStreamingStuff():
 	world = unreal.EditorLevelLibrary.get_editor_world()
 	for j in AllLevelPaths:
@@ -598,8 +627,8 @@ def ImportBP(bpdata,umapdata):
 	BPObject = unreal.load_asset(f"/Game/ValorantContent/Blueprints/{BPName}.{BPName}")
 	BP = unreal.EditorLevelLibrary.spawn_actor_from_object(BPObject,Transform.translation,Transform.rotation.rotator())
 	if not BP:
-		print(f'{BPName} didnt spawn')
 		return
+	AllBps[BPActor.name] = BP
 	BP.set_actor_label(BPActor.name)
 	BP.set_actor_scale3d(Transform.scale3d)
 def CreateNewLevel(mapname):
@@ -712,14 +741,17 @@ def CreateBP(data,BPName):
 		Actor = AssetTools.create_asset(BPName,'/Game/ValorantContent/Blueprints/', unreal.Blueprint, unreal.BlueprintFactory())
 	else:
 		return
-	data.reverse()
+	#data.reverse()
 	for smbp in data:
+		#if "SCS_Node" in smbp["Type"]:
+			#CompName = smbp["Properties"]["ComponentClass"]["ObjectName"].replace("Class ","")
 		if "Component" in smbp["Type"] and smbp["Type"]:
 			try:
 				uClass = eval(f'unreal.{smbp["Type"]}')
 			except:
 				continue
-			Comp = unreal.BPFL.create_bp_comp(Actor,uClass,smbp["Name"])
+			compnamefix = smbp["Name"].replace("_GEN_VARIABLE","")
+			Comp = unreal.BPFL.create_bp_comp(Actor,uClass,compnamefix)
 			if HasKey("Properties",smbp):
 				smbpProps = smbp["Properties"]
 				SetAllSettings(smbpProps,Comp)

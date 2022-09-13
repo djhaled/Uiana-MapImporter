@@ -75,7 +75,7 @@ def get_object_type(model_data: dict) -> str:
 	meshes = ["StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent"]
 	decals = ["DecalComponent"]
 	blueprint = ["SceneComponent"]
-	if model_data["Type"] in meshes and HasKeyzin("StaticMesh",model_data["Properties"]) and  HasKeyzin("Template",model_data) == False:
+	if model_data["Type"] in meshes:
 		return "mesh"
 	if model_data["Type"] in lights:
 		return "light"
@@ -180,10 +180,14 @@ class MapObject(object):
 		self.model_path = self.get_local_model_path(p=settings.assets_path)
 
 	def get_local_model_path(self, p: Path) -> str:
+		if not HasKeyzin("StaticMesh",self.data["Properties"]):
+			return "NoPath"
 		a = p.joinpath(os.path.splitext(self.data["Properties"]["StaticMesh"]["ObjectPath"])[0].strip("/")).__str__()
 		return fix_path(a) + ".pskx"
 
 	def get_object_name(self) -> str:
+		if not HasKeyzin("StaticMesh",self.data["Properties"]):
+			return "NoMesh"
 		s = self.data["Properties"]["StaticMesh"]["ObjectPath"]
 		k = Path(s).stem
 		return k
@@ -193,6 +197,8 @@ class MapObject(object):
 		return s
 
 	def get_object_path(self, fix: bool = False) -> str:
+		if not HasKeyzin("StaticMesh",self.data["Properties"]):
+			return "NoPath"
 		s = self.data["Properties"]["StaticMesh"]["ObjectPath"]
 		s = s.split(".", 1)[0].replace('/', '\\')
 		if fix:
@@ -207,4 +213,6 @@ class MapObject(object):
 			return False
 
 	def get_object_data_OG(self) -> dict:
+		if self.name == "NoMesh":
+			return "NoData"
 		return read_json(self.objects_folder.joinpath(f"{self.name}.json"))

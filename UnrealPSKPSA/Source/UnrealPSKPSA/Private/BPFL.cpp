@@ -22,6 +22,19 @@
 #include "PSKReader.h"
 #include "Engine/RendererSettings.h"
 #include "PSKXFactory.h"
+
+UActorComponent* UBPFL::GetComponentByName(AActor* Actor, FName CompName)
+{
+	auto Comps = Actor->GetComponents();
+	for (auto cp : Comps)
+	{
+		if (CompName == cp->GetFName())
+		{
+			return cp;
+		}
+	}
+	return nullptr;
+}
 UActorComponent* UBPFL::CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName)
 {
 	IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
