@@ -87,7 +87,7 @@
     "/Game/Maps/Poveglia/Range_Art_Cemetery",
     "/Game/Maps/Poveglia/Range_Art_Gallery",
     "/Game/Maps/Poveglia/Range_Art_Hospital",
-    "/Game/Maps/Poveglia/Range_Art_VFX",
+    "/Game/Maps/Poveglia/Range_VFX",
     "/Game/Maps/Poveglia/Range"
   ],
   "split": [
@@ -114,7 +114,7 @@
     "/Game/Maps/Bonsai/Bonsai_Art_Mid",
     "/Game/Maps/Bonsai/Bonsai_Art_DefSpawn",
     "/Game/Maps/Bonsai/Bonsai_Gameplay_Dynamic",
-    "/Game/Maps/Bonsai/Bonsai_Art_VFX",
+    "/Game/Maps/Bonsai/Bonsai_VFX",
     "/Game/Maps/Bonsai/Bonsai"
   ],
   "bind": [
@@ -140,7 +140,7 @@
     "/Game/Maps/Duality/Duality_Art_B",
     "/Game/Maps/Duality/Duality_Lighting",
     "/Game/Maps/Duality/Duality_Art_Atk",
-    "/Game/Maps/Duality/Duality_Art_VFX",
+    "/Game/Maps/Duality/Duality_VFX",
     "/Game/Maps/Duality/Duality"
   ],
   "breeze": [
@@ -184,7 +184,7 @@
     "/Game/Maps/Ascent/Ascent_Art_Vista",
     "/Game/Maps/Ascent/Ascent_Gameplay",
     "/Game/Maps/Ascent/Ascent_Art_VistaA",
-    "/Game/Maps/Ascent/Ascent_Art_VFX",
+    "/Game/Maps/Ascent/Ascent_Art_Env_VFX",
     "/Game/Maps/Ascent/Ascent"
   ],
   "icebox": [
