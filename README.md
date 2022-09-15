@@ -37,7 +37,16 @@ Before you download the addon, you must download these first.
                     // ..Riot Games\VALORANT\live\ShooterGame\Content\Paks\
    ```
 6. Select your preferable settings and hit "Generate Map" on bottom right.
-   
+
+## 💾 Saving Import
+1. Make sure to save ValorantContent folder & level after importing sucesfully
+
+## ⚡ Baking/Fixing lighting
+1. Disable Dynamic Global illumination (Lumen & RTX)
+2. Open "Build" tab on the top left
+3. Change lighting to desired quality level (peview <-> production)
+4. Press "Build Lighting Only"
+
 
 
 
