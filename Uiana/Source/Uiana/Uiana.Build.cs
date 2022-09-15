@@ -44,7 +44,7 @@ public class Uiana : ModuleRules
 				"Settings",
 				"Slate",
 				"RenderCore",
-				"EditorStyle",
+                "WorkspaceMenuStructure",
 				"PythonScriptPlugin",
 				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	

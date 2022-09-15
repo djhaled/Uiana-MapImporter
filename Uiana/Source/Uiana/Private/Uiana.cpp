@@ -223,7 +223,7 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 		.VAlign(VAlign_Fill)
 		[
 			SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("ToolPanel.DarkGroupBorder"))
+			.BorderImage(FAppStyle::Get().GetBrush("ToolPanel.DarkGroupBorder"))
 		[
 			SNew(SVerticalBox)
 
@@ -252,13 +252,13 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 		.Padding(2.f, 5.f)
 		[
 			SNew(SButton)
-			.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
+			.ButtonStyle(FAppStyle::Get(), "FlatButton.Success")
 		.ForegroundColor(FSlateColor::UseForeground())
 		.OnClicked(FOnClicked::CreateRaw(this, &FUianaModule::ExecuteFunction))
 		[
 			SNew(STextBlock)
 			.Justification(ETextJustify::Center)
-		.TextStyle(FEditorStyle::Get(), "NormalText.Important")
+		.TextStyle(FAppStyle::Get(), "NormalText.Important")
 		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate Map"))
 		]
 		]
