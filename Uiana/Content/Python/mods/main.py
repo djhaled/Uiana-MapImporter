@@ -492,7 +492,10 @@ def ImportMesh(MeshData,MapObj):
 		Transform = GetTransform(MeshActor.props)
 	if not Transform:
 		return
-	SMActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.ValActor,location=unreal.Vector(), rotation = unreal.Rotator())
+	UnrealMeshType = unreal.StaticMeshActor
+	if MapObj.is_instanced():
+		UnrealMeshType = unreal.HismActor
+	SMActor = unreal.EditorLevelLibrary.spawn_actor_from_class(UnrealMeshType,location=unreal.Vector(), rotation = unreal.Rotator())
 	SMActor.set_actor_label(MeshActor.outer)
 	SMActor.set_actor_scale3d(Transform.scale3d)
 	MeshToLoad = unreal.load_asset(PathToGo)
@@ -501,7 +504,9 @@ def ImportMesh(MeshData,MapObj):
 		OvrVertexes = GetOverrideVertexColor(MeshActor.data)
 	if MapObj.is_instanced():
 		instance_data = MeshActor.data["PerInstanceSMData"]
-		Instance = SMActor.create_instance_component(MeshToLoad,Transform)
+		Instance = SMActor.hism_component
+		Instance.set_editor_property('static_mesh',MeshToLoad)
+		Instance.set_world_transform(Transform,False,False)
 		SMActor.set_folder_path(f'Meshes/Instanced')
 		for inst in instance_data:
 			Trans = GetTransform(inst)
@@ -511,7 +516,9 @@ def ImportMesh(MeshData,MapObj):
 		if len(OvrVertexes) > 0:
 			unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 	else:
-		Instance = SMActor.create_static_component(MeshToLoad,Transform)
+		Instance = SMActor.static_mesh_component
+		Instance.set_editor_property('static_mesh',MeshToLoad)
+		Instance.set_world_transform(Transform,False,False)
 		FolderName = 'Meshes/Static'
 		if MapObj.umap.endswith("_VFX"):
 			FolderName = 'VFX/Meshes'
