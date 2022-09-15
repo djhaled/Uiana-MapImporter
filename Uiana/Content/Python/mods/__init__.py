@@ -20,7 +20,7 @@ class UeSettings:
 	bImportMesh = bool(args.ImportMesh)
 	bImportDecal = bool(args.ImportDecal)
 	bImportLights = bool(args.ImportLights)
-	bImportBlueprint = bool(args.ImportBlueprints)
+	bImportBlueprint = False#bool(args.ImportBlueprints)
 	fMapName = args.MapName
 	if fMapName == "characterSelect":
 		fMapName = "character select"
