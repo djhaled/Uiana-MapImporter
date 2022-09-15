@@ -458,19 +458,25 @@ def FixActorBP(MData):
 	if HasKey("StaticMesh",MData.props):
 		PathToGo = ConvertToLoadableUE(MData.props["StaticMesh"],"StaticMesh ","Meshes")
 		MeshToLoad = unreal.load_asset(PathToGo)
+		print(MeshToLoad)
 		CompToUse.set_editor_property('static_mesh',MeshToLoad)
 	Transform = GetTransform(MData.props)
 	#CompToUse.set_relative_transform(Transform,False,False)
-	SetTransform(CompToUse,Transform)
+	#SetTransform(CompToUse,Transform)
+	CompToUse.set_editor_property('relative_scale3d',Transform.scale3d)
+	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
+	CompToUse.set_editor_property('relative_location',Transform.translation)
+	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
+	CompToUse.set_editor_property('relative_rotation',Transform.rotation.rotator())
 	#CompToUse.set_relative_location(Transform.translation,False,False)
 	if HasKey("OverrideMaterials",MData.props):
 		if not Seting.import_materials:
 			return
 		MatOver = GetMaterialToOverride(MData.data)
 		if MatOver:
-			CompToUse.set_editor_property('override_materials',MatOver)
-	SetAllSettings(MData.props,CompToUse)
-
+			unreal.BPFL.set_override_material(AllBps[MData.outer],MData.name,MatOver)
+			#CompToUse.set_editor_property('override_materials',MatOver)
+	##SetAllSettings(MData.props,CompToUse)
 def ImportMesh(MeshData,MapObj):
 	MeshActor = ActorDefs(MeshData)
 	if HasKey("Template",MeshActor.data):
@@ -523,7 +529,6 @@ def ImportMesh(MeshData,MapObj):
 def SetTransform(inst,TForm):
 	inst.set_editor_property('relative_scale3d',TForm.scale3d)
 	inst.set_editor_property('relative_location',TForm.translation)
-	inst.set_editor_property('relative_translation',TForm.translation)
 	inst.set_editor_property('relative_rotation',TForm.rotation.rotator())
 def SetSMSettings(settings: Settings):
 	Mult = settings.manual_lmres_mult
@@ -735,9 +740,10 @@ def ExportAllTextures():
 		ImportAllTexturesFromMaterial(MatJson)
 	unreal.BPFL.import_textures(AllTextures)
 def CreateBP(data,BPName):
+	BlacklistBP = ['SpawnBarrier','SoundBarrier','SpawnBarrierProjectile','Gumshoe_CameraBlockingVolumeParent_Box','DomeBuyMarker','BP_StuckPickupVolume','BP_LevelBlockingVolume','BP_TargetingLandmark','BombSpawnLocation']
 	BPName = BPName.replace(".json","")
 	Actor = unreal.load_asset(f'/Game/ValorantContent/Blueprints/{BPName}')
-	if not Actor:
+	if not Actor and BPName not in BlacklistBP :
 		Actor = AssetTools.create_asset(BPName,'/Game/ValorantContent/Blueprints/', unreal.Blueprint, unreal.BlueprintFactory())
 	else:
 		return
@@ -745,13 +751,17 @@ def CreateBP(data,BPName):
 	for smbp in data:
 		#if "SCS_Node" in smbp["Type"]:
 			#CompName = smbp["Properties"]["ComponentClass"]["ObjectName"].replace("Class ","")
-		if "Component" in smbp["Type"] and smbp["Type"]:
+		if "SCS_Node" in smbp["Type"]:
+			ComponentName = smbp["Properties"]["ComponentClass"]["ObjectName"].replace("Class ","")
 			try:
-				uClass = eval(f'unreal.{smbp["Type"]}')
+				uClass = eval(f'unreal.{ComponentName}')
 			except:
 				continue
-			compnamefix = smbp["Name"].replace("_GEN_VARIABLE","")
+			compnamefix = smbp["Properties"]["InternalVariableName"]
+			if compnamefix == "StaticMesh_TargetViewMode":
+				continue
 			Comp = unreal.BPFL.create_bp_comp(Actor,uClass,compnamefix)
+			smbp = FindAttachComponent(smbp["Properties"]["ComponentTemplate"]["ObjectName"],data)
 			if HasKey("Properties",smbp):
 				smbpProps = smbp["Properties"]
 				SetAllSettings(smbpProps,Comp)

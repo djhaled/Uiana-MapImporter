@@ -18,8 +18,10 @@ class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable, Category = VertexPainting)
+	UFUNCTION(BlueprintCallable, Category = BPFL)
 	static UActorComponent* GetComponentByName(AActor* Actor, FName CompName);
+	UFUNCTION(BlueprintCallable, Category = BPFL)
+	static void SetOverrideMaterial(AActor* Actor, FName CompName, TArray<UMaterialInterface*> MatOvr);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
 	static UActorComponent* CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)

@@ -23,17 +23,25 @@
 #include "Engine/RendererSettings.h"
 #include "PSKXFactory.h"
 
+
+
 UActorComponent* UBPFL::GetComponentByName(AActor* Actor, FName CompName)
 {
-	auto Comps = Actor->GetComponents();
-	for (auto cp : Comps)
+	UStaticMeshComponent* Trolley = Cast<UStaticMeshComponent>(Actor->GetDefaultSubobjectByName(CompName));
+	if (!Trolley)
 	{
-		if (CompName == cp->GetFName())
-		{
-			return cp;
-		}
+		return nullptr;
 	}
-	return nullptr;
+	return Trolley;
+}
+void UBPFL::SetOverrideMaterial(AActor* Actor, FName CompName, TArray<UMaterialInterface*> MatOvr)
+{
+	UStaticMeshComponent* Trolley = Cast<UStaticMeshComponent>(Actor->GetDefaultSubobjectByName(CompName));
+	if (!Trolley)
+	{
+		return;
+	}
+	Trolley->OverrideMaterials = MatOvr;
 }
 UActorComponent* UBPFL::CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName)
 {

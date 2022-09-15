@@ -392,6 +392,12 @@ def GetAttachScene(obj,OuterName,umapfile):
 		if outer == OuterName and tipo in types and KeyOuter == False:
 			return HasTransform(j["Properties"])
 	#exit()
+def FindAttachComponent(NameToFind,jsonfile):
+	findstr = NameToFind.rfind(':') + 1
+	NameToFind = NameToFind[findstr:len(NameToFind)]
+	for fil in jsonfile:
+		if fil["Name"] == NameToFind:
+			return fil
 
 def IsBlockingVolume(obj,OuterName,umapfile):
 	for gama in umapfile:

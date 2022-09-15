@@ -32,10 +32,10 @@ namespace cue4extractor
             string gameDirectory = @"E:\Riot Games\VALORANT\live\ShooterGame\Content\Paks",
             string aesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6",
             string exportDirectory = @"D:\TEtest",
-            string mapName = "bind",
+            string mapName = "ascent",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
             string fileList = "",
-            string gameUmaps = @"D:\Baka\umaps.json"
+            string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\MyProjectbs\Plugins\Uiana\Content\Python\assets\umaps.json"
             )
         {
             var versions = new VersionContainer(EGame.GAME_Valorant);
