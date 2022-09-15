@@ -3,7 +3,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/djhaled/Uiana-MapImporter">
-    <img src="HighresScreenshot00002.png" alt="Logo">
+    <img src="HighresScreenshot00019.png" alt="Logo">
   </a>
 
 
