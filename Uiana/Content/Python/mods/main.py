@@ -453,8 +453,6 @@ def ImportDecal(DecalData):
 			SetAllSettings(DecalData,DecalComponent)
 
 def FixActorBP(MData):
-	if not HasKey("AttachParent",MData.props):
-		return
 	try:
 		CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
 	except:
@@ -464,18 +462,21 @@ def FixActorBP(MData):
 	if HasKey("StaticMesh",MData.props):
 		MeshToLoad = ConvertToLoadableUE(MData.props["StaticMesh"],"StaticMesh ","Meshes")
 		CompToUse.set_editor_property('static_mesh',MeshToLoad)
-	Transform = GetTransform(MData.props)
-	CompToUse.set_editor_property('relative_scale3d',Transform.scale3d)
-	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
-	CompToUse.set_editor_property('relative_location',Transform.translation)
-	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
-	CompToUse.set_editor_property('relative_rotation',Transform.rotation.rotator())
 	if HasKey("OverrideMaterials",MData.props):
 		if not Seting.import_materials:
 			return
 		MatOver = GetMaterialToOverride(MData.data)
 		if MatOver:
 			unreal.BPFL.set_override_material(AllBps[MData.outer],MData.name,MatOver)
+	if not HasKey("AttachParent",MData.props):
+		return
+	Transform = GetTransform(MData.props)
+	#CompToUse.set_relative_transform(Transform,False,False)
+	CompToUse.set_editor_property('relative_scale3d',Transform.scale3d)
+	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
+	CompToUse.set_editor_property('relative_location',Transform.translation)
+	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
+	CompToUse.set_editor_property('relative_rotation',Transform.rotation.rotator())
 def ImportMesh(MeshData,MapObj):
 	MeshActor = ActorDefs(MeshData)
 	if HasKey("Template",MeshActor.data):
@@ -777,8 +778,6 @@ def CreateBP(FullData,BPName):
 		if HasKey("ChildNodes",Props):
 			NodesArray = HandleChildNodes(Props["ChildNodes"],data,Actor)
 		compnamefix = smbp["Properties"]["InternalVariableName"]
-		if "TargetViewMode" in compnamefix:
-			continue
 		Compon = unreal.BPFL.create_bp_comp(Actor,uClass,compnamefix,NodesArray)
 		if HasKey("Properties",smbp):
 			SMProps = smbp["Properties"]["CompProps"]
@@ -815,6 +814,8 @@ def HandleChildNodes(ArrayCN,EntireArray,BPActor):
 			except:
 				continue
 			InternalName = CNode["Properties"]["InternalVariableName"]
+			if "TargetViewMode" in InternalName:
+				continue
 			if NodeName == ChildName:
 				UNode,ComponentNode = unreal.BPFL.create_node(BPActor,uClass,InternalName)
 				LocalChildArray.append(UNode)
