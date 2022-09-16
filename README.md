@@ -25,7 +25,7 @@ Before you download the addon, you must download these first.
 * [Visual Studio 2019+](https://docs.unrealengine.com/4.26/en-US/ProductionPipelines/DevelopmentSetup/VisualStudioSetup/)
 
 
-## 🔧 Installation & Usage
+## 1. 🔧 Installation & Usage
 1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases/download/publish/Uiana-1.03.zip)**
 2. Create a Plugins folder on your project if you don't already have
 3. Drag "UIANA" and "UnrealPSKPSA" from the .zip file and put it in your **project's** "Plugins" folder (NOT engine Plugins!)
@@ -39,14 +39,13 @@ Before you download the addon, you must download these first.
    ```
 6. Select your preferable settings and hit "Generate Map" on bottom right.
 
-## 💾 Saving Import
-1. Make sure to save ValorantContent folder & level after importing sucesfully
+## 2. 💾 Saving Import
+1. Make sure to save ValorantContent folder & level after importing successfully
 
-## ⚡ Baking/Fixing lighting
-1. Disable Dynamic Global illumination (Lumen & RTX)
-2. Open "Build" tab on the top left
-3. Change lighting to desired quality level (peview <-> production)
-4. Press "Build Lighting Only"
+## 3. ⚡ Baking/Fixing lighting
+1. Open "Build" tab on the top left
+2. Change lighting to desired quality level (peview <-> production)
+3. Press "Build Lighting Only"
 
 
 
