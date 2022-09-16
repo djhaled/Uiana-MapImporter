@@ -22,6 +22,7 @@ Before you download the addon, you must download these first.
 
 * [Download & Install .NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-6.0.5-windows-x64-installer)
 * [Unreal 5.0+](https://www.unrealengine.com/en-US/download) 
+* [Visual Studio 2019+](https://docs.unrealengine.com/4.26/en-US/ProductionPipelines/DevelopmentSetup/VisualStudioSetup/)
 
 
 ## 🔧 Installation & Usage
