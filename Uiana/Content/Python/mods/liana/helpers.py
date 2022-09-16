@@ -18,6 +18,36 @@ def ClearLevel():
 	AllActors = unreal.EditorLevelLibrary.get_all_level_actors()
 	for j in AllActors:
 		unreal.EditorLevelLibrary.destroy_actor(j)
+def ReturnBPLoop(data,name):
+	for lop in data:
+		if lop["Name"] == name:
+			return lop
+def ReduceBPJson(BigData):
+	FullJson = {}
+	newjson = []
+	sceneroot = []
+	GameObjects = []
+	for fnc in BigData:
+		fName = fnc["Name"]
+		fType = fnc["Type"]
+		if "Properties" not in fnc:
+			continue
+		FProps = fnc["Properties"]
+		if fType == "SimpleConstructionScript":
+			SceneRoot = FProps["DefaultSceneRootNode"]["ObjectName"]
+			sceneroot.append(SceneRoot[SceneRoot.rfind(':')+ 1:len(SceneRoot)])
+		if "Node" in fName:
+			Name = FProps["ComponentTemplate"]["ObjectName"]
+			ActualName = Name[Name.rfind(':')+ 1:len(Name)]
+			Component = ReturnBPLoop(BigData,ActualName)
+			FProps["CompProps"] = Component["Properties"] if "Properties" in Component else None
+			newjson.append(fnc)
+		if fName == "GameObjectMesh":
+			GameObjects.append(fnc)
+	FullJson["Nodes"] = newjson
+	FullJson["SceneRoot"] = sceneroot
+	FullJson["GameObjects"] = GameObjects
+	return FullJson
 
 def SetCubeMapTexture(Seting):
 	pathCube = Seting["ObjectName"]
@@ -55,7 +85,6 @@ BLACKLIST = [
 	"box_for_volumes", 
 	"BombsiteMarker_0_BombsiteA_Glow",
 	"BombsiteMarker_0_BombsiteB_Glow",
-	"supergrid",
 	"_col",
 	"M_Pitt_Lamps_Glow",
 	"Bombsite_0_ASiteSide",
@@ -108,12 +137,12 @@ def ConvertToLoadableUE(Mesh,Type,ActualType):
 	PathToGo = f'/Game/ValorantContent/{ActualType}/{NewName}'
 	return PathToGo
 def path_convert(path: str) -> str:
-    b, c, rest = path.split("\\", 2)
-    if b == "ShooterGame":
-        b = "Game"
-    if c == "Content":
-        c = ""
-    return "\\".join((b, c, rest))
+	b, c, rest = path.split("\\", 2)
+	if b == "ShooterGame":
+		b = "Game"
+	if c == "Content":
+		c = ""
+	return "\\".join((b, c, rest))
 def GetTransform(Prop):
 	TransformData = None
 	bIsInstanced = False
@@ -393,12 +422,6 @@ def GetAttachScene(obj,OuterName,umapfile):
 		if outer == OuterName and tipo in types and KeyOuter == False:
 			return HasTransform(j["Properties"])
 	#exit()
-def FindAttachComponent(NameToFind,jsonfile):
-	findstr = NameToFind.rfind(':') + 1
-	NameToFind = NameToFind[findstr:len(NameToFind)]
-	for fil in jsonfile:
-		if fil["Name"] == NameToFind:
-			return fil
 
 def IsBlockingVolume(obj,OuterName,umapfile):
 	for gama in umapfile:

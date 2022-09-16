@@ -746,7 +746,7 @@ def ExportAllTextures():
 		MatJson = read_json(entireovrpath)
 		ImportAllTexturesFromMaterial(MatJson)
 	unreal.BPFL.import_textures(AllTextures)
-def CreateBP(data,BPName):
+def CreateBP(FullData,BPName):
 	BlacklistBP = ['SpawnBarrier','SoundBarrier','SpawnBarrierProjectile','Gumshoe_CameraBlockingVolumeParent_Box','DomeBuyMarker','BP_StuckPickupVolume','BP_LevelBlockingVolume','BP_TargetingLandmark','BombSpawnLocation']
 	BPName = BPName.replace(".json","")
 	Actor = unreal.load_asset(f'/Game/ValorantContent/Blueprints/{BPName}')
@@ -754,43 +754,59 @@ def CreateBP(data,BPName):
 		Actor = AssetTools.create_asset(BPName,'/Game/ValorantContent/Blueprints/', unreal.Blueprint, unreal.BlueprintFactory())
 	else:
 		return
-	#data.reverse()
+	data = FullData["Nodes"]
+	if len(data) == 0:
+		print(f'UianaBPLog: {BPName} didnt have any comps')
+		return
+	RootScene = FullData["SceneRoot"]
+	DefaultSceneRoot = RootScene[0][RootScene[0].rfind('.') + 1:len(RootScene[0])]
+	GameObjects = FullData["GameObjects"]
+	for idx,BPC in enumerate(data):
+		if BPC["Name"] == DefaultSceneRoot:
+			del data[idx]
+			data.insert(len(data),BPC)
+			break
+	data.reverse()
 	for smbp in data:
-		#if "SCS_Node" in smbp["Type"]:
-			#CompName = smbp["Properties"]["ComponentClass"]["ObjectName"].replace("Class ","")
-		if "SCS_Node" in smbp["Type"]:
-			ComponentName = smbp["Properties"]["ComponentClass"]["ObjectName"].replace("Class ","")
-			try:
-				uClass = eval(f'unreal.{ComponentName}')
-			except:
+		ComponentName = smbp["Properties"]["ComponentClass"]["ObjectName"].replace("Class ","")
+		try:
+			uClass = eval(f'unreal.{ComponentName}')
+		except:
+			continue
+		compnamefix = smbp["Properties"]["InternalVariableName"]
+		if "TargetViewMode" in compnamefix:
+			continue
+		Compon = unreal.BPFL.create_bp_comp(Actor,uClass,compnamefix)
+		if HasKey("Properties",smbp):
+			SMProps = smbp["Properties"]["CompProps"]
+			if not SMProps:
 				continue
-			compnamefix = smbp["Properties"]["InternalVariableName"]
-			if compnamefix == "StaticMesh_TargetViewMode":
-				continue
-			Comp = unreal.BPFL.create_bp_comp(Actor,uClass,compnamefix)
-			smbp = FindAttachComponent(smbp["Properties"]["ComponentTemplate"]["ObjectName"],data)
-			if HasKey("Properties",smbp):
-				smbpProps = smbp["Properties"]
-				SetAllSettings(smbpProps,Comp)
-				Transform = GetTransform(smbp["Properties"])
-				if HasKey("RelativeRotation",smbpProps):
-					Comp.set_editor_property('relative_rotation',Transform.rotation.rotator())
-				if HasKey("RelativeLocation",smbpProps):
-					Comp.set_editor_property('relative_location',Transform.translation)
-				if HasKey("RelativeScale3D",smbpProps):
-					Comp.set_editor_property('relative_scale3d',Transform.scale3d)
-				if HasKey("StaticMesh",smbpProps):
-					if smbpProps["StaticMesh"] == None:
-						continue
-					ConvertLoad = ConvertToLoadableUE(smbpProps["StaticMesh"],"StaticMesh ","Meshes")
-					MeshAsset = unreal.load_asset(ConvertLoad)
-					Comp.set_editor_property('static_mesh',MeshAsset)
+		SetMeshSettings(SMProps,Compon)
+	for GObject in GameObjects:
+		uClass = unreal.StaticMeshComponent
+		Compon = unreal.BPFL.create_bp_comp(Actor,uClass,"GameObjectMesh")
+		SetMeshSettings(GObject["Properties"],Compon)
+def SetMeshSettings(smbpProps,Comp):
+	SetAllSettings(smbpProps,Comp)
+	Transform = GetTransform(smbpProps)
+	if HasKey("RelativeRotation",smbpProps):
+		Comp.set_editor_property('relative_rotation',Transform.rotation.rotator())
+	if HasKey("RelativeLocation",smbpProps):
+		Comp.set_editor_property('relative_location',Transform.translation)
+	if HasKey("RelativeScale3D",smbpProps):
+		Comp.set_editor_property('relative_scale3d',Transform.scale3d)
+	if HasKey("StaticMesh",smbpProps):
+		if smbpProps["StaticMesh"] == None:
+			return
+		ConvertLoad = ConvertToLoadableUE(smbpProps["StaticMesh"],"StaticMesh ","Meshes")
+		MeshAsset = unreal.load_asset(ConvertLoad)
+		Comp.set_editor_property('static_mesh',MeshAsset)
 def ExportAllBlueprints():
 	BPath = Seting.selected_map.actors_path
 	ListBPath = os.listdir(BPath)
 	for bp in ListBPath:
 		NewBPath = BPath.joinpath(bp)
-		BPJson = read_json(NewBPath)
+		BPJson = ReduceBPJson(read_json(NewBPath))
 		CreateBP(BPJson,bp)
 def ExportAllMaterials():
 	MatPath = Seting.selected_map.materials_path
