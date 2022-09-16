@@ -458,7 +458,6 @@ def FixActorBP(MData):
 	except:
 		return
 	if not CompToUse:
-		print(MData.name)
 		return
 	if HasKey("StaticMesh",MData.props):
 		MeshToLoad = ConvertToLoadableUE(MData.props["StaticMesh"],"StaticMesh ","Meshes")
@@ -585,9 +584,6 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	for objectIndex, object_data in enumerate(objectsToImport):
 		object_type = get_object_type(object_data)
 		if object_type == "blueprint" and settings.import_blueprints:
-			if skip < 2:
-				skip += 1
-				continue
 			ImportBP(object_data,objectsToImport)
 	for objectIndex, object_data in enumerate(objectsToImport):
 		objectIndex = f"{objectIndex:03}"

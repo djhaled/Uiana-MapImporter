@@ -40,7 +40,7 @@ public:
 		bool ImportDecals;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		bool ImportLights;
-	UPROPERTY(config, EditAnywhere, Category = "Experimental (Don't touch)")
+	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 		bool ImportBlueprints;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings", meta=(ClampMin=0.01, ClampMax=5))
 		float LightmapResolutionMultiplier;

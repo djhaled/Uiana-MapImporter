@@ -601,5 +601,5 @@ class ActorDefs():
 		self.name = Actor["Name"]
 		self.type = Actor["Type"]
 		self.props = Actor["Properties"] if HasKey("Properties",Actor) else None
-		self.outer = Actor["Outer"]
+		self.outer = Actor["Outer"] if HasKey("Outer",Actor) else None
 		self.transform = HasTransform(self.props)
