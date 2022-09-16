@@ -29,8 +29,9 @@ Before you download the addon, you must download these first.
 1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases/download/publish/Uiana-1.03.zip)**
 2. Create a Plugins folder on your project if you don't already have
 3. Drag "UIANA" and "UnrealPSKPSA" from the .zip file and put it in your **project's** "Plugins" folder (NOT engine Plugins!)
-4. Press Uiana button (Valorant Icon) on top of the UI to open the tool
-5. Inside Uiana's UI, go to Settings and fill the inputs as follows.
+4. If asked to, rebuild your Unreal project in Visual Studio
+5. Press Uiana button (Valorant Icon) on top of the UI to open the tool
+6. Inside Uiana's UI, go to Settings and fill the inputs as follows.
    ```js
    Export Folder    = "Path to save your settings & export the maps"
                     // Pick an empty folder with a lot of space.
@@ -64,6 +65,8 @@ Before you download the addon, you must download these first.
 - Patchzy (Shader and ideas)
 - BK
 - Halfuwu (PSKX importer)
+
+**Uiana-MapImporter was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games.  Riot Games does not endorse or sponsor this project.**
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
