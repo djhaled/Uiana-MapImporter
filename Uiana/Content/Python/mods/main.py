@@ -458,25 +458,27 @@ def FixActorBP(MData):
 	except:
 		return
 	if not CompToUse:
+		print(MData.name)
 		return
 	if HasKey("StaticMesh",MData.props):
 		MeshToLoad = ConvertToLoadableUE(MData.props["StaticMesh"],"StaticMesh ","Meshes")
 		CompToUse.set_editor_property('static_mesh',MeshToLoad)
+	if not HasKey("AttachParent",MData.props):
+		return
+	Transform = GetTransform(MData.props)
+	#CompToUse.set_relative_transform(Transform,False,False)
+	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
+	CompToUse.set_editor_property('relative_scale3d',Transform.scale3d)
+	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
+	CompToUse.set_editor_property('relative_location',Transform.translation)
+	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
+	CompToUse.set_editor_property('relative_rotation',Transform.rotation.rotator())
 	if HasKey("OverrideMaterials",MData.props):
 		if not Seting.import_materials:
 			return
 		MatOver = GetMaterialToOverride(MData.data)
 		if MatOver:
 			unreal.BPFL.set_override_material(AllBps[MData.outer],MData.name,MatOver)
-	if not HasKey("AttachParent",MData.props):
-		return
-	Transform = GetTransform(MData.props)
-	#CompToUse.set_relative_transform(Transform,False,False)
-	CompToUse.set_editor_property('relative_scale3d',Transform.scale3d)
-	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
-	CompToUse.set_editor_property('relative_location',Transform.translation)
-	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
-	CompToUse.set_editor_property('relative_rotation',Transform.rotation.rotator())
 def ImportMesh(MeshData,MapObj):
 	MeshActor = ActorDefs(MeshData)
 	if HasKey("Template",MeshActor.data):
