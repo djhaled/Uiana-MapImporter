@@ -43,13 +43,26 @@ void UBPFL::SetOverrideMaterial(AActor* Actor, FName CompName, TArray<UMaterialI
 	}
 	Trolley->OverrideMaterials = MatOvr;
 }
-UActorComponent* UBPFL::CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName)
+USCS_Node* UBPFL::CreateNode(UObject* Object, UClass* ClassToUse, FName CompName,UActorComponent*& ComponentReturn)
+{
+	IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	UBlueprint* Blueprint = Cast<UBlueprint>(Object);
+	USCS_Node* Node = Blueprint->SimpleConstructionScript->CreateNode(ClassToUse, CompName);
+	ComponentReturn = Node->ComponentTemplate;
+	return Node;
+}
+UActorComponent* UBPFL::CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName,TArray<USCS_Node*> AttachNodes)
 {
 	IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	UBlueprint* Blueprint = Cast<UBlueprint>(Object);
 	USCS_Node* Node = Blueprint->SimpleConstructionScript->CreateNode(ClassToUse, CompName);
 	auto Component = Node->ComponentTemplate;
+	//auto ChildNodes = Node->AddChildNode()
 	Blueprint->SimpleConstructionScript->AddNode(Node);
+	for (auto AttchNode : AttachNodes)
+	{
+		Node->AddChildNode(AttchNode);
+	}
 	FKismetEditorUtilities::CompileBlueprint(Blueprint);
 	return Component.Get();
 }

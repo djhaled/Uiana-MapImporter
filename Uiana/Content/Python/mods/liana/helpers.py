@@ -26,6 +26,7 @@ def ReduceBPJson(BigData):
 	FullJson = {}
 	newjson = []
 	sceneroot = []
+	ChildNodes =[]
 	GameObjects = []
 	for fnc in BigData:
 		fName = fnc["Name"]
@@ -42,11 +43,17 @@ def ReduceBPJson(BigData):
 			Component = ReturnBPLoop(BigData,ActualName)
 			FProps["CompProps"] = Component["Properties"] if "Properties" in Component else None
 			newjson.append(fnc)
+			if HasKey("ChildNodes",FProps):
+				for CN in FProps["ChildNodes"]:
+					ChildObjectName = CN["ObjectName"]
+					ChildName = ChildObjectName[ChildObjectName.rfind('.')+1:len(ChildObjectName)]
+					ChildNodes.append(ChildName)
 		if fName == "GameObjectMesh":
 			GameObjects.append(fnc)
 	FullJson["Nodes"] = newjson
 	FullJson["SceneRoot"] = sceneroot
 	FullJson["GameObjects"] = GameObjects
+	FullJson["ChildNodes"] = ChildNodes
 	return FullJson
 
 def SetCubeMapTexture(Seting):
@@ -135,7 +142,7 @@ def ConvertToLoadableUE(Mesh,Type,ActualType):
 	typestring = str(Type)
 	NewName = Name.replace(f'{Type}', "")
 	PathToGo = f'/Game/ValorantContent/{ActualType}/{NewName}'
-	return PathToGo
+	return unreal.load_asset(PathToGo)
 def path_convert(path: str) -> str:
 	b, c, rest = path.split("\\", 2)
 	if b == "ShooterGame":

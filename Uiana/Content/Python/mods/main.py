@@ -311,14 +311,12 @@ def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 
 def SetAllSettings(asset,Comp):
 	blackmisc = ["CachedMaxDrawDistance","OnComponentBeginOverlap","Mobility"]
+	if not asset:
+		return
 	for Setting in asset:
 		bHasIt = HasSetting(Setting,Comp,blackmisc)
-		if bHasIt :
+		if bHasIt:
 			ActorSetting = asset[Setting]
-			if ActorSetting == None:
-				continue
-			if Setting in blackmisc:
-				continue
 			try:
 				PropSet = Comp.get_editor_property(Setting)
 			except:
@@ -340,6 +338,12 @@ def SetAllSettings(asset,Comp):
 				Comp.set_editor_property(Setting, Colorized)
 				continue
 			if type(ActorSetting) == dict:
+				if Setting == "StaticMesh":
+					MeshLoadable = ConvertToLoadableUE(ActorSetting,"StaticMesh ","Meshes")
+					Comp.set_editor_property('static_mesh',MeshLoadable)
+					#ActorSetting[""]
+				if Setting == "BoxExtent":
+					Comp.set_editor_property("box_extent",unreal.Vector(ActorSetting["X"],ActorSetting["Y"],ActorSetting["Z"]))
 				if Setting == "LightmassSettings":
 					ReturnLMass = None
 					### gotta fix later
@@ -449,6 +453,8 @@ def ImportDecal(DecalData):
 			SetAllSettings(DecalData,DecalComponent)
 
 def FixActorBP(MData):
+	if not HasKey("AttachParent",MData.props):
+		return
 	try:
 		CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
 	except:
@@ -456,27 +462,20 @@ def FixActorBP(MData):
 	if not CompToUse:
 		return
 	if HasKey("StaticMesh",MData.props):
-		PathToGo = ConvertToLoadableUE(MData.props["StaticMesh"],"StaticMesh ","Meshes")
-		MeshToLoad = unreal.load_asset(PathToGo)
-		print(MeshToLoad)
+		MeshToLoad = ConvertToLoadableUE(MData.props["StaticMesh"],"StaticMesh ","Meshes")
 		CompToUse.set_editor_property('static_mesh',MeshToLoad)
 	Transform = GetTransform(MData.props)
-	#CompToUse.set_relative_transform(Transform,False,False)
-	#SetTransform(CompToUse,Transform)
 	CompToUse.set_editor_property('relative_scale3d',Transform.scale3d)
 	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
 	CompToUse.set_editor_property('relative_location',Transform.translation)
 	CompToUse = unreal.BPFL.get_component_by_name(AllBps[MData.outer],MData.name)
 	CompToUse.set_editor_property('relative_rotation',Transform.rotation.rotator())
-	#CompToUse.set_relative_location(Transform.translation,False,False)
 	if HasKey("OverrideMaterials",MData.props):
 		if not Seting.import_materials:
 			return
 		MatOver = GetMaterialToOverride(MData.data)
 		if MatOver:
 			unreal.BPFL.set_override_material(AllBps[MData.outer],MData.name,MatOver)
-			#CompToUse.set_editor_property('override_materials',MatOver)
-	##SetAllSettings(MData.props,CompToUse)
 def ImportMesh(MeshData,MapObj):
 	MeshActor = ActorDefs(MeshData)
 	if HasKey("Template",MeshActor.data):
@@ -486,7 +485,6 @@ def ImportMesh(MeshData,MapObj):
 	HasVCol = False
 	if not HasKey("StaticMesh",MeshActor.props):
 		return
-	PathToGo = ConvertToLoadableUE(MeshActor.props["StaticMesh"],"StaticMesh ","Meshes")
 	Transform = GetTransform(MeshActor.props)
 	if type(Transform) == bool:
 		Transform = GetTransform(MeshActor.props)
@@ -498,14 +496,13 @@ def ImportMesh(MeshData,MapObj):
 	SMActor = unreal.EditorLevelLibrary.spawn_actor_from_class(UnrealMeshType,location=unreal.Vector(), rotation = unreal.Rotator())
 	SMActor.set_actor_label(MeshActor.outer)
 	SMActor.set_actor_scale3d(Transform.scale3d)
-	MeshToLoad = unreal.load_asset(PathToGo)
 	PathOriginal = GetActualPath(MeshActor.props["StaticMesh"])
 	if HasKey("LODData",MeshActor.data):
 		OvrVertexes = GetOverrideVertexColor(MeshActor.data)
 	if MapObj.is_instanced():
 		instance_data = MeshActor.data["PerInstanceSMData"]
 		Instance = SMActor.hism_component
-		Instance.set_editor_property('static_mesh',MeshToLoad)
+		SetAllSettings(MeshActor.props,Instance)
 		Instance.set_world_transform(Transform,False,False)
 		SMActor.set_folder_path(f'Meshes/Instanced')
 		for inst in instance_data:
@@ -517,7 +514,7 @@ def ImportMesh(MeshData,MapObj):
 			unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 	else:
 		Instance = SMActor.static_mesh_component
-		Instance.set_editor_property('static_mesh',MeshToLoad)
+		SetAllSettings(MeshActor.props,Instance)
 		Instance.set_world_transform(Transform,False,False)
 		FolderName = 'Meshes/Static'
 		if MapObj.umap.endswith("_VFX"):
@@ -525,7 +522,6 @@ def ImportMesh(MeshData,MapObj):
 		SMActor.set_folder_path(FolderName)
 		if len(OvrVertexes) > 0:
 			unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
-	SetAllSettings(MeshActor.props,Instance)
 	##SetTransform(Instance,Transform)
 	if HasKey("OverrideMaterials",MeshActor.props):
 		if not Seting.import_materials:
@@ -593,7 +589,7 @@ def import_umap(settings: Settings, umap_data: dict, umap_name: str):
 	for objectIndex, object_data in enumerate(objectsToImport):
 		objectIndex = f"{objectIndex:03}"
 		object_type = get_object_type(object_data)
-		if object_type == "mesh" and Seting.import_Mesh :
+		if object_type == "mesh" and settings.import_Mesh:
 			#if "Lighting" not in umap_name:
 			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name,umap_data=umap_data)
 			ImportMesh(object_data,map_object)
@@ -761,30 +757,38 @@ def CreateBP(FullData,BPName):
 	RootScene = FullData["SceneRoot"]
 	DefaultSceneRoot = RootScene[0][RootScene[0].rfind('.') + 1:len(RootScene[0])]
 	GameObjects = FullData["GameObjects"]
+	NodesRoot = FullData["ChildNodes"]
 	for idx,BPC in enumerate(data):
 		if BPC["Name"] == DefaultSceneRoot:
 			del data[idx]
 			data.insert(len(data),BPC)
 			break
 	data.reverse()
+	NodesArray = []
 	for smbp in data:
+		if smbp["Name"] in NodesRoot:
+			continue
 		ComponentName = smbp["Properties"]["ComponentClass"]["ObjectName"].replace("Class ","")
 		try:
 			uClass = eval(f'unreal.{ComponentName}')
 		except:
 			continue
+		Props = smbp["Properties"]
+		if HasKey("ChildNodes",Props):
+			NodesArray = HandleChildNodes(Props["ChildNodes"],data,Actor)
 		compnamefix = smbp["Properties"]["InternalVariableName"]
 		if "TargetViewMode" in compnamefix:
 			continue
-		Compon = unreal.BPFL.create_bp_comp(Actor,uClass,compnamefix)
+		Compon = unreal.BPFL.create_bp_comp(Actor,uClass,compnamefix,NodesArray)
 		if HasKey("Properties",smbp):
 			SMProps = smbp["Properties"]["CompProps"]
+			SetAllSettings(SMProps,Compon)
 			if not SMProps:
 				continue
 		SetMeshSettings(SMProps,Compon)
 	for GObject in GameObjects:
 		uClass = unreal.StaticMeshComponent
-		Compon = unreal.BPFL.create_bp_comp(Actor,uClass,"GameObjectMesh")
+		Compon = unreal.BPFL.create_bp_comp(Actor,uClass,"GameObjectMesh",NodesArray)
 		SetMeshSettings(GObject["Properties"],Compon)
 def SetMeshSettings(smbpProps,Comp):
 	SetAllSettings(smbpProps,Comp)
@@ -798,9 +802,28 @@ def SetMeshSettings(smbpProps,Comp):
 	if HasKey("StaticMesh",smbpProps):
 		if smbpProps["StaticMesh"] == None:
 			return
-		ConvertLoad = ConvertToLoadableUE(smbpProps["StaticMesh"],"StaticMesh ","Meshes")
-		MeshAsset = unreal.load_asset(ConvertLoad)
-		Comp.set_editor_property('static_mesh',MeshAsset)
+def HandleChildNodes(ArrayCN,EntireArray,BPActor):
+	LocalChildArray = []
+	for ChildNode in ArrayCN:
+		ChildObjectName = ChildNode["ObjectName"]
+		ChildName = ChildObjectName[ChildObjectName.rfind('.')+1:len(ChildObjectName)]
+		for CNode in EntireArray:
+			NodeName = CNode["Name"]
+			ComponentName = CNode["Properties"]["ComponentClass"]["ObjectName"].replace("Class ","")
+			try:
+				uClass = eval(f'unreal.{ComponentName}')
+			except:
+				continue
+			InternalName = CNode["Properties"]["InternalVariableName"]
+			if NodeName == ChildName:
+				UNode,ComponentNode = unreal.BPFL.create_node(BPActor,uClass,InternalName)
+				LocalChildArray.append(UNode)
+				SetAllSettings(CNode["Properties"]["CompProps"],ComponentNode)
+				#print(f'UNode : {type(UNode)}')
+				break
+	return LocalChildArray
+
+
 def ExportAllBlueprints():
 	BPath = Seting.selected_map.actors_path
 	ListBPath = os.listdir(BPath)
