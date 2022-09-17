@@ -321,8 +321,6 @@ def SetAllSettings(asset,Comp):
 				continue
 			except:
 				continue
-		if type(ActorSetting) == str:
-			ActorSetting = ActorSetting.upper()
 		if "::" in ActorSetting:
 			ActorSetting = ReturnFormattedString(ActorSetting,":")
 		if classname == "Color":
@@ -338,10 +336,10 @@ def SetAllSettings(asset,Comp):
 				Comp.set_editor_property("lightmass_settings",SetLightmassSetting(ActorSetting,Comp.get_editor_property('lightmass_settings')))
 				continue
 			continue
-		ActualValue = FindNonSlasher(eval(f'unreal.{classname}'),ActorSetting)
-		if not ActualValue:
+		if type(ActorSetting) == list:
 			continue
-		value = eval(f'unreal.{classname}.{ActualValue}')
+		pythonValue = return_python_unreal_enum(ActorSetting)
+		value = eval(f'unreal.{classname}.{pythonValue}')
 		try:
 			Comp.set_editor_property(Setting, value)	
 		except:
@@ -762,7 +760,6 @@ def HandleChildNodes(ArrayCN,EntireArray,BPActor):
 				UNode,ComponentNode = unreal.BPFL.create_node(BPActor,uClass,InternalName)
 				LocalChildArray.append(UNode)
 				SetAllSettings(CNode["Properties"]["CompProps"],ComponentNode)
-				#print(f'UNode : {type(UNode)}')
 				break
 	return LocalChildArray
 

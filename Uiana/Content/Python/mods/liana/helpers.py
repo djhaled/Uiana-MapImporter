@@ -5,6 +5,7 @@ from pathlib import Path
 from subprocess import run
 from collections.abc import Iterable
 import time
+import re
 import unreal
 SELECTIVE_OBJECTS = []
 projectpath = unreal.Paths.project_plugins_dir()
@@ -230,16 +231,14 @@ def GetInitialName(ka):
 	lenka = len(ka)
 	return ka[0:slash].lower()
 
-def FindNonSlasher(dictstuff, value):
-	dact = dir(dictstuff)
-	if type(value) == list:
-		return None
-	newvalue = value.replace("_","")
-	for joga in dact:
-		noslash = joga.replace("_","")
-		uppernoslash = noslash.upper()
-		if uppernoslash == newvalue:
-			return joga
+def return_python_unreal_enum(value):
+	ind = 0
+	value =  re.sub(r'([a-z])([A-Z])', r'\1_\2', value)
+	if value[0] == "_":
+		ind = 1
+	return value[ind:len(value)].upper()
+
+
 def filter_objects(umap_DATA, lights: bool = False) -> list:
 
 	objects = umap_DATA

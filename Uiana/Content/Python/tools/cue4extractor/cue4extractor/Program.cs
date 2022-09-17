@@ -35,7 +35,7 @@ namespace cue4extractor
             string mapName = "ascent",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
             string fileList = "",
-            string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\BeReal\Plugins\Uiana\Content\Python\assets\umaps.json"
+            string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\MyProjectbs\Plugins\Uiana\Content\Python\assets\umaps.json"
             )
         {
             var versions = new VersionContainer(EGame.GAME_Valorant);
