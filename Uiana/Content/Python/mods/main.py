@@ -392,6 +392,8 @@ def ImportLights(OBJData, ArrObjsImport):
 	LightType = eval(f'unreal.{LightTypeNoComp}')
 			########SpawnLightAndGetReferenceForComp#######
 	if not ActorInfo.transform:
+		ActorInfo.transform = GetAttachScene(OBJData,ActorInfo.outer,ArrObjsImport)
+	if not ActorInfo.transform:
 		return
 	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, ActorInfo.transform.translation, ActorInfo.transform.rotation.rotator())
 	LightActor.set_folder_path(f'Lights/{LightTypeNoComp}')
