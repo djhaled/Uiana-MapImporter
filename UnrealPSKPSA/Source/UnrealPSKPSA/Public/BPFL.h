@@ -12,6 +12,7 @@
 class AActor;
 class UPSKXFactory;
 class USCS_Node;
+class UBrushComponent;
 
 UCLASS()
 class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
@@ -19,6 +20,7 @@ class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
+
 	UFUNCTION(BlueprintCallable, Category = BPFL)
 	static UActorComponent* GetComponentByName(AActor* Actor, FName CompName);
 	UFUNCTION(BlueprintCallable, Category = BPFL)
@@ -36,6 +38,8 @@ public:
 	static TArray<FVector3f> ReturnCurrentVerts(UStaticMesh* Mesh);
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ChangeProjectSettings();
+	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
+	static UActorComponent* GetComponent(AActor* Actor);
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ImportTextures(TArray<FString> AllTexturesPath);
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)

@@ -1,4 +1,5 @@
 
+from glob import glob
 import os
 from os.path import exists
 import re
@@ -11,7 +12,6 @@ from mods.liana.helpers import *
 from mods.liana.valorant import *
 
 Seting = None
-LoadableMaterials = {}
 AllMeshes = [] 
 AllTextures= []
 AllBps = {}
@@ -19,17 +19,15 @@ object_types = []
 AllLevelPaths = []
 file = "snd.mp3"
 AssetTools = unreal.AssetToolsHelpers.get_asset_tools()
-#BaseEnv = ["BaseEnv_Blend_MAT_V4","BaseEnv_Blend_MAT_V4_V3Compatibility","BaseEnv_MAT_V4","BaseEnv_MAT_V4_Inst","BaseEnv_MAT","BlendEnv_MAT","BaseEnvEmissiveUnlit_MAT"]
 def GetMaterialToOverride(Data):
-	Props = Data["Properties"]
 	MaterialArray = []
-	OverrideMaterials = Props["OverrideMaterials"]
+	OverrideMaterials =  Data["Properties"]["OverrideMaterials"]
 	for mat in OverrideMaterials:
 		if not mat:
 			MaterialArray.append(None)
 			continue
-		matname = mat["ObjectName"]
-		CheckLoaded = ReturnObjectName(matname)
+		mat_name = mat["ObjectName"]
+		CheckLoaded = ReturnObjectName(mat_name)
 		if CheckLoaded == "Stone_M2_Steps_MI1":
 			CheckLoaded =  "Stone_M2_Steps_MI"
 		if "MaterialInstanceDynamic" in CheckLoaded:
@@ -130,10 +128,10 @@ def get_map_assets(settings: Settings):
 
 			materials_list.append(model_materials)
 		save_list(filepath=settings.selected_map.folder_path.joinpath("all_assets.txt"), lines=[
-            [
-                path_convert(path) for path in _list
-            ] for _list in object_list + materials_list + materials_ovr_list
-        ])
+			[
+				path_convert(path) for path in _list
+			] for _list in object_list + materials_list + materials_ovr_list
+		])
 		mats_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
 			f"_assets_materials.txt"), lines=materials_list)
 		extract_data(settings, export_directory=settings.selected_map.materials_path,
@@ -249,9 +247,6 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 			SetMaterialVectorValue(UEMat, param_name,get_rgb(param_value))
 
 
-def ImportTexture(Path):
-	if Path not in AllTextures:
-		AllTextures.append(Path)
 
 def SetTextures(mat_props: dict, MatRef, mat_data: dict):
 	Set = Seting
@@ -314,66 +309,45 @@ def SetAllSettings(asset,Comp):
 	if not asset:
 		return
 	for Setting in asset:
-		bHasIt = HasSetting(Setting,Comp,blackmisc)
-		if bHasIt:
-			ActorSetting = asset[Setting]
+		ActorSetting = asset[Setting]
+		try:
+			PropSet = Comp.get_editor_property(Setting)
+		except:
+			continue
+		classname = GetClassName(PropSet)
+		if type(ActorSetting) == int or type(ActorSetting) == float or type(ActorSetting) == bool:
 			try:
-				PropSet = Comp.get_editor_property(Setting)
+				Comp.set_editor_property(Setting, ActorSetting)
+				continue
 			except:
 				continue
-			classname = GetClassName(PropSet)
-			if type(ActorSetting) == int or type(ActorSetting) == float or type(ActorSetting) == bool :
-				try:
-					Comp.set_editor_property(Setting, ActorSetting)
-					continue
-				except:
-					print(f'UianaLog: {Setting} could not be set')
-					continue
-			if type(ActorSetting) == str:
-				ActorSetting = ActorSetting.upper()
-			if "::" in ActorSetting:
-				ActorSetting = ReturnFormattedString(ActorSetting,":")
-			if classname == "Color":
-				Colorized = unreal.Color(r=ActorSetting['R'], g=ActorSetting['G'], b=ActorSetting['B'], a=ActorSetting['A'])
-				Comp.set_editor_property(Setting, Colorized)
-				continue
-			if type(ActorSetting) == dict:
-				if Setting == "StaticMesh":
-					MeshLoadable = ConvertToLoadableUE(ActorSetting,"StaticMesh ","Meshes")
-					Comp.set_editor_property('static_mesh',MeshLoadable)
-					#ActorSetting[""]
-				if Setting == "BoxExtent":
-					Comp.set_editor_property("box_extent",unreal.Vector(ActorSetting["X"],ActorSetting["Y"],ActorSetting["Z"]))
-				if Setting == "LightmassSettings":
-					ReturnLMass = None
-					### gotta fix later
-					if type(Comp) == unreal.MaterialInstanceConstant:
-						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassMaterialInterfaceSettings")
-						continue
-					if type(Comp) == unreal.DirectionalLightComponent or type(Comp) == unreal.SpotLightComponent:
-						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassDirectionalLightSettings")
-						continue
-					if type(Comp) == unreal.PointLightComponent:
-						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassPointLightSettings")
-						continue
-					if type(Comp) == unreal.StaticMeshComponent or type(Comp) == unreal.HierarchicalInstancedStaticMeshComponent:
-						ReturnLMass = SetLightmassSetting(ActorSetting,"LightmassPrimitiveSettings")
-					if not ReturnLMass:
-						continue
-					Comp.set_editor_property("lightmass_settings",ReturnLMass)
-					continue
-				continue
-			ActualValue = FindNonSlasher(eval(f'unreal.{classname}'),ActorSetting)
-			if not ActualValue:
-				continue
-			value = eval(f'unreal.{classname}.{ActualValue}')
-			Comp.set_editor_property(Setting, value)
-def SetLightmassSetting(ActorSetting,Evalu):
-	Set = eval(f'unreal.{Evalu}()')
-	BlacklistLMass = ["bCastShadowAsTranslucent","bOverrideCastShadowAsTranslucent","MaskedTranslucentOpacity","bOverrideMaskedTranslucentOpacity","bLightAsBackFace","bUseTwoSidedLighting"]
-	for val in ActorSetting:
-		if val in BlacklistLMass:
+		if type(ActorSetting) == str:
+			ActorSetting = ActorSetting.upper()
+		if "::" in ActorSetting:
+			ActorSetting = ReturnFormattedString(ActorSetting,":")
+		if classname == "Color":
+			Comp.set_editor_property(Setting, unreal.Color(r=ActorSetting['R'], g=ActorSetting['G'], b=ActorSetting['B'], a=ActorSetting['A']))
 			continue
+		if type(ActorSetting) == dict:
+			if Setting == "StaticMesh":
+				MeshLoadable = ConvertToLoadableUE(ActorSetting,"StaticMesh ","Meshes")
+				Comp.set_editor_property('static_mesh',MeshLoadable)
+			if Setting == "BoxExtent":
+				Comp.set_editor_property("box_extent",unreal.Vector(ActorSetting["X"],ActorSetting["Y"],ActorSetting["Z"]))
+			if Setting == "LightmassSettings":
+				Comp.set_editor_property("lightmass_settings",SetLightmassSetting(ActorSetting,Comp.get_editor_property('lightmass_settings')))
+				continue
+			continue
+		ActualValue = FindNonSlasher(eval(f'unreal.{classname}'),ActorSetting)
+		if not ActualValue:
+			continue
+		value = eval(f'unreal.{classname}.{ActualValue}')
+		try:
+			Comp.set_editor_property(Setting, value)	
+		except:
+			continue		
+def SetLightmassSetting(ActorSetting,Set):
+	for val in ActorSetting:
 		num = 1
 		if val.startswith("b"):
 			num = 2
@@ -381,44 +355,29 @@ def SetLightmassSetting(ActorSetting,Evalu):
 		try:
 			Set.set_editor_property(newstr[num:len(newstr)].lower(),ActorSetting[val])
 		except:
-			print(f'Property LightMass {newstr[num:len(newstr)].lower()} doesnt exist')
+			continue
 	return Set
 
 	#################### Spawners
-def ImportLights(OBJData, ArrObjsImport):
-	ActorInfo = ActorDefs(OBJData)
+def ImportLight(ActorInfo, ArrObjsImport):
 	PostProcessSettings = []
-	LightTypeNoComp = ActorInfo.type.replace("Component","")
-	LightType = eval(f'unreal.{LightTypeNoComp}')
+	light_type_replace = ActorInfo.type.replace("Component","")
 			########SpawnLightAndGetReferenceForComp#######
 	if not ActorInfo.transform:
-		ActorInfo.transform = GetAttachScene(OBJData,ActorInfo.outer,ArrObjsImport)
+		ActorInfo.transform = GetAttachScene(ActorInfo.data,ActorInfo.outer,ArrObjsImport)
 	if not ActorInfo.transform:
 		return
-	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(LightType, ActorInfo.transform.translation, ActorInfo.transform.rotation.rotator())
-	LightActor.set_folder_path(f'Lights/{LightTypeNoComp}')
+	LightActor = unreal.EditorLevelLibrary.spawn_actor_from_class(eval(f'unreal.{light_type_replace}'), ActorInfo.transform.translation, ActorInfo.transform.rotation.rotator())
+	LightActor.set_folder_path(f'Lights/{ActorInfo.type.replace("Component","")}')
 	LightActor.set_actor_label(ActorInfo.name)
 	LightActor.set_actor_scale3d(ActorInfo.transform.scale3d )
-	if hasattr(LightActor,"light_component"):
-		CompToUse = LightActor.light_component
-	elif  hasattr(LightActor,"portal_component"):
-		CompToUse = LightActor.portal_component
-	elif hasattr(LightActor,"scene_component"):
-		CompToUse = LightActor.scene_component
-	elif hasattr(LightActor,"settings"):
+	CompToUse = unreal.BPFL.get_component(LightActor)
+	if type(CompToUse) == unreal.BrushComponent:
+		CompToUse = LightActor
+	if hasattr(LightActor,"settings"):
 		LightActor.set_editor_property("Unbound", True)
 		LightActor.set_editor_property("Priority",1.0)
 		CompToUse = LightActor.settings
-	elif hasattr(LightActor,"capture_component"):
-		CompToUse = LightActor.capture_component
-	elif hasattr(LightActor,"component") == False:
-		CompToUse = LightActor
-	else:
-		CompToUse = LightActor.component 
-	#Figure out Mobility
-	Mobility = unreal.ComponentMobility.STATIC
-	LightActor.modify()
-	if HasKey("Settings",ActorInfo.props) :
 		PostProcessSettings = ActorInfo.props["Settings"]
 		SetPostProcessSettings(PostProcessSettings,CompToUse)
 	for Setting in ActorInfo.props:
@@ -428,31 +387,25 @@ def ImportLights(OBJData, ArrObjsImport):
 		if Setting == "Cubemap":
 			CompToUse.set_editor_property('Cubemap',SetCubeMapTexture(LightSetting))
 		if Setting == "LightColor":
-			Colorized = unreal.Color(r=LightSetting['R'], g=LightSetting['G'], b=LightSetting['B'], a=LightSetting['A'])
-			CompToUse.set_editor_property('LightColor',Colorized)
+			CompToUse.set_editor_property('LightColor',unreal.Color(r=LightSetting['R'], g=LightSetting['G'], b=LightSetting['B'], a=LightSetting['A']))
 		if Setting == "FogInscatteringColor":
-			Colorized = unreal.LinearColor(r=LightSetting['R'], g=LightSetting['G'], b=LightSetting['B'], a=LightSetting['A'])
-			CompToUse.set_editor_property('fog_inscattering_luminance',Colorized)
+			CompToUse.set_editor_property('fog_inscattering_luminance',unreal.LinearColor(r=LightSetting['R'], g=LightSetting['G'], b=LightSetting['B'], a=LightSetting['A']))
 		if Setting == "Mobility":
-			CompToUse.set_editor_property('Mobility',Mobility)
+			CompToUse.set_editor_property('Mobility',unreal.ComponentMobility.STATIC)
 	SetAllSettings(ActorInfo.props,CompToUse)
-
-
-	############## to pass it to c++ we need to make a data asset that withholds all data from the umaps.
-def ImportDecal(DecalData):
-	ActorInfo = ActorDefs(DecalData)
+def ImportDecal(ActorInfo):
 	if not ActorInfo.transform:
 		return
 	DecActor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor,ActorInfo.transform.translation,ActorInfo.transform.rotation.rotator())
 	DecActor.set_folder_path(f'Decals')
 	DecActor.set_actor_scale3d(ActorInfo.transform.scale3d)
 	DecalComponent = DecActor.decal
-	DecalMat = SetDecalMaterial(Settings, DecalData)
+	DecalMat = SetDecalMaterial(Settings, ActorInfo.data)
 	DecalComponent.set_decal_material(DecalMat)
 	BlacklistDecal =  ['DecalMaterial','LightColorType','CachedVertexFogIntensityFromVolumes','bVertexFog','bOverrideColor','bOverrideIntensity','DetailMode','VisibilityId','bAllowCullingWhenFacingCamera','LightColorOverride','LightIntensityOverride','LightingSourceDirectionality','bOverride_IndirectLightingContributionValue','IndirectLightingContributionValue','TranslucencyDepthMode','ShadingModel','bOverride_VertexFog','bOverride_CubemapSource','CubemapSource','bOverride_SortPriorityOffset','SortPriorityOffset','bOverride_Fresnel','bFresnel','bOverride_SpecularModel','SpecularModel','bSpecularModel','bOverride_CubemapMode','CubemapMode']
 	for propName,PropValue in ActorInfo.props.items():
 		if propName not in BlacklistDecal:
-			SetAllSettings(DecalData,DecalComponent)
+			SetAllSettings(ActorInfo.data,DecalComponent)
 
 def FixActorBP(MData):
 	try:
@@ -480,18 +433,14 @@ def FixActorBP(MData):
 		MatOver = GetMaterialToOverride(MData.data)
 		if MatOver:
 			unreal.BPFL.set_override_material(AllBps[MData.outer],MData.name,MatOver)
-def ImportMesh(MeshData,MapObj):
-	MeshActor = ActorDefs(MeshData)
+def ImportMesh(MeshActor,MapObj):
 	if HasKey("Template",MeshActor.data):
 		FixActorBP(MeshActor)
 		return
 	OvrVertexes = []
-	HasVCol = False
 	if not HasKey("StaticMesh",MeshActor.props):
 		return
 	Transform = GetTransform(MeshActor.props)
-	if type(Transform) == bool:
-		Transform = GetTransform(MeshActor.props)
 	if not Transform:
 		return
 	UnrealMeshType = unreal.StaticMeshActor
@@ -499,33 +448,24 @@ def ImportMesh(MeshData,MapObj):
 		UnrealMeshType = unreal.HismActor
 	SMActor = unreal.EditorLevelLibrary.spawn_actor_from_class(UnrealMeshType,location=unreal.Vector(), rotation = unreal.Rotator())
 	SMActor.set_actor_label(MeshActor.outer)
-	SMActor.set_actor_scale3d(Transform.scale3d)
 	PathOriginal = GetActualPath(MeshActor.props["StaticMesh"])
 	if HasKey("LODData",MeshActor.data):
 		OvrVertexes = GetOverrideVertexColor(MeshActor.data)
 	if MapObj.is_instanced():
-		instance_data = MeshActor.data["PerInstanceSMData"]
 		Instance = SMActor.hism_component
-		SetAllSettings(MeshActor.props,Instance)
-		Instance.set_world_transform(Transform,False,False)
 		SMActor.set_folder_path(f'Meshes/Instanced')
-		for inst in instance_data:
-			Trans = GetTransform(inst)
-			if not Trans:
-				return
-			Instance.add_instance(Trans)
-		if len(OvrVertexes) > 0:
-			unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
+		for inst_index in MeshActor.data["PerInstanceSMData"]:
+			Instance.add_instance(GetTransform(inst_index))
 	else:
 		Instance = SMActor.static_mesh_component
-		SetAllSettings(MeshActor.props,Instance)
-		Instance.set_world_transform(Transform,False,False)
 		FolderName = 'Meshes/Static'
 		if MapObj.umap.endswith("_VFX"):
 			FolderName = 'VFX/Meshes'
 		SMActor.set_folder_path(FolderName)
-		if len(OvrVertexes) > 0:
-			unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
+	SetAllSettings(MeshActor.props,Instance)
+	Instance.set_world_transform(Transform,False,False)
+	if len(OvrVertexes) > 0:
+		unreal.BPFL.paint_sm_vertices(Instance,OvrVertexes,PathOriginal)
 	##SetTransform(Instance,Transform)
 	if HasKey("OverrideMaterials",MeshActor.props):
 		if not Seting.import_materials:
@@ -543,6 +483,7 @@ def SetSMSettings(settings: Settings):
 	### first normal mats #######
 	ListObjs = os.listdir(OBJPath)
 	for obj in ListObjs:
+		OBJTime = time.time()
 		Join = OBJPath.joinpath(obj)
 		ObjJson = read_json(Join)
 		sm = ObjJson
@@ -562,8 +503,12 @@ def SetSMSettings(settings: Settings):
 				MeshToLoad = unreal.load_asset(f"/Game/ValorantContent/Meshes/{Name}")
 				if (MeshToLoad):
 					CastSM = unreal.StaticMesh.cast(MeshToLoad)
-					CastSM.set_editor_property("light_map_coordinate_index", LmCoord)
-					CastSM.set_editor_property("light_map_resolution", LMRes)
+					LCoordActual = CastSM.get_editor_property("light_map_coordinate_index")
+					if LCoordActual != LmCoord:
+						LCoordActual = CastSM.set_editor_property("light_map_coordinate_index", LmCoord)
+					LMResolutin = CastSM.get_editor_property("light_map_resolution")
+					if LMResolutin == LMRes:
+						LMResolutin = CastSM.set_editor_property("light_map_resolution", LMRes)
 			########### Set BodyCollision
 			if sm["Type"] == "BodySetup":
 				PropsBody = sm["Properties"]
@@ -579,25 +524,26 @@ def SetSMSettings(settings: Settings):
 
 ###### end spawners
 def import_umap(settings: Settings, umap_data: dict, umap_name: str):
-	map_object = None
-	test = []
 	objectsToImport = filter_objects(umap_data)
-	skip = 0
-	for objectIndex, object_data in enumerate(objectsToImport):
-		object_type = get_object_type(object_data)
-		if object_type == "blueprint" and settings.import_blueprints:
-			ImportBP(object_data,objectsToImport)
+	if settings.import_blueprints:
+		for objectIndex, object_data in enumerate(objectsToImport):
+			object_type = get_object_type(object_data)
+			if object_type == "blueprint":
+				MActor = ActorDefs(object_data)
+				ImportBP(MActor,objectsToImport)
 	for objectIndex, object_data in enumerate(objectsToImport):
 		objectIndex = f"{objectIndex:03}"
 		object_type = get_object_type(object_data)
 		if object_type == "mesh" and settings.import_Mesh:
-			#if "Lighting" not in umap_name:
 			map_object = MapObject(settings=settings, data=object_data, umap_name=umap_name,umap_data=umap_data)
-			ImportMesh(object_data,map_object)
+			MActor = ActorDefs(object_data)
+			ImportMesh(MActor,map_object)
 		if object_type == "decal" and settings.import_decals:
-			ImportDecal(object_data)
+			MActor = ActorDefs(object_data)
+			ImportDecal(MActor)
 		if object_type == "light" and settings.import_lights:
-			ImportLights(object_data,objectsToImport)
+			MActor = ActorDefs(object_data)
+			ImportLight(MActor,objectsToImport)
 def LevelStreamingStuff():
 	world = unreal.EditorLevelLibrary.get_editor_world()
 	for j in AllLevelPaths:
@@ -623,8 +569,7 @@ def SetPostProcessSettings(AllSettings,Comp):
 			Comp.set_editor_property(Setting, ResultValue)
 			Comp.set_editor_property("override_ambient_occlusion_intensity", True)
 			Comp.set_editor_property("ambient_occlusion_intensity", 0)
-def ImportBP(bpdata,umapdata):
-	BPActor = ActorDefs(bpdata)
+def ImportBP(BPActor,umapdata):
 	Transform = GetTransform(BPActor.props)
 	if not HasTransform(BPActor.props):
 		Transform = GetAttachScene(BPActor.data,BPActor.outer,umapdata)
@@ -702,8 +647,6 @@ def CreateMaterial(mat):
 		MatBase = ImportShader(ParentToImport)
 		Mat.set_editor_property('parent', MatBase)
 
-	if mat_name not in LoadableMaterials:
-		LoadableMaterials[mat_name] = Mat
 	set_material(settings=Settings,  mat_data=mat_data, object_cls=None,UEMat = Mat )
 	######################## Initial Importers func
 def ExportAllMeshes():
@@ -753,7 +696,6 @@ def CreateBP(FullData,BPName):
 		return
 	data = FullData["Nodes"]
 	if len(data) == 0:
-		print(f'UianaBPLog: {BPName} didnt have any comps')
 		return
 	RootScene = FullData["SceneRoot"]
 	DefaultSceneRoot = RootScene[0][RootScene[0].rfind('.') + 1:len(RootScene[0])]
@@ -864,7 +806,7 @@ def import_map(Setting):
 	ClearLevel()
 	#  Check if the game files are exported
 	######### export all textures before ###########
-	if (Seting.import_materials ):
+	if Seting.import_materials:
 		txttime = time.time()
 		ExportAllTextures()
 		print("--- %s seconds to create textures ---" % (time.time() - txttime))
@@ -877,19 +819,24 @@ def import_map(Setting):
 	print("--- %s seconds to create meshes ---" % (time.time() - Mstart_time))
 	if Seting.import_blueprints:
 		ExportAllBlueprints()
-	###### above takes 0.09 might fix #######
 	umap_json_path: Path
 	Ltart_time = time.time()
-	for index, umap_json_path in reversed(list(enumerate(umap_json_paths))):
-		umap_data = read_json(umap_json_path)
-		umap_name = umap_json_path.stem
-		if Seting.import_sublevel :
-			CreateNewLevel(umap_name)
-		import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
-		if Seting.import_sublevel :
-			unreal.EditorLevelLibrary.save_current_level()
+	with unreal.ScopedSlowTask(len(umap_json_paths), "Importing levels") as slow_task:
+		slow_task.make_dialog(True)
+		idx = 0
+		for index, umap_json_path in reversed(list(enumerate(umap_json_paths))):
+			idx = idx + 1
+			umap_data = read_json(umap_json_path)
+			umap_name = umap_json_path.stem
+			slow_task.enter_progress_frame(work=1, desc=f"Importing level:{umap_name}  {idx}/{len(umap_json_paths)} ")
+			if Seting.import_sublevel :
+				CreateNewLevel(umap_name)
+			import_umap(settings=settings, umap_data=umap_data, umap_name=umap_name)
+			if Seting.import_sublevel :
+				unreal.EditorLevelLibrary.save_current_level()
+	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
 	if Seting.import_sublevel :
 		LevelStreamingStuff()
-	SetSMSettings(settings)
-	print("--- %s seconds to spawn actors ---" % (time.time() - Ltart_time))
-	winsound.Beep(26000, 1500)
+	if Seting.import_Mesh:
+		SetSMSettings(settings)
+	winsound.Beep(16000, 1500)

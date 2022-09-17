@@ -25,6 +25,8 @@
 
 
 
+
+
 UActorComponent* UBPFL::GetComponentByName(AActor* Actor, FName CompName)
 {
 	UStaticMeshComponent* Trolley = Cast<UStaticMeshComponent>(Actor->GetDefaultSubobjectByName(CompName));
@@ -202,6 +204,12 @@ void UBPFL::ChangeProjectSettings()
 	Settings->Reflections == EReflectionMethod::None;
 	Settings->SaveConfig();
 }
+UActorComponent* UBPFL::GetComponent(AActor* Actor)
+{
+	Actor->SpriteScale;
+	UActorComponent* RootComp = Actor->GetRootComponent();
+	return Actor->GetRootComponent();
+}
 void UBPFL::ExecuteConsoleCommand(FString ConsoleCommand) {
 	if (GEditor) {
 		UWorld* World = GEditor->GetEditorWorldContext().World();
@@ -258,7 +266,6 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		FAssetRegistryModule::AssetCreated(Tex);
 		Tex->PreEditChange(nullptr);
 		Tex->PostEditChange();
-		TexPackage->FullyLoad();
 	}
 }
 

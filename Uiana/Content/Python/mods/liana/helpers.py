@@ -210,20 +210,6 @@ def ReturnFormattedString(string,prefix):
 	start = string.rfind(prefix) + 1
 	end = len(string)
 	return string[start:end]
-def HasSetting(asset,comp,black):
-	if asset == "LightmassSettings":
-		return True
-	if asset[0] == "b":
-		asset= asset[1:len(asset)]
-	asset = asset.lower()
-	propdir = dir(comp)
-	for findprop in propdir:
-		noslashes = findprop.replace("_","")
-		if noslashes == asset:
-			if asset in black:
-				return False
-			return True
-	return False
 def HasTransform(prop):
 	bFactualBool = False
 	if HasKey("RelativeLocation",prop):
