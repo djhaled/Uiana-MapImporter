@@ -26,7 +26,7 @@ Before you download the addon, you must download these first.
 
 
 ## 1. 🔧 Installation & Usage
-1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases/download/publish/Uiana-1.03.zip)**
+1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases/download/1.03/Uiana-1.03.zip)**
 2. Create a Plugins folder on your project if you don't already have
 3. Drag "UIANA" and "UnrealPSKPSA" from the .zip file and put it in your **project's** "Plugins" folder (NOT IN ENGINE PLUGINS), create the folder if its not there
 4. If asked to, rebuild your Unreal project in Visual Studio
