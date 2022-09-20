@@ -169,7 +169,12 @@ def get_decal_material(actor_def):
             f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
         return mat
 
-
+def get_dec_mat(decal_dict):
+    mat_name = get_obj_name(data=decal_dict, mat=True)
+    print(mat_name)
+    return unreal.load_asset(
+        f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
+    
 def set_material(
         ue_material,
         settings: Settings,
@@ -260,6 +265,11 @@ def set_all_settings(asset_props: dict, component_reference):
                                                                            b=value_setting['B'], a=value_setting['A']))
             continue
         if type_value == "dict":
+            if setting == "DecalMaterial":
+                component_reference.set_decal_material(get_dec_mat(value_setting))
+            if setting == "DecalSize":
+                set_unreal_prop(component_reference,setting,unreal.Vector(value_setting["X"],value_setting["Y"],value_setting["Z"]))
+                continue
             if setting == "StaticMesh":
                 mesh_loaded = mesh_to_asset(value_setting, "StaticMesh ", "Meshes")
                 set_unreal_prop(component_reference, setting, mesh_loaded)
@@ -277,7 +287,6 @@ def set_all_settings(asset_props: dict, component_reference):
         try:
             value = eval(f'unreal.{class_name}.{python_unreal_value}')
         except:
-            print(f"Unreal doesn't have {python_unreal_value} in {class_name}")
             continue
         set_unreal_prop(component_reference, setting, value)
     return component_reference
@@ -320,21 +329,23 @@ def import_decal(decal_data:actor_defs):
     decal_component.set_decal_material(get_decal_material(actor_def=decal_data))
     set_all_settings(decal_data.props, decal_component)
 
-def fix_actor_bp(actor_data:dict,settings:Settings):
+def fix_actor_bp(actor_data:actor_defs,settings:Settings):
     try:
         component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
     except:
         return
     if not component or not has_key("AttachParent", actor_data.props):
         return
-    transform = get_transform(actor_data.props)
-
-    component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-    set_unreal_prop(component, "relative_scale3d", transform.scale3d)
-    component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-    set_unreal_prop(component, "relative_location", transform.translation)
-    component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-    set_unreal_prop(component, "relative_rotation", transform.rotation.rotator())
+    if has_key("StaticMesh", actor_data.props):
+        component.set_editor_property('static_mesh',mesh_to_asset(actor_data.props["StaticMesh"],"StaticMesh ","Meshes"))
+    transform = has_transform(actor_data.props)
+    if type(transform) != bool:
+        component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
+        set_unreal_prop(component, "relative_scale3d", transform.scale3d)
+        component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
+        set_unreal_prop(component, "relative_location", transform.translation)
+        component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
+        set_unreal_prop(component, "relative_rotation", transform.rotation.rotator())
     if has_key("OverrideMaterials", actor_data.props):
         if not settings.import_materials:
             return
@@ -385,33 +396,35 @@ def set_mesh_build_settings(settings:Settings):
     objects_path = settings.selected_map.objects_path
     list_objects = objects_path
     for m_object in os.listdir(list_objects):
-        key = actor_defs(m_object)
-        if key.type == "StaticMesh":
-            light_map_res = round(256*light_res_multiplier/4)*4
-            light_map_coord = 1
-            if has_key("LightMapCoordinateIndex", key.props):
-                light_map_coord = key.props["LightMapCoordinateIndex"]
-            if has_key("LightMapResolution", key.props):
-                light_map_res = round(key.props["LightMapResolution"]*light_res_multiplier/4)*4
-            mesh_load = unreal.load_asset(f"/Game/ValorantContent/Meshes/{key.name}")
-            if mesh_load:
-                cast_mesh = unreal.StaticMesh.cast(mesh_load)
-                actual_coord = cast_mesh.get_editor_property("light_map_coordinate_index")
-                actual_resolution = cast_mesh.get_editor_property("light_map_resolution")
-                if actual_coord != light_map_coord:
-                    set_unreal_prop(cast_mesh, "light_map_coordinate_index", light_map_coord)
-                if actual_resolution != light_map_res:
-                    set_unreal_prop(cast_mesh, "light_map_resolution", light_map_res)
-        if key.type == "BodySetup":
-            if has_key("CollisionTraceFlag", key.props):
-                col_trace = re.sub('([A-Z])', r'_\1', key.props["CollisionTraceFlag"])
+        object_json = read_json(objects_path.joinpath(m_object))
+        for o_object in object_json:
+            key = actor_defs(o_object)
+            if key.type == "StaticMesh":
+                light_map_res = round(256*light_res_multiplier/4)*4
+                light_map_coord = 1
+                if has_key("LightMapCoordinateIndex", key.props):
+                    light_map_coord = key.props["LightMapCoordinateIndex"]
+                if has_key("LightMapResolution", key.props):
+                    light_map_res = round(key.props["LightMapResolution"]*light_res_multiplier/4)*4
                 mesh_load = unreal.load_asset(f"/Game/ValorantContent/Meshes/{key.name}")
                 if mesh_load:
                     cast_mesh = unreal.StaticMesh.cast(mesh_load)
-                    body_setup = cast_mesh.get_editor_property("body_setup")
-                    str_collision = 'CTF_' + col_trace[8:len(col_trace)].upper()
-                    set_unreal_prop(body_setup, "collision_trace_flag", eval(f'unreal.CollisionTraceFlag.{str_collision}'))
-                    set_unreal_prop(cast_mesh, "body_setup", body_setup)
+                    actual_coord = cast_mesh.get_editor_property("light_map_coordinate_index")
+                    actual_resolution = cast_mesh.get_editor_property("light_map_resolution")
+                    if actual_coord != light_map_coord:
+                        set_unreal_prop(cast_mesh, "light_map_coordinate_index", light_map_coord)
+                    if actual_resolution != light_map_res:
+                        set_unreal_prop(cast_mesh, "light_map_resolution", light_map_res)
+            if key.type == "BodySetup":
+                if has_key("CollisionTraceFlag", key.props):
+                    col_trace = re.sub('([A-Z])', r'_\1', key.props["CollisionTraceFlag"])
+                    mesh_load = unreal.load_asset(f"/Game/ValorantContent/Meshes/{key.outer}")
+                    if mesh_load:
+                        cast_mesh = unreal.StaticMesh.cast(mesh_load)
+                        body_setup = cast_mesh.get_editor_property("body_setup")
+                        str_collision = 'CTF_' + col_trace[8:len(col_trace)].upper()
+                        set_unreal_prop(body_setup, "collision_trace_flag", eval(f'unreal.CollisionTraceFlag.{str_collision}'))
+                        set_unreal_prop(cast_mesh, "body_setup", body_setup)
                     
                     
 def import_umap(settings:Settings,umap_data: dict, umap_name:str):
@@ -431,16 +444,16 @@ def import_umap(settings:Settings,umap_data: dict, umap_name:str):
             import_decal(actor_data_definition)
         if object_type == "light" and settings.import_lights:
             import_light(actor_data_definition,objects_to_import)
+            
 def level_streaming_setup():
     world = unreal.EditorLevelLibrary.get_editor_world()
     for level_path in all_level_paths:
         map_type = get_umap_type(level_path.split('/')[1])
         unreal.EditorLevelUtils.add_level_to_world(world,level_path,map_type)
+        
 def import_blueprint(bp_actor: actor_defs, umap_data: list):
     transform = bp_actor.transform
     if not transform:
-        if bp_actor.props:
-            pass     
         transform = get_scene_transform(bp_actor.scene_props)
     if type(transform) == bool:
         transform = get_transform(bp_actor.props)
@@ -454,6 +467,7 @@ def import_blueprint(bp_actor: actor_defs, umap_data: list):
     all_blueprints[bp_actor.name] = actor
     actor.set_actor_label(bp_actor.name)
     actor.set_actor_scale3d(transform.scale3d)
+    
 def create_new_level(map_name):
     new_map = map_name.split('_')[0]
     map_path = (f"/Game/ValorantContent/Maps/{new_map}/{map_name}")
@@ -483,6 +497,7 @@ def import_all_textures_from_material(material_data: dict, settings: Settings):
                 tex_local_path = settings.assets_path.joinpath(tex_game_path).__str__()
                 if tex_local_path not in all_textures:
                     all_textures.append(tex_local_path)
+                    
 def create_material(material_data: list, settings: Settings):
     mat_data = material_data[0]
     mat_data = actor_defs(mat_data)
@@ -535,7 +550,8 @@ def export_all_textures(settings: Settings):
     
     
 def create_bp(full_data: dict,bp_name: str, settings: Settings):
-    BlacklistBP = ['SpawnBarrier','SoundBarrier','SpawnBarrierProjectile','Gumshoe_CameraBlockingVolumeParent_Box','DomeBuyMarker','BP_StuckPickupVolume','BP_LevelBlockingVolume','BP_TargetingLandmark','BombSpawnLocation']
+    BlacklistBP = ["SoundBarrier","SpawnBarrierProjectile"]
+    #BlacklistBP = ['SpawnBarrier','SoundBarrier','SpawnBarrierProjectile','Gumshoe_CameraBlockingVolumeParent_Box','DomeBuyMarker','BP_StuckPickupVolume','BP_LevelBlockingVolume','BP_TargetingLandmark','BombSpawnLocation']
     bp_name = bp_name.split('.')[0]
     bp_actor = unreal.load_asset(f'/Game/ValorantContent/Blueprints/{bp_name}')
     if not bp_actor and bp_name not in BlacklistBP:
@@ -572,11 +588,12 @@ def create_bp(full_data: dict,bp_name: str, settings: Settings):
         component = unreal.BPFL.create_bp_comp(
             bp_actor, unreal_class, comp_internal_name, nodes_array)
         if has_key("CompProps",properties):
-            comp_props = properties["CompProps"]
-            set_all_settings(comp_props, component)
+            properties = properties["CompProps"]
         set_mesh_settings(properties,component)
+        set_all_settings(properties,component)
     for game_object in game_objects:
         component = unreal.BPFL.create_bp_comp(bp_actor, unreal.StaticMeshComponent, "GameObjectMesh",nodes_array)
+        set_all_settings(game_object["Properties"],component)
         set_mesh_settings(game_object["Properties"],component)
 
 def set_mesh_settings(mesh_properties: dict, component):
@@ -609,6 +626,11 @@ def handle_child_nodes(child_nodes_array: dict, entire_data: list, bp_actor):
                     bp_actor, unreal_class, internal_name)
                 local_child_array.append(u_node)
                 set_all_settings(c_node["Properties"]["CompProps"], comp_node)
+                transform = has_transform(c_node["Properties"]["CompProps"])
+                if type(transform) != bool:
+                    comp_node.set_editor_property("relative_location",transform.translation)
+                    comp_node.set_editor_property("relative_rotation",transform.rotation.rotator())
+                    comp_node.set_editor_property("relative_scale3d",transform.scale3d)
                 break
     return local_child_array
 

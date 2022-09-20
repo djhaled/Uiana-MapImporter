@@ -277,7 +277,7 @@ def ReturnFormattedString(string, prefix):
     return string[start:end]
 
 
-def HasTransform(prop):
+def has_transform(prop):
     bFactualBool = False
     if has_key("RelativeLocation", prop):
         bFactualBool = True
@@ -501,7 +501,7 @@ def get_scene_parent(obj, OuterName, umapfile):
             continue
         KeyOuter = has_key("AttachParent", j["Properties"])
         if outer == OuterName and tipo in types and KeyOuter == False:
-            return HasTransform(j["Properties"])
+            return has_transform(j["Properties"])
 
 
 # exit()
@@ -680,4 +680,4 @@ class actor_defs():
         ## add new attribute that gets every key from props that starts with "SceneAttach" and adds it to a dict if Actor has_key else none
         self.scene_props = {k: v for k, v in self.props.items() if k.startswith("SceneAttach")} if has_key("SceneAttach", self.props) else None
         self.outer = Actor["Outer"] if has_key("Outer", Actor) else None
-        self.transform = HasTransform(self.props)
+        self.transform = has_transform(self.props)
