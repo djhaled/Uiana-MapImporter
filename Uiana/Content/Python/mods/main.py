@@ -169,9 +169,8 @@ def get_decal_material(actor_def):
             f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
         return mat
 
-def get_dec_mat(decal_dict):
+def get_mat(decal_dict):
     mat_name = get_obj_name(data=decal_dict, mat=True)
-    print(mat_name)
     return unreal.load_asset(
         f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
     
@@ -243,7 +242,24 @@ def set_textures(mat_props: dict,material_reference,settings: Settings):
             set_texture_param(material_reference, param_name, loaded_texture)
     unreal.MaterialEditingLibrary.update_material_instance(material_reference)
 
+def settings_create_ovr_material(mat_dict: list):
+    material_array = []
+    loaded = None
+    for mat in mat_dict:
+        if not mat:
+            material_array.append(None)
+            continue
+        object_name = return_object_name(mat["ObjectName"])
+        if "MaterialInstanceDynamic" in object_name:
+            material_array.append(None)
+            continue
+        loaded = unreal.load_asset(f'/Game/ValorantContent/Materials/{object_name}')
+        if loaded == None:
+            loaded = unreal.load_asset(f'/Uiana/Materials/{object_name}')
+        material_array.append(loaded)
+    return material_array
 
+    
 def set_all_settings(asset_props: dict, component_reference):
     if not asset_props:
         return
@@ -266,7 +282,8 @@ def set_all_settings(asset_props: dict, component_reference):
             continue
         if type_value == "dict":
             if setting == "DecalMaterial":
-                component_reference.set_decal_material(get_dec_mat(value_setting))
+                component_reference.set_decal_material(get_mat(value_setting))
+                continue
             if setting == "DecalSize":
                 set_unreal_prop(component_reference,setting,unreal.Vector(value_setting["X"],value_setting["Y"],value_setting["Z"]))
                 continue
@@ -282,6 +299,10 @@ def set_all_settings(asset_props: dict, component_reference):
                 continue
             continue
         if type_value == "list":
+            if setting == "OverrideMaterials":
+                mat_override = settings_create_ovr_material(value_setting)
+                set_unreal_prop(component_reference, setting, mat_override)
+                continue
             continue
         python_unreal_value = return_python_unreal_enum(value_setting)
         try:
@@ -328,7 +349,7 @@ def import_decal(decal_data:actor_defs):
     decal_component = decal.decal
     decal_component.set_decal_material(get_decal_material(actor_def=decal_data))
     set_all_settings(decal_data.props, decal_component)
-
+## fix this so it stops returning #some bps are not spawning because of attachparent ig fix it later
 def fix_actor_bp(actor_data:actor_defs,settings:Settings):
     try:
         component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
@@ -337,7 +358,8 @@ def fix_actor_bp(actor_data:actor_defs,settings:Settings):
     if not component or not has_key("AttachParent", actor_data.props):
         return
     if has_key("StaticMesh", actor_data.props):
-        component.set_editor_property('static_mesh',mesh_to_asset(actor_data.props["StaticMesh"],"StaticMesh ","Meshes"))
+        loaded = mesh_to_asset(actor_data.props["StaticMesh"],"StaticMesh ","Meshes")
+        component.set_editor_property('static_mesh',loaded)
     transform = has_transform(actor_data.props)
     if type(transform) != bool:
         component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
@@ -619,8 +641,9 @@ def handle_child_nodes(child_nodes_array: dict, entire_data: list, bp_actor):
             except:
                 continue
             internal_name = c_node["Properties"]["InternalVariableName"]
-            if "TargetViewMode" in internal_name:
+            if "TargetViewMode" in internal_name or "Decal1" in internal_name or "SM_Barrier_Back_VisionBlocker" in internal_name:
                 continue
+            
             if c_node["Name"] == child_name:
                 u_node, comp_node = unreal.BPFL.create_node(
                     bp_actor, unreal_class, internal_name)
