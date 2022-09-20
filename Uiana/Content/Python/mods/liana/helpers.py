@@ -190,7 +190,21 @@ def path_convert(path: str) -> str:
         c = ""
     return "\\".join((b, c, rest))
 
-
+def get_scene_transform(prop):
+    quat = unreal.Quat()
+    LocationUnreal = unreal.Vector(0.0, 0.0, 0.0)
+    ScaleUnreal = unreal.Vector(1.0, 1.0, 1.0)
+    RotationUnreal = unreal.Rotator(0.0, 0.0, 0.0)
+    if has_key("SceneAttachRelativeLocation",prop):
+        loc = prop["SceneAttachRelativeLocation"]
+        LocationUnreal = unreal.Vector(loc["X"], loc["Y"], loc["Z"])
+    if has_key("SceneAttachRelativeLocation",prop):
+        rot = prop["SceneAttachRelativeRotation"]
+        RotationUnreal = unreal.Rotator(rot["Roll"], rot["Pitch"], rot["Yaw"])
+    if has_key("SceneAttachRelativeLocation",prop):
+        scale = prop["SceneAttachRelativeScale3D"]
+        ScaleUnreal = unreal.Vector(scale["X"], scale["Y"], scale["Z"])
+    return unreal.Transform(LocationUnreal, RotationUnreal, ScaleUnreal)
 def get_transform(Prop):
     TransformData = None
     bIsInstanced = False
@@ -199,7 +213,7 @@ def get_transform(Prop):
     if has_key("TransformData", Props):
         TransformData = Props["TransformData"]
         bIsInstanced = True
-    if has_key("RelativeLocation", Props) or has_key("OffsetLocation", Props) or has_key("Translation", TransformData):
+    if has_key("RelativeLocation", Props) or has_key("OffsetLocation", Props) or has_key("Translation", TransformData) :
         if bIsInstanced:
             Location = TransformData["Translation"]
         else:
@@ -266,6 +280,12 @@ def ReturnFormattedString(string, prefix):
 def HasTransform(prop):
     bFactualBool = False
     if has_key("RelativeLocation", prop):
+        bFactualBool = True
+    if has_key("SceneAttachRelativeLocation", prop):
+        bFactualBool = True
+    if has_key("SceneAttachRelativeRotation", prop):
+        bFactualBool = True
+    if has_key("SceneAttachRelativeScale3D", prop):
         bFactualBool = True
     if has_key("RelativeRotation", prop):
         bFactualBool = True
@@ -485,6 +505,11 @@ def get_scene_parent(obj, OuterName, umapfile):
 
 
 # exit()
+def set_unreal_prop(self,prop_name,prop_value):
+    try:
+        self.set_editor_property(prop_name,prop_value)
+    except:
+        print(f'UianaPropLOG: Error setting {prop_name} to {prop_value}')
 
 def IsBlockingVolume(obj, OuterName, umapfile):
     for gama in umapfile:
@@ -652,5 +677,7 @@ class actor_defs():
         self.name = Actor["Name"] if has_key("Name", Actor) else None
         self.type = Actor["Type"] if has_key("Type", Actor) else None
         self.props = Actor["Properties"] if has_key("Properties", Actor) else None
+        ## add new attribute that gets every key from props that starts with "SceneAttach" and adds it to a dict if Actor has_key else none
+        self.scene_props = {k: v for k, v in self.props.items() if k.startswith("SceneAttach")} if has_key("SceneAttach", self.props) else None
         self.outer = Actor["Outer"] if has_key("Outer", Actor) else None
         self.transform = HasTransform(self.props)

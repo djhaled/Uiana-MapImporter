@@ -185,7 +185,7 @@ def set_material(
     if "BasePropertyOverrides" in mat_props:
         base_prop_override = set_all_settings(mat_props["BasePropertyOverrides"],
                                             unreal.MaterialInstanceBasePropertyOverrides())
-        ue_material.set_editor_property('BasePropertyOverrides', base_prop_override)
+        set_unreal_prop(ue_material, "BasePropertyOverrides", base_prop_override)
         unreal.MaterialEditingLibrary.update_material_instance(ue_material)
 
     if "StaticParameters" in mat_props:
@@ -251,53 +251,50 @@ def set_all_settings(asset_props: dict, component_reference):
         class_name = type(editor_property).__name__
         type_value = type(value_setting).__name__
         if type_value == "int" or type_value == "float" or type_value == "bool":
-            component_reference.set_editor_property(setting, value_setting)
+            set_unreal_prop(component_reference, setting, value_setting)
             continue
         if "::" in value_setting:
             value_setting = value_setting.split("::")[1]
         if class_name == "Color":
-            component_reference.set_editor_property(setting, unreal.Color(r=value_setting['R'], g=value_setting['G'],
-                                                                          b=value_setting['B'], a=value_setting['A']))
+            set_unreal_prop(component_reference, setting, unreal.Color(r=value_setting['R'], g=value_setting['G'],
+                                                                           b=value_setting['B'], a=value_setting['A']))
             continue
         if type_value == "dict":
             if setting == "StaticMesh":
-                component_reference.set_editor_property('static_mesh',
-                                                        mesh_to_asset(value_setting, "StaticMesh ", "Meshes"))
+                mesh_loaded = mesh_to_asset(value_setting, "StaticMesh ", "Meshes")
+                set_unreal_prop(component_reference, setting, mesh_loaded)
                 continue
             if setting == "BoxExtent":
-                component_reference.set_editor_property('box_extent',
-                                                        unreal.Vector(x=value_setting['X'], y=value_setting['Y'],
-                                                                      z=value_setting['Z']))
+                set_unreal_prop(component_reference, 'box_extent', unreal.Vector(x=value_setting['X'], y=value_setting['Y'],z=value_setting['Z'])),
                 continue
             if setting == "LightmassSettings":
-                component_reference.set_editor_property('lightmass_settings', get_light_mass(value_setting,component_reference.get_editor_property('lightmass_settings')))
+                set_unreal_prop(component_reference, 'lightmass_settings',get_light_mass(value_setting,component_reference.get_editor_property('lightmass_settings')))
                 continue
             continue
         if type_value == "list":
             continue
         python_unreal_value = return_python_unreal_enum(value_setting)
-        value = f'unreal.{class_name}.{python_unreal_value}'
         try:
-            value = eval(value)
-            component_reference.set_editor_property(setting, value)
+            value = eval(f'unreal.{class_name}.{python_unreal_value}')
         except:
-            print(f"UianaSettingsLOG: Error setting {setting} to {value}")
+            print(f"Unreal doesn't have {python_unreal_value} in {class_name}")
             continue
+        set_unreal_prop(component_reference, setting, value)
     return component_reference
 def get_light_mass(light_mass:dict, light_mass_reference):
     for l_mass in light_mass:
+        value_setting = light_mass[l_mass]
+        first_name = l_mass
         if l_mass[0] == "b":
             l_mass = l_mass[1:]
         value = re.sub(r'(?<!^)(?=[A-Z])', '_', l_mass)
-        try:
-            light_mass_reference.set_editor_property(value, light_mass[l_mass])
-        except:
-            continue
+        set_unreal_prop(light_mass_reference, value,  value_setting)
     return light_mass_reference
 def import_light(light_data:actor_defs, all_objs: list):
     light_type_replace = light_data.type.replace("Component","")
     if not light_data.transform:
-        light_data.transform = get_scene_parent(light_data.data,light_data.outer,all_objs)
+        light_data.transform = get_scene_transform(light_data.scene_props)
+        #light_data.transform = get_scene_parent(light_data.data,light_data.outer,all_objs)
     if not light_data.transform:
         return
     light = unreal.EditorLevelLibrary.spawn_actor_from_class(eval(f'unreal.{light_type_replace}'), light_data.transform.translation,light_data.transform.rotation.rotator())
@@ -308,8 +305,8 @@ def import_light(light_data:actor_defs, all_objs: list):
     if type(light_component) == unreal.BrushComponent:
         light_component = light
     if hasattr(light_component, "settings"):
-        light_component.set_editor_property("Unbound", True)
-        light_component.set_editor_property("Priority",1.0)
+        set_unreal_prop(light_component,"Unbound",True)
+        set_unreal_prop(light_component,"Priority",1.0)
         set_all_settings(light_data.props["Settings"], light_component)
     set_all_settings(light_data.props, light_component)
 def import_decal(decal_data:actor_defs):
@@ -333,11 +330,11 @@ def fix_actor_bp(actor_data:dict,settings:Settings):
     transform = get_transform(actor_data.props)
 
     component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-    component.set_editor_property('relative_scale3d',transform.scale3d)
+    set_unreal_prop(component, "relative_scale3d", transform.scale3d)
     component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-    component.set_editor_property('relative_location',transform.translation)
+    set_unreal_prop(component, "relative_location", transform.translation)
     component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-    component.set_editor_property('relative_rotation',transform.rotation.rotator())
+    set_unreal_prop(component, "relative_rotation", transform.rotation.rotator())
     if has_key("OverrideMaterials", actor_data.props):
         if not settings.import_materials:
             return
@@ -382,7 +379,7 @@ def import_mesh(mesh_data:actor_defs,settings:Settings,map_obj: MapObject):
             return
         mat_override = create_override_material(mesh_data.data)
         if mat_override:
-            component.set_editor_property('override_materials',mat_override)
+            set_unreal_prop(component, "override_materials", mat_override)
 def set_mesh_build_settings(settings:Settings):
     light_res_multiplier = settings.manual_lmres_mult
     objects_path = settings.selected_map.objects_path
@@ -402,9 +399,9 @@ def set_mesh_build_settings(settings:Settings):
                 actual_coord = cast_mesh.get_editor_property("light_map_coordinate_index")
                 actual_resolution = cast_mesh.get_editor_property("light_map_resolution")
                 if actual_coord != light_map_coord:
-                    cast_mesh.set_editor_property("light_map_coordinate_index",light_map_coord)
+                    set_unreal_prop(cast_mesh, "light_map_coordinate_index", light_map_coord)
                 if actual_resolution != light_map_res:
-                    cast_mesh.set_editor_property("light_map_resolution",light_map_res)
+                    set_unreal_prop(cast_mesh, "light_map_resolution", light_map_res)
         if key.type == "BodySetup":
             if has_key("CollisionTraceFlag", key.props):
                 col_trace = re.sub('([A-Z])', r'_\1', key.props["CollisionTraceFlag"])
@@ -413,8 +410,8 @@ def set_mesh_build_settings(settings:Settings):
                     cast_mesh = unreal.StaticMesh.cast(mesh_load)
                     body_setup = cast_mesh.get_editor_property("body_setup")
                     str_collision = 'CTF_' + col_trace[8:len(col_trace)].upper()
-                    body_setup.set_editor_property("collision_trace_flag",eval(f'unreal.CollisionTraceFlag.{str_collision}'))
-                    cast_mesh.set_editor_property("body_setup",body_setup)
+                    set_unreal_prop(body_setup, "collision_trace_flag", eval(f'unreal.CollisionTraceFlag.{str_collision}'))
+                    set_unreal_prop(cast_mesh, "body_setup", body_setup)
                     
                     
 def import_umap(settings:Settings,umap_data: dict, umap_name:str):
@@ -442,7 +439,9 @@ def level_streaming_setup():
 def import_blueprint(bp_actor: actor_defs, umap_data: list):
     transform = bp_actor.transform
     if not transform:
-        transform = get_scene_parent(bp_actor.data,bp_actor.outer,umap_data)
+        if bp_actor.props:
+            pass     
+        transform = get_scene_transform(bp_actor.scene_props)
     if type(transform) == bool:
         transform = get_transform(bp_actor.props)
     if not transform:
@@ -496,7 +495,7 @@ def create_material(material_data: list, settings: Settings):
     if has_key("Parent",mat_data.props):
         parent = return_parent(mat_data.props["Parent"]["ObjectName"])
     material_instance = unreal.MaterialInstanceConstant.cast(loaded_material)
-    material_instance.set_editor_property("parent",import_shader(parent))
+    set_unreal_prop(material_instance,"parent",import_shader(parent))
     set_material(settings=settings, mat_data=mat_data,ue_material=loaded_material)
 ## still have to fix this
 def export_all_meshes(settings: Settings):
@@ -584,11 +583,11 @@ def set_mesh_settings(mesh_properties: dict, component):
     set_all_settings(mesh_properties, component)
     transform = get_transform(mesh_properties) 
     if has_key("RelativeRotation", mesh_properties):
-        component.set_editor_property('relative_rotation', transform.rotation.rotator())
+        set_unreal_prop(component, "relative_rotation",  transform.rotation.rotator())
     if has_key("RelativeLocation", mesh_properties):
-        component.set_editor_property('relative_location', transform.translation)
+        set_unreal_prop(component, "relative_location", transform.translation)
     if has_key("RelativeScale3D", mesh_properties):
-        component.set_editor_property('relative_scale3d', transform.scale3d)
+        set_unreal_prop(component, "relative_scale3d", transform.scale3d)
 
 def handle_child_nodes(child_nodes_array: dict, entire_data: list, bp_actor):
     local_child_array = []
