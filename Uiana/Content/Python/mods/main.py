@@ -16,7 +16,7 @@ all_level_paths = []
 
 AssetTools = unreal.AssetToolsHelpers.get_asset_tools()
 
-
+## Returns a array with all OverrideMaterials
 def create_override_material(data):
     material_array = []
     for mat in data["Properties"]["OverrideMaterials"]:
@@ -35,6 +35,7 @@ def create_override_material(data):
 
 
 def extract_assets(settings: Settings):
+    ## Extracting Assets on umodel
     asset_objects = settings.selected_map.folder_path.joinpath("all_assets.txt")
     args = [settings.umodel.__str__(),
             f"-path={settings.paks_path.__str__()}",
@@ -51,6 +52,7 @@ def extract_data(
         settings: Settings,
         export_directory: str,
         asset_list_txt: str = ""):
+    ## Extracts the data from CUE4Parse (Json's)
     args = [settings.cue4extractor.__str__(),
             "--game-directory", settings.paks_path.__str__(),
             "--aes-key", settings.aes,
@@ -63,6 +65,7 @@ def extract_data(
 
 
 def get_map_assets(settings: Settings):
+    ## Handles the extraction of the assets and filters them by type
     umaps = []
 
     if not settings.selected_map.folder_path.joinpath("exported.yo").exists():
@@ -87,7 +90,7 @@ def get_map_assets(settings: Settings):
             save_json(umap.__str__(), umap_json)
 
             # get objects
-            umap_objects, umap_materials, umap_actors = get_objects(umap_json)
+            umap_objects, umap_materials, umap_actors = get_objects(umap_json,umap)
             actor_list.append(umap_actors)
             object_list.append(umap_objects)
             materials_ovr_list.append(umap_materials)
@@ -104,7 +107,7 @@ def get_map_assets(settings: Settings):
 
         for ac in actors:
             actor_json = read_json(ac)
-            actor_objects, actor_materials, local4list = get_objects(actor_json)
+            actor_objects, actor_materials, local4list = get_objects(actor_json,umap)
             object_list.append(actor_objects)
             materials_ovr_list.append(actor_materials)
         # next
@@ -162,22 +165,12 @@ def get_map_assets(settings: Settings):
     return umaps
 
 
-def get_decal_material(actor_def):
-    if actor_def.props["DecalMaterial"] is not None:
-        mat_name = get_obj_name(data=actor_def.props["DecalMaterial"], mat=True)
-        mat = unreal.load_asset(
-            f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
-        return mat
-
-def get_mat(decal_dict):
-    mat_name = get_obj_name(data=decal_dict, mat=True)
-    return unreal.load_asset(
-        f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
     
 def set_material(
         ue_material,
         settings: Settings,
         mat_data: actor_defs, ):
+    ## Sets the material parameters to the material
     if not mat_data.props:
         return
     mat_props = mat_data.props
@@ -199,6 +192,7 @@ def set_material(
                 param_value = param["Value"]
                 unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(
                     ue_material, param_name, bool(param_value))
+        ## Unreal doesn't support mask parameters switch lolz so have to do this
         if "StaticComponentMaskParameters" in mat_props["StaticParameters"]:
             for param in mat_props["StaticParameters"]["StaticComponentMaskParameters"]:
                 mask_list = ["R", "G", "B"]
@@ -224,6 +218,7 @@ def set_material(
 
 
 def set_textures(mat_props: dict,material_reference,settings: Settings):
+    ## Sets the textures to the material
     set_texture_param = unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value
     if not has_key("TextureParameterValues", mat_props):
         return
@@ -243,6 +238,7 @@ def set_textures(mat_props: dict,material_reference,settings: Settings):
     unreal.MaterialEditingLibrary.update_material_instance(material_reference)
 
 def settings_create_ovr_material(mat_dict: list):
+    ## No clue (?) but not gonna bother rn no idea why i didnt use the first ovr material func
     material_array = []
     loaded = None
     for mat in mat_dict:
@@ -253,14 +249,15 @@ def settings_create_ovr_material(mat_dict: list):
         if "MaterialInstanceDynamic" in object_name:
             material_array.append(None)
             continue
-        loaded = unreal.load_asset(f'/Game/ValorantContent/Materials/{object_name}')
+        loaded = unreal.load_asset(f'/Uiana/Materials/{object_name}')
         if loaded == None:
-            loaded = unreal.load_asset(f'/Uiana/Materials/{object_name}')
+            loaded = unreal.load_asset(f'/Game/ValorantContent/Materials/{object_name}')
         material_array.append(loaded)
     return material_array
 
     
 def set_all_settings(asset_props: dict, component_reference):
+    ## Sets all the settings to the component (material, mesh, etc) from "Properties" using some weird black magic
     if not asset_props:
         return
     for setting in asset_props:
@@ -311,7 +308,9 @@ def set_all_settings(asset_props: dict, component_reference):
             continue
         set_unreal_prop(component_reference, setting, value)
     return component_reference
+
 def get_light_mass(light_mass:dict, light_mass_reference):
+    ## Sets the lightmass settings to the component
     for l_mass in light_mass:
         value_setting = light_mass[l_mass]
         first_name = l_mass
@@ -320,7 +319,9 @@ def get_light_mass(light_mass:dict, light_mass_reference):
         value = re.sub(r'(?<!^)(?=[A-Z])', '_', l_mass)
         set_unreal_prop(light_mass_reference, value,  value_setting)
     return light_mass_reference
+
 def import_light(light_data:actor_defs, all_objs: list):
+    ## Imports the light actors to the World
     light_type_replace = light_data.type.replace("Component","")
     if not light_data.transform:
         light_data.transform = get_scene_transform(light_data.scene_props)
@@ -339,43 +340,57 @@ def import_light(light_data:actor_defs, all_objs: list):
         set_unreal_prop(light_component,"Priority",1.0)
         set_all_settings(light_data.props["Settings"], light_component)
     set_all_settings(light_data.props, light_component)
+    
 def import_decal(decal_data:actor_defs):
-    if not decal_data.transform:
+    ## Imports the decal actors to the World
+    if not decal_data.transform or has_key("Template",decal_data.data):
         return
     decal = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.DecalActor, decal_data.transform.translation, decal_data.transform.rotation.rotator())
     decal.set_folder_path(f'Decals')
     decal.set_actor_label(decal_data.name)
     decal.set_actor_scale3d(decal_data.transform.scale3d)
     decal_component = decal.decal
-    decal_component.set_decal_material(get_decal_material(actor_def=decal_data))
+    if type(decal_data) == dict:
+        decal_component.set_decal_material(get_mat(actor_def=decal_data["DecalMaterial"]))
     set_all_settings(decal_data.props, decal_component)
 ## fix this so it stops returning #some bps are not spawning because of attachparent ig fix it later
+
 def fix_actor_bp(actor_data:actor_defs,settings:Settings):
+    ## Fixes spawned blueprints with runtime-changed components
     try:
         component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
     except:
         return
-    if not component or not has_key("AttachParent", actor_data.props):
+    if not component:
         return
     if has_key("StaticMesh", actor_data.props):
         loaded = mesh_to_asset(actor_data.props["StaticMesh"],"StaticMesh ","Meshes")
         component.set_editor_property('static_mesh',loaded)
+    if has_key("OverrideMaterials", actor_data.props):
+        if settings.import_materials:
+            mat_override = create_override_material(actor_data.data)
+            if mat_override and "SpawnBarrier" not in actor_data.outer :
+                unreal.BPFL.set_override_material(all_blueprints[actor_data.outer],actor_data.name,mat_override)
+      
+    if not has_key("AttachParent", actor_data.props):
+        return
     transform = has_transform(actor_data.props)
     if type(transform) != bool:
-        component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-        set_unreal_prop(component, "relative_scale3d", transform.scale3d)
-        component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-        set_unreal_prop(component, "relative_location", transform.translation)
-        component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
-        set_unreal_prop(component, "relative_rotation", transform.rotation.rotator())
-    if has_key("OverrideMaterials", actor_data.props):
-        if not settings.import_materials:
-            return
-        mat_override = create_override_material(actor_data.data)
-        if mat_override:
-            unreal.BPFL.set_override_material(all_blueprints[actor_data.outer],actor_data.name,mat_override)
+        if has_key("RelativeScale3D", actor_data.props):
+            component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
+            set_unreal_prop(component, "relative_scale3d", transform.scale3d)
+        if has_key("RelativeLocation", actor_data.props):
+            component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
+            set_unreal_prop(component, "relative_location", transform.translation)
+        if has_key("RelativeRotation", actor_data.props):
+            component = unreal.BPFL.get_component_by_name(all_blueprints[actor_data.outer], actor_data.name)
+            set_unreal_prop(component, "relative_rotation", transform.rotation.rotator())
+            
+    
+
 
 def import_mesh(mesh_data:actor_defs,settings:Settings,map_obj: MapObject):
+    ## Imports the mesh actor to the world
     override_vertex_colors = []
     if has_key("Template", mesh_data.data):
         fix_actor_bp(mesh_data,settings)
@@ -413,7 +428,9 @@ def import_mesh(mesh_data:actor_defs,settings:Settings,map_obj: MapObject):
         mat_override = create_override_material(mesh_data.data)
         if mat_override:
             set_unreal_prop(component, "override_materials", mat_override)
+            
 def set_mesh_build_settings(settings:Settings):
+    ## Sets the build settings for the mesh since umodel exports it with wrong LMapCoordinateIndex and LMapResolution and Collision obviously
     light_res_multiplier = settings.manual_lmres_mult
     objects_path = settings.selected_map.objects_path
     list_objects = objects_path
@@ -450,7 +467,10 @@ def set_mesh_build_settings(settings:Settings):
                     
                     
 def import_umap(settings:Settings,umap_data: dict, umap_name:str):
-    objects_to_import = filter_objects(umap_data)
+    ## Imports a umap according to filters and settings selected // at the moment i don't like it since 
+    ## it's a bit messy and i don't like the way i'm doing it but it works
+    ## Looping before the main_import just for blueprints to be spawned first, no idea how to fix it lets stay like this atm
+    objects_to_import = filter_objects(umap_data,umap_name)
     if settings.import_blueprints:
         for objectIndex, object_data in enumerate(objects_to_import):
             object_type = get_object_type(object_data)
@@ -468,12 +488,13 @@ def import_umap(settings:Settings,umap_data: dict, umap_name:str):
             import_light(actor_data_definition,objects_to_import)
             
 def level_streaming_setup():
+    ## Sets up the level streaming for the map if using the streaming option
     world = unreal.EditorLevelLibrary.get_editor_world()
     for level_path in all_level_paths:
-        map_type = get_umap_type(level_path.split('/')[1])
-        unreal.EditorLevelUtils.add_level_to_world(world,level_path,map_type)
+        unreal.EditorLevelUtils.add_level_to_world(world,level_path,unreal.LevelStreamingAlwaysLoaded)
         
 def import_blueprint(bp_actor: actor_defs, umap_data: list):
+    ## Imports a blueprint actor from the umap
     transform = bp_actor.transform
     if not transform:
         transform = get_scene_transform(bp_actor.scene_props)
@@ -491,13 +512,16 @@ def import_blueprint(bp_actor: actor_defs, umap_data: list):
     actor.set_actor_scale3d(transform.scale3d)
     
 def create_new_level(map_name):
+    ## Creates a new level with the map name
     new_map = map_name.split('_')[0]
     map_path = (f"/Game/ValorantContent/Maps/{new_map}/{map_name}")
     loaded_map = unreal.load_asset(map_path)
     sub_system_editor = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
     unreal.LevelEditorSubsystem.new_level(sub_system_editor,map_path)
     all_level_paths.append(map_name)
+    
 def get_override_vertex_color(mesh_data: dict):
+    ## Gets the override vertex color from the mesh data
     lod_data = mesh_data["LODData"]
     vtx_array = []
     for lod in lod_data:
@@ -508,6 +532,7 @@ def get_override_vertex_color(mesh_data: dict):
     return vtx_array
 
 def import_all_textures_from_material(material_data: dict, settings: Settings):
+    ## Imports all the textures from a material json first
     mat_info = actor_defs(material_data[0])
     if mat_info.props:
         if has_key("TextureParameterValues",mat_info.props):
@@ -521,6 +546,7 @@ def import_all_textures_from_material(material_data: dict, settings: Settings):
                     all_textures.append(tex_local_path)
                     
 def create_material(material_data: list, settings: Settings):
+    ## Creates a material from the material data 
     mat_data = material_data[0]
     mat_data = actor_defs(mat_data)
     parent = "BaseEnv_MAT_V4"
@@ -534,8 +560,9 @@ def create_material(material_data: list, settings: Settings):
     material_instance = unreal.MaterialInstanceConstant.cast(loaded_material)
     set_unreal_prop(material_instance,"parent",import_shader(parent))
     set_material(settings=settings, mat_data=mat_data,ue_material=loaded_material)
-## still have to fix this
-def export_all_meshes(settings: Settings):
+    
+def import_all_meshes(settings: Settings):
+    ## Imports all the meshes from the map first accordingly.
     all_meshes = []
     obj_path = settings.selected_map.folder_path.joinpath("_assets_objects.txt")
     with open (obj_path,'r') as file:
@@ -558,7 +585,8 @@ def export_all_meshes(settings: Settings):
     unreal.BPFL.import_meshes(all_meshes, str(settings.selected_map.objects_path))
 
 
-def export_all_textures(settings: Settings):
+def imports_all_textures(settings: Settings):
+    ## Imports all the texture from materials.
     mat_path = settings.selected_map.materials_path
     mat_ovr_path = settings.selected_map.materials_ovr_path
     
@@ -572,6 +600,7 @@ def export_all_textures(settings: Settings):
     
     
 def create_bp(full_data: dict,bp_name: str, settings: Settings):
+    ## Creates a blueprint from the json data
     BlacklistBP = ["SoundBarrier","SpawnBarrierProjectile"]
     #BlacklistBP = ['SpawnBarrier','SoundBarrier','SpawnBarrierProjectile','Gumshoe_CameraBlockingVolumeParent_Box','DomeBuyMarker','BP_StuckPickupVolume','BP_LevelBlockingVolume','BP_TargetingLandmark','BombSpawnLocation']
     bp_name = bp_name.split('.')[0]
@@ -614,6 +643,8 @@ def create_bp(full_data: dict,bp_name: str, settings: Settings):
         set_mesh_settings(properties,component)
         set_all_settings(properties,component)
     for game_object in game_objects:
+        if bp_name == "SpawnBarrier":
+            continue
         component = unreal.BPFL.create_bp_comp(bp_actor, unreal.StaticMeshComponent, "GameObjectMesh",nodes_array)
         set_all_settings(game_object["Properties"],component)
         set_mesh_settings(game_object["Properties"],component)
@@ -629,6 +660,7 @@ def set_mesh_settings(mesh_properties: dict, component):
         set_unreal_prop(component, "relative_scale3d", transform.scale3d)
 
 def handle_child_nodes(child_nodes_array: dict, entire_data: list, bp_actor):
+    ## Handles the child nodes of the blueprint since they are not in order.
     local_child_array = []
     for child_node in child_nodes_array:
         child_obj_name = child_node["ObjectName"]
@@ -657,13 +689,15 @@ def handle_child_nodes(child_nodes_array: dict, entire_data: list, bp_actor):
                 break
     return local_child_array
 
-def export_all_blueprints(settings: Settings):
+def import_all_blueprints(settings: Settings):
+    ## Imports all the blueprints from the actors folder.
     bp_path = settings.selected_map.actors_path
     for bp in os.listdir(bp_path):
         bp_json = reduce_bp_json(read_json(settings.selected_map.actors_path.joinpath(bp)))
         create_bp(bp_json,bp,settings)
 
-def export_all_materials(settings:Settings):
+def import_all_materials(settings:Settings):
+    ## Imports all the materials from the materials folder.
     mat_path = settings.selected_map.materials_path
     mat_ovr_path = settings.selected_map.materials_ovr_path
     for path_mat in os.listdir(mat_path):
@@ -673,6 +707,9 @@ def export_all_materials(settings:Settings):
         mat_ovr_json = read_json(mat_ovr_path.joinpath(path_ovr_mat))
         create_material(mat_ovr_json,settings)
 def import_map(setting):
+    ## Main function first it sets some lighting settings ( have to revisit it for people who don't want the script to change their lighting settings)
+    ## then it imports all meshes / textures / blueprints first and create materials from them.
+    ## then each umap from the /maps folder is imported and the actors spawned accordingly.
     unreal.BPFL.change_project_settings()
     unreal.BPFL.execute_console_command('r.DefaultFeature.LightUnits 0')
     unreal.BPFL.execute_console_command('r.DynamicGlobalIlluminationMethod 0')
@@ -684,18 +721,18 @@ def import_map(setting):
     clear_level()
     if settings.import_materials:
         txt_time = time.time()
-        export_all_textures(settings)
+        imports_all_textures(settings)
         print(f'Exported all textures in {time.time() - txt_time} seconds')
         mat_time = time.time()
-        export_all_materials(settings)
+        import_all_materials(settings)
         print(f'Exported all materials in {time.time() - mat_time} seconds')
     m_start_time = time.time()
     if settings.import_Mesh:
-        export_all_meshes(settings)
+        import_all_meshes(settings)
     print(f'Exported all meshes in {time.time() - m_start_time} seconds')
     bp_start_time = time.time()
     if settings.import_blueprints:
-        export_all_blueprints(settings)
+        import_all_blueprints(settings)
     print(f'Exported all blueprints in {time.time() - bp_start_time} seconds')
     umap_json_path: Path
     actor_start_time = time.time()
@@ -719,4 +756,4 @@ def import_map(setting):
             level_streaming_setup()
         if settings.import_Mesh:
             set_mesh_build_settings(settings=settings)
-        winsound.Beep(16000, 1500)
+        winsound.Beep(7500, 983)

@@ -82,7 +82,7 @@ def SetCubeMapTexture(Seting):
 def SetIesTexture(setting):
     pathIES = setting["ObjectName"]
     StartNewTextureName = pathIES
-    NewTextureName = ReturnFormattedString(StartNewTextureName, "_")
+    NewTextureName = return_formatted_string(StartNewTextureName, "_")
     AssetPath = (f'/Uiana/IESProfiles/{NewTextureName}.{NewTextureName}')
     TextureIES = unreal.load_asset(AssetPath)
     return TextureIES
@@ -112,13 +112,13 @@ BLACKLIST = [
     "_collision",
     "windstreaks_plane",
     "sm_port_snowflakes_boundmesh",
-    "sm_barrierduality",
     "M_Pitt_Caustics_Box",
     "box_for_volumes",
     "BombsiteMarker_0_BombsiteA_Glow",
     "BombsiteMarker_0_BombsiteB_Glow",
     "_col",
     "M_Pitt_Lamps_Glow",
+    "SM_Pitt_Water_Lid",
     "Bombsite_0_ASiteSide",
     "Bombsite_0_BSiteSide"
     "For_Volumes",
@@ -129,13 +129,7 @@ BLACKLIST = [
     "DirtSkirt",
     "Tech_0_RebelSupplyCargoTarpLargeCollision",
 ]
-VFX_WHITELIST = [
-    "SM_VentSmoke_Duo",
-    "M_Pitt_Lamps_Glow",
-    "SM_Pitt_Dome_Glass",
-    "SM_Pitt_Water_Surface",
-    "LightShaft",
-]
+
 
 
 def get_umap_type(mapname):
@@ -155,21 +149,6 @@ def return_object_name(name):
     rformPar = name.rfind(' ') + 1
     return name[rformPar:len(name)]
 
-
-def import_shaders():
-    BaseShader = unreal.load_asset('/Uiana/Materials/ValoOpaqueMasterNEW')
-    return BaseShader
-
-
-def importDecalShaders():
-    BaseShader = unreal.load_asset('/Uiana/Materials/ValoDecals')
-    return BaseShader
-
-
-def ConvertToLoadableMaterial(Mesh, Type):
-    typestring = str(Type)
-    NewName = Mesh.replace(f'{Type}', "")
-    return NewName
 
 
 def mesh_to_asset(Mesh, Type, ActualType):
@@ -205,6 +184,7 @@ def get_scene_transform(prop):
         scale = prop["SceneAttachRelativeScale3D"]
         ScaleUnreal = unreal.Vector(scale["X"], scale["Y"], scale["Z"])
     return unreal.Transform(LocationUnreal, RotationUnreal, ScaleUnreal)
+
 def get_transform(Prop):
     TransformData = None
     bIsInstanced = False
@@ -246,7 +226,7 @@ def get_transform(Prop):
         Trans.set_editor_property("rotation", Quat)
     return Trans
 
-
+    
 def has_key(key, array):
     if array == None:
         return False
@@ -256,22 +236,16 @@ def has_key(key, array):
         return False
 
 
-def returnUnrealVector(prop):
-    vec = unreal.Vector(prop["X"], prop["Y"], prop["Z"])
-    return vec
 
 
 def GetClassName(self):
     return type(self).__name__
 
 
-def returnUnrealRotator(prop):
-    Quat = unreal.Quat(x=prop["X"], y=prop["Y"], z=prop["Z"], w=prop["W"])
-    rot = Quat.rotator()
-    return rot
 
 
-def ReturnFormattedString(string, prefix):
+
+def return_formatted_string(string, prefix):
     start = string.rfind(prefix) + 1
     end = len(string)
     return string[start:end]
@@ -279,6 +253,8 @@ def ReturnFormattedString(string, prefix):
 
 def has_transform(prop):
     bFactualBool = False
+    if has_key("AttachParent", prop):
+        bFactualBool = False
     if has_key("RelativeLocation", prop):
         bFactualBool = True
     if has_key("SceneAttachRelativeLocation", prop):
@@ -291,19 +267,10 @@ def has_transform(prop):
         bFactualBool = True
     if has_key("RelativeScale3D", prop):
         bFactualBool = True
-    if has_key("AttachParent", prop):
-        bFactualBool = False
     if bFactualBool:
         return get_transform(prop)
     return bFactualBool
 
-
-def GetInitialName(ka):
-    slash = ka.find('_')
-    if slash == -1:
-        return ka
-    lenka = len(ka)
-    return ka[0:slash].lower()
 
 
 def return_python_unreal_enum(value):
@@ -314,7 +281,7 @@ def return_python_unreal_enum(value):
     return value[ind:len(value)].upper()
 
 
-def filter_objects(umap_DATA, lights: bool = False) -> list:
+def filter_objects(umap_DATA, current_umap_name) -> list:
     objects = umap_DATA
     filtered_list = []
 
@@ -342,7 +309,7 @@ def filter_objects(umap_DATA, lights: bool = False) -> list:
         filtered_list = objects
 
     new_list = []
-
+    
     # Check for blacklisted items
     for og_model in filtered_list:
         objname = get_obj_name(data=og_model, mat=False)
@@ -394,17 +361,7 @@ def cast(object_to_cast=None, object_class=None):
         return None
 
 
-def PrintExecutionTime(number):
-    print(f"--- %s seconds{number} ---" % (time.time() - start_time))
 
-
-def MeasureTime():
-    return (time.time() - start_time)
-
-
-def HowMuchTimeTookFunc(value1, value2):
-    took = value2 - value1
-    return float(took)
 
 
 def open_folder(path):
@@ -484,6 +441,10 @@ def read_json(p: str) -> dict:
     with open(p) as json_file:
         return json.load(json_file)
 
+def get_mat(decal_dict):
+    mat_name = get_obj_name(data=decal_dict, mat=True)
+    return unreal.load_asset(
+        f'/Game/ValorantContent/Materials/{mat_name}.{mat_name}')
 
 def get_scene_parent(obj, OuterName, umapfile):
     types = ["SceneComponent", "BrushComponent", "StaticMeshComponent"]
@@ -511,17 +472,6 @@ def set_unreal_prop(self,prop_name,prop_value):
     except:
         print(f'UianaPropLOG: Error setting {prop_name} to {prop_value}')
 
-def IsBlockingVolume(obj, OuterName, umapfile):
-    for gama in umapfile:
-        if OuterName == gama["Name"]:
-            return True
-    return False
-
-
-def GetBlockingMesh(obj, OuterName, umapfile):
-    for gama in umapfile:
-        if gama["Type"] == "StaticMeshComponent" and obj["Name"] == gama["Outer"]:
-            return gama
 
 
 def shorten_path(file_path, length) -> str:
@@ -606,54 +556,7 @@ class Settings:
 
         create_folders(self)
 
-
-class Map:
-    def __init__(self, selected_map_name: str, maps_path: Path, all_umaps: list):
-        self.name = selected_map_name
-        # print(maps_path, self.name)
-        self.folder_path = maps_path.joinpath(self.name)
-
-        self.umaps = all_umaps[self.name]
-        # print(self)
-        self.materials_path = self.folder_path.joinpath("materials")
-        self.materials_ovr_path = self.folder_path.joinpath("materials_ovr")
-        self.objects_path = self.folder_path.joinpath("objects")
-        self.actors_path = self.folder_path.joinpath("actors")
-        self.scenes_path = self.folder_path.joinpath("scenes")
-        self.umaps_path = self.folder_path.joinpath("umaps")
-        create_folders(self)
-        self.import_decals = True
-        self.import_lights = False
-        self.combine_umaps = False
-        self.export_path = Path('D:\XportPsk')
-        self.assets_path = self.export_path.joinpath("export")
-        self.maps_path = self.export_path.joinpath("maps")
-        self.umodel = self.script_root.joinpath("tools", "umodel.exe")
-        self.debug = False
-        self.cue4extractor = self.script_root.joinpath("tools", "cue4extractor.exe")
-        self.log = self.export_path.joinpath("import.log")
-        self.umap_list_path = self.importer_assets_path.joinpath("umaps.json")
-        self.umap_list = read_json(self.umap_list_path)
-
-        self.selected_map = Map('bind', self.maps_path, self.umap_list)
-
-        self.shaders = [
-            "VALORANT_Base",
-            "VALORANT_Decal",
-            "VALORANT_Emissive",
-            "VALORANT_Emissive_Scroll",
-            "VALORANT_Hologram",
-            "VALORANT_Glass",
-            "VALORANT_Blend",
-            "VALORANT_Decal",
-            "VALORANT_MRA_Splitter",
-            "VALORANT_Normal_Fix",
-            "VALORANT_Screen"
-        ]
-
-        create_folders(self)
-
-
+## Map Definitions
 class Map:
     def __init__(self, selected_map_name: str, maps_path: Path, all_umaps: list):
         self.name = selected_map_name
@@ -670,14 +573,15 @@ class Map:
         self.umaps_path = self.folder_path.joinpath("umaps")
         create_folders(self)
 
-
+# Actor definitions
 class actor_defs():
     def __init__(self, Actor):
         self.data = Actor
         self.name = Actor["Name"] if has_key("Name", Actor) else None
         self.type = Actor["Type"] if has_key("Type", Actor) else None
-        self.props = Actor["Properties"] if has_key("Properties", Actor) else None
+        self.props = Actor["Properties"] if has_key("Properties", Actor) else {}
         ## add new attribute that gets every key from props that starts with "SceneAttach" and adds it to a dict if Actor has_key else none
         self.scene_props = {k: v for k, v in self.props.items() if k.startswith("SceneAttach")} if has_key("SceneAttach", self.props) else None
         self.outer = Actor["Outer"] if has_key("Outer", Actor) else None
         self.transform = has_transform(self.props)
+        self.debug = f'ActorName: {self.name} // ActorType: {self.type} // ActorOuter: {self.outer} // ActorTransform: {self.transform} // ActorProps: {self.props.keys()}'

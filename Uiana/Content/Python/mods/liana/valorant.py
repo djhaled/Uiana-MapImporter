@@ -30,8 +30,14 @@ def filter_umap(umap_data: dict) -> list:
 
     return umap_filtered, object_types
 
-
-def get_objects(umap_data):
+VFX_WHITELIST = [
+    "SM_VentSmoke_Duo",
+    "M_Pitt_Lamps_Glow",
+    "SM_Pitt_Dome_Glass",
+    "SM_Pitt_Water_Surface",
+    "LightShaft",
+]
+def get_objects(umap_data,current_umap):
     umap_objects = list()
     umap_materials = list()
     umap_actors = list()
@@ -112,13 +118,6 @@ def fix_path(a: str):
     return c
 
 
-def get_light_type(object):
-    if "Point" in object["Type"]:
-        return "POINT"
-    if "Spot" in object["Type"]:
-        return "SPOT"
-    if "RectLightComponent" in object["Type"]:
-        return "AREA"
 
 
 def get_name(s: str) -> str:
@@ -134,19 +133,9 @@ def HasKeyzin(key, array):
 
 # ANCHOR Shaders
 
-def get_valorant_shader(group_name: str):
-    print("Shader")
-
 
 # ANCHOR Getters
 
-def get_rgb_255(pv: dict) -> tuple:
-    return (
-        pv["R"] / 255,
-        pv["G"] / 255,
-        pv["B"] / 255,
-        pv["A"] / 255
-    )
 
 
 def get_rgb(pv: dict) -> tuple:
@@ -166,10 +155,7 @@ def get_texture_path(s: dict, f: str):
     return b
 
 
-def get_texture_path_yo(s: str, f: str):
-    a = Path(os.path.splitext(s)[0].strip("/")).__str__()
-    b = fix_path(a=a) + f
-    return b
+
 
 
 class MapObject(object):
