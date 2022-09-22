@@ -177,7 +177,10 @@ def set_material(
 
     set_textures(mat_props, ue_material, settings=settings)
     set_all_settings(mat_props, ue_material)
-    
+    if mat_data.name == "Stone_M1_SquareTilesDirt_MI":
+        unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(
+            ue_material, "invert vertex", True)
+        
     # fix this
     if "BasePropertyOverrides" in mat_props:
         base_prop_override = set_all_settings(mat_props["BasePropertyOverrides"],
@@ -269,15 +272,33 @@ def set_all_settings(asset_props: dict, component_reference):
         class_name = type(editor_property).__name__
         type_value = type(value_setting).__name__
         if type_value == "int" or type_value == "float" or type_value == "bool":
+            if setting == "InfluenceRadius" and value_setting == 0:
+                set_unreal_prop(component_reference, setting, 14680)
+                continue
             set_unreal_prop(component_reference, setting, value_setting)
             continue
         if "::" in value_setting:
             value_setting = value_setting.split("::")[1]
-        if class_name == "Color":
+            # Try to make these automatic? with 'unreal.classname.value"?
+        if class_name == "LinearColor":
+            set_unreal_prop(component_reference, setting, unreal.LinearColor(r=value_setting['R'], g=value_setting['G'],
+                                                                       b=value_setting['B']))
+            continue
+        if class_name == "Vector4":
+            set_unreal_prop(component_reference, setting, unreal.Vector4(x=value_setting['X'], y=value_setting['Y'],
+                                                                       z=value_setting['Z'], w=value_setting['W']))
+            continue
+        if "Color" in class_name:
             set_unreal_prop(component_reference, setting, unreal.Color(r=value_setting['R'], g=value_setting['G'],
-                                                                           b=value_setting['B'], a=value_setting['A']))
+                                                             b=value_setting['B'], a=value_setting['A']))
             continue
         if type_value == "dict":
+            if setting == "IESTexture":
+                set_unreal_prop(component_reference, setting, get_ies_texture(value_setting))
+                continue
+            if setting == "Cubemap":
+                set_unreal_prop(component_reference, setting, get_cubemap_texture(value_setting))
+                continue
             if setting == "DecalMaterial":
                 component_reference.set_decal_material(get_mat(value_setting))
                 continue
@@ -310,8 +331,11 @@ def set_all_settings(asset_props: dict, component_reference):
     return component_reference
 
 def get_light_mass(light_mass:dict, light_mass_reference):
+    blacklist_lmass = ['bLightAsBackFace','bUseTwoSidedLighting']
     ## Sets the lightmass settings to the component
     for l_mass in light_mass:
+        if l_mass in blacklist_lmass:
+            continue
         value_setting = light_mass[l_mass]
         first_name = l_mass
         if l_mass[0] == "b":
@@ -338,7 +362,7 @@ def import_light(light_data:actor_defs, all_objs: list):
     if hasattr(light_component, "settings"):
         set_unreal_prop(light_component,"Unbound",True)
         set_unreal_prop(light_component,"Priority",1.0)
-        set_all_settings(light_data.props["Settings"], light_component)
+        set_all_settings(light_data.props["Settings"], light_component.settings)
     set_all_settings(light_data.props, light_component)
     
 def import_decal(decal_data:actor_defs):
@@ -369,7 +393,7 @@ def fix_actor_bp(actor_data:actor_defs,settings:Settings):
     if has_key("OverrideMaterials", actor_data.props):
         if settings.import_materials:
             mat_override = create_override_material(actor_data.data)
-            if mat_override and "SpawnBarrier" not in actor_data.outer :
+            if mat_override and "Barrier" not in actor_data.name :
                 unreal.BPFL.set_override_material(all_blueprints[actor_data.outer],actor_data.name,mat_override)
       
     if not has_key("AttachParent", actor_data.props):
@@ -518,7 +542,7 @@ def create_new_level(map_name):
     loaded_map = unreal.load_asset(map_path)
     sub_system_editor = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
     unreal.LevelEditorSubsystem.new_level(sub_system_editor,map_path)
-    all_level_paths.append(map_name)
+    all_level_paths.append(map_path)
     
 def get_override_vertex_color(mesh_data: dict):
     ## Gets the override vertex color from the mesh data
@@ -601,7 +625,7 @@ def imports_all_textures(settings: Settings):
     
 def create_bp(full_data: dict,bp_name: str, settings: Settings):
     ## Creates a blueprint from the json data
-    BlacklistBP = ["SoundBarrier","SpawnBarrierProjectile"]
+    BlacklistBP = ["SoundBarrier","SpawnBarrierProjectile","BP_UnwalkableBlockingVolumeCylinder",'BP_StuckPickupVolume',"BP_BlockingVolume","TargetingBlockingVolume_Box","directional_look_up"]
     #BlacklistBP = ['SpawnBarrier','SoundBarrier','SpawnBarrierProjectile','Gumshoe_CameraBlockingVolumeParent_Box','DomeBuyMarker','BP_StuckPickupVolume','BP_LevelBlockingVolume','BP_TargetingLandmark','BombSpawnLocation']
     bp_name = bp_name.split('.')[0]
     bp_actor = unreal.load_asset(f'/Game/ValorantContent/Blueprints/{bp_name}')
@@ -756,4 +780,4 @@ def import_map(setting):
             level_streaming_setup()
         if settings.import_Mesh:
             set_mesh_build_settings(settings=settings)
-        winsound.Beep(7500, 983)
+        #winsound.Beep(7500, 983)

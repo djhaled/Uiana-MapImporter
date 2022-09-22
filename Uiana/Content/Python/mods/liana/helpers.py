@@ -71,7 +71,7 @@ def reduce_bp_json(BigData):
     return FullJson
 
 
-def SetCubeMapTexture(Seting):
+def get_cubemap_texture(Seting):
     pathCube = Seting["ObjectName"]
     newtext = pathCube.replace("TextureCube ", "")
     AssetPath = (f'/Uiana/CubeMaps/{newtext}.{newtext}')
@@ -79,7 +79,7 @@ def SetCubeMapTexture(Seting):
     return TextureCubeMap
 
 
-def SetIesTexture(setting):
+def get_ies_texture(setting):
     pathIES = setting["ObjectName"]
     StartNewTextureName = pathIES
     NewTextureName = return_formatted_string(StartNewTextureName, "_")
