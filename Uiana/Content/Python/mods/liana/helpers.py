@@ -70,7 +70,27 @@ def reduce_bp_json(BigData):
     FullJson["ChildNodes"] = ChildNodes
     return FullJson
 
-
+def check_export(settings):
+    exp_path = settings.selected_map.folder_path.joinpath("exported.yo")
+    if exp_path.exists():
+        exp = open(exp_path)
+        exp_data = json.load(exp)
+        val_version = exp_data[1]
+        bForceReExport = exp_data[0]
+        current_val_version = get_valorant_version()
+        if current_val_version != val_version:
+            return True
+        if bForceReExport:
+            return True
+    else:
+        return True
+    return False
+        
+def write_export_file():
+    new_json = [False, get_valorant_version()]
+    json_object = json.dumps(new_json, indent=4)
+    return json_object
+    
 def get_cubemap_texture(Seting):
     pathCube = Seting["ObjectName"]
     newtext = pathCube.replace("TextureCube ", "")
@@ -78,7 +98,13 @@ def get_cubemap_texture(Seting):
     TextureCubeMap = unreal.load_asset(AssetPath)
     return TextureCubeMap
 
-
+def get_valorant_version():
+    val_file = "C:\\ProgramData\\Riot Games\\Metadata\\valorant.live\\valorant.live.ok"
+    if os.path.exists(val_file):
+        with open(val_file, "r") as f:
+            file = f.read()
+            split_file = file.split('\n')
+            return split_file[0].split('/')[-1].split('.')[0]
 def get_ies_texture(setting):
     pathIES = setting["ObjectName"]
     StartNewTextureName = pathIES
