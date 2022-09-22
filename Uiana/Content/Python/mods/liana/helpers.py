@@ -73,21 +73,17 @@ def reduce_bp_json(BigData):
 def check_export(settings):
     exp_path = settings.selected_map.folder_path.joinpath("exported.yo")
     if exp_path.exists():
-        exp = open(exp_path)
-        exp_data = json.load(exp)
-        val_version = exp_data[1]
-        bForceReExport = exp_data[0]
+        exp_data = json.load(open(exp_path))
+        val_version = exp_data[0]
         current_val_version = get_valorant_version()
-        if current_val_version != val_version:
-            return True
-        if bForceReExport:
+        if settings.val_version != val_version or settings.dev_force_reexport:
             return True
     else:
         return True
     return False
         
 def write_export_file():
-    new_json = [False, get_valorant_version()]
+    new_json = [get_valorant_version()]
     json_object = json.dumps(new_json, indent=4)
     return json_object
     
@@ -105,6 +101,8 @@ def get_valorant_version():
             file = f.read()
             split_file = file.split('\n')
             return split_file[0].split('/')[-1].split('.')[0]
+    else:
+        return None
 def get_ies_texture(setting):
     pathIES = setting["ObjectName"]
     StartNewTextureName = pathIES
@@ -554,6 +552,8 @@ class Settings:
         self.import_sublevel = UESet.bImportSubLevels
         self.manual_lmres_mult = UESet.iManualLMResMult
         self.combine_umaps = False
+        self.val_version = get_valorant_version()
+        self.dev_force_reexport = False
         self.export_path = UESet.PExportPath
         self.assets_path = self.export_path.joinpath("export")
         self.maps_path = self.export_path.joinpath("maps")

@@ -17,7 +17,10 @@ parser.add_argument('PakFolder', type=str, help='PakFolder')
 parser.add_argument('PluginPath', type=str, help='PluginPath')
 args = parser.parse_args()
 
+#def get_valo_path():
+    ## open yaml file and parse it
 
+    
 class UeSettings:
     bImportMaterial = bool(args.ImportMaterial)
     bImportMesh = bool(args.ImportMesh)

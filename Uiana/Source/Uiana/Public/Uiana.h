@@ -24,6 +24,7 @@ public:
 	FReply ExecuteFunction();
 	UPROPERTY(Category = MapsAndSets, EditAnywhere)
 	mutable UUianaDataSettings*  Stun;
+
 	
 private:
 

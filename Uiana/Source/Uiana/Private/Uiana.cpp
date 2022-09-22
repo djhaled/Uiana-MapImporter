@@ -155,6 +155,7 @@ FReply FUianaModule::ExecuteFunction()
 	return FReply::Handled();
 }
 
+
 void FUianaModule::RegisterMenus()
 {
 	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner
