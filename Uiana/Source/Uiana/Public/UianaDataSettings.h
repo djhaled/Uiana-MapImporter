@@ -44,7 +44,5 @@ public:
 		bool ImportBlueprints;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings", meta=(ClampMin=0.01, ClampMax=5))
 		float LightmapResolutionMultiplier;
-	UFUNCTION()
-	FString GetValorantInstall();
 
 };
