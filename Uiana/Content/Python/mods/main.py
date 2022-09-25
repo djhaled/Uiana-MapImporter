@@ -179,6 +179,9 @@ def set_material(
     if mat_data.name == "Stone_M1_SquareTilesDirt_MI":
         unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(
             ue_material, "invert vertex", True)
+    if "Wood_M15" in mat_data.name or "Stone_M0_SquareTiles" in mat_data.name:
+        unreal.MaterialEditingLibrary.set_material_instance_static_switch_parameter_value(
+            ue_material, "WoodFix", True)
 
     # fix this
     if "BasePropertyOverrides" in mat_props:
@@ -212,10 +215,6 @@ def set_material(
         for param in mat_props["VectorParameterValues"]:
             param_name = param['ParameterInfo']['Name'].lower()
             param_value = param["ParameterValue"]
-            if param_name == "texture tint a":
-                param_name = "layer a tint"
-            if param_name == "texture tint b":
-                param_name = "layer b tint"
             set_material_vector_value(ue_material, param_name, get_rgb(param_value))
 
 
