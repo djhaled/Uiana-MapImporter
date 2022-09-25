@@ -17,5 +17,5 @@ TSharedPtr<FJsonObject> UianaHelpers::ParseJson(FString InputStr)
 	{
 		return JsonParsed;
 	}
-	checkf(false, TEXT("Failed to deserialize a required JSON! Ending Uiana."));
+	return nullptr;
 }

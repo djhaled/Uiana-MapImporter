@@ -11,6 +11,8 @@
  */
 class AActor;
 class UPSKXFactory;
+class USCS_Node;
+class UBrushComponent;
 
 UCLASS()
 class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
@@ -18,6 +20,15 @@ class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
+
+	UFUNCTION(BlueprintCallable, Category = BPFL)
+	static UActorComponent* GetComponentByName(AActor* Actor, FName CompName);
+	UFUNCTION(BlueprintCallable, Category = BPFL)
+	static void SetOverrideMaterial(AActor* Actor, FName CompName, TArray<UMaterialInterface*> MatOvr);
+	UFUNCTION(BlueprintCallable, Category = BPFL)
+	static USCS_Node* CreateNode(UObject* Object, UClass* ClassToUse, FName CompName, UActorComponent*& ComponentReturn);
+	UFUNCTION(BlueprintCallable, Category = BPFL)
+	static UActorComponent* CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName, TArray<USCS_Node*> AttachNodes);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
 	static void PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName);
 	UFUNCTION(BlueprintCallable, Category = VertexPainting)
@@ -28,8 +39,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ChangeProjectSettings();
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
+	static UActorComponent* GetComponent(AActor* Actor);
+	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ImportTextures(TArray<FString> AllTexturesPath);
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ImportMeshes(TArray<FString> AllMeshesPath, FString ObjectsPath);
 	static ECollisionTraceFlag GetTraceFlag(FString tflag);
+	UFUNCTION(BlueprintCallable, Category = "Unreal Python")
+		static void ExecuteConsoleCommand(FString ConsoleCommand);
 };

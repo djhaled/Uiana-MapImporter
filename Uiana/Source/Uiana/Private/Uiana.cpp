@@ -16,6 +16,7 @@
 #include "UianaDataSettings.h"
 #include "Misc/Paths.h"
 #include "ISettingsModule.h"
+#include "JsonObjectConverter.h"
 static const FName UianaTabName("Uiana");
 
 #define LOCTEXT_NAMESPACE "FUianaModule"
@@ -151,7 +152,28 @@ FReply FUianaModule::ExecuteFunction()
 	FString FormattedConsoleCommand = FString::Format(
 		TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
-	GEngine->Exec(nullptr, TCharCommand);
+	// GEngine->Exec(nullptr, TCharCommand);
+	FString jsonNoOpt = "[{\"Type\": \"TestType\",\"Name\": \"TestNameNoOpt\",\"Drop\": \"TestDropNoOpt\"}]";
+	FString jsonInner = "[{\"Type\":\"TestType\",\"Name\":\"TestName\",\"Drop\":\"TestDrop\",\"OptionalStr\":\"TestOptional\",\"OptionalInner\":{\"InnerName\":\"TestInnerName\",\"OptionalInnerName\":\"TestInnerOptional\"}}]";
+	FJsonObjectWrapper TestJson, TestJsonNoOpt, TestInner;
+	// FJsonObjectConverter::JsonObjectStringToUStruct(json, &TestJson);
+	// FJsonObjectConverter::JsonObjectStringToUStruct(jsonNoOpt, &TestJsonNoOpt);
+	// FJsonObjectConverter::JsonObjectStringToUStruct(jsonInner, &TestInner);
+	FString json = "[{\"Type\": \"TestType\",\"Name\": \"TestName\",\"Drop\": \"TestDrop\",\"OptionalStr\": \"TestOptional\"}]";
+	TArray<TSharedPtr<FJsonValue>> JsonParsed;
+	const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(json);
+	if (FJsonSerializer::Deserialize(JsonReader, JsonParsed) && JsonParsed[0].IsValid())
+	{
+		// Prints TestType
+		UE_LOG(LogScript, Warning, TEXT("PRINTING TYPE: %s"), *JsonParsed[0].Get()->AsObject()->GetStringField("Type"));
+	}
+	else
+	{
+		// Doesn't print, it works!
+		UE_LOG(LogScript, Warning, TEXT("CANNOT CONVERT!"));
+	}
+	UE_LOG(LogScript, Error, TEXT("RUNNING UIANA!"));
+	
 	return FReply::Handled();
 }
 

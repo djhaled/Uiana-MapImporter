@@ -5,10 +5,42 @@
 #include "CoreMinimal.h"
 #include "Input/Reply.h"
 #include "Modules/ModuleManager.h"
+#include "Uiana.generated.h"
 
 class FToolBarBuilder;
 class FMenuBuilder;
 class UUianaDataSettings;
+
+USTRUCT()
+struct FTestInner
+{
+	GENERATED_BODY();
+	UPROPERTY()
+	FString InnerName;
+	UPROPERTY()
+	FString OptionalInnerName;
+};
+
+USTRUCT()
+struct FTestJson
+{
+	GENERATED_BODY();
+	UPROPERTY()
+	FString Name;
+	UPROPERTY()
+	FString Type;
+	UPROPERTY()
+	FString OptionalStr;
+	UPROPERTY()
+	FTestInner OptionalInner;
+	FTestJson() {};
+	// FTestJson(FString _Name, FString _Type)
+	// {
+	// 	Name = _Name;
+	// 	Type = _Type;
+	// 	OptionalStr = "";
+	// }
+};
 
 class FUianaModule : public IModuleInterface
 {

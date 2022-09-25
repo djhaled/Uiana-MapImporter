@@ -4,7 +4,7 @@
 #include "Interfaces/IPluginManager.h"
 #include "UianaCPPDataSettings.generated.h"
 UENUM()
-enum WeaponRole
+enum WeaponRoleCPP
 {
 	Ascent UMETA(DisplayName = "Ascent"),
 	Split UMETA(DisplayName = "Split"),
@@ -21,7 +21,7 @@ enum WeaponRole
 
 UCLASS(config = Engine, defaultconfig, transient)
 
-class UianaCPP_API UUianaCPPDataSettings : public UObject
+class UIANACPP_API UUianaCPPDataSettings : public UObject
 {
 	GENERATED_BODY()
 public:
@@ -31,7 +31,7 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Settings Folders", meta = (RelativeToGameContentDir, ContentDir))
 	FDirectoryPath PaksFolder;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
-	TEnumAsByte<WeaponRole> Map;
+	TEnumAsByte<WeaponRoleCPP> Map;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 	bool ImportMeshes;
 	UPROPERTY(config, EditAnywhere, Category = "SubLevels")
@@ -42,7 +42,19 @@ public:
 	bool ImportDecals;
 	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
 	bool ImportLights;
+	UPROPERTY(config, EditAnywhere, Category = "Import Settings")
+	bool ImportBlueprints;
+	UPROPERTY(config, EditAnywhere, Category = "Import Settings", meta=(ClampMin=0.01, ClampMax=5))
+	float LightmapResolutionMultiplier;
+	
+	UFUNCTION()
+	FString GetValorantInstall();
+	UPROPERTY()
+	FString ValorantVersion;
 	
 	// Functions
 	UUianaCPPDataSettings(const FObjectInitializer& ObjectInitializer);
+
+private:
+	const FString ValorantMetadataPath = "C:\\ProgramData\\Riot Games\\Metadata\\valorant.live\\valorant.live.ok";
 };

@@ -93,6 +93,7 @@ def get_map_assets(settings: Settings):
 			object_list.append(umap_objects)
 			materials_ovr_list.append(umap_materials)
 
+		# Save asset lists
 		object_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
 			f"_assets_objects.txt"), lines=object_list)
 		mats_ovr_txt = save_list(filepath=settings.selected_map.folder_path.joinpath(
@@ -199,6 +200,7 @@ def set_material(settings: Settings, UEMat,  mat_data: dict, override: bool = Fa
 				continue
 			if prop_name not in BasePropsBlacklist:
 				BasePropOverride = unreal.MaterialInstanceBasePropertyOverrides()
+				print(f'Uiana: Setting BasePropertyOverride property {prop_name}')
 				BasePropOverride.set_editor_property(prop_name, prop_value)
 	
 	if "StaticParameters" in mat_props:
@@ -299,6 +301,7 @@ def SetAllSettings(asset,Comp):
 			PropSet = Comp.get_editor_property(Setting)
 			classname = GetClassName(PropSet)
 			if type(ActorSetting) == int or type(ActorSetting) == float or type(ActorSetting) == bool :
+				print(f'Uiana: Setting ActorSetting property {Setting}')
 				Comp.set_editor_property(Setting, ActorSetting)
 				continue
 			if type(ActorSetting) == str:
@@ -307,6 +310,7 @@ def SetAllSettings(asset,Comp):
 				ActorSetting = ReturnFormattedString(ActorSetting,":")
 			if classname == "Color":
 				Colorized = unreal.Color(r=ActorSetting['R'], g=ActorSetting['G'], b=ActorSetting['B'], a=ActorSetting['A'])
+				print(f'Uiana: Setting Color property {Setting}')
 				Comp.set_editor_property(Setting, Colorized)
 				continue
 			if type(ActorSetting) == dict:
@@ -333,6 +337,7 @@ def SetAllSettings(asset,Comp):
 			if not ActualValue:
 				continue
 			value = eval(f'unreal.{classname}.{ActualValue}')
+			print(f'Uiana: Setting Editor Property {Setting}')
 			Comp.set_editor_property(Setting, value)
 def SetLightmassSetting(ActorSetting,Evalu):
 	Set = eval(f'unreal.{Evalu}()')
@@ -344,6 +349,7 @@ def SetLightmassSetting(ActorSetting,Evalu):
 		if val.startswith("b"):
 			num = 2
 		newstr = re.sub('([A-Z])', r'_\1', val)
+		print(f'Uiana: Setting Lightmass property {newstr[num:len(newstr)].lower()}')
 		Set.set_editor_property(newstr[num:len(newstr)].lower(),ActorSetting[val])
 	return Set
 
@@ -538,6 +544,7 @@ def SetPostProcessSettings(AllSettings,Comp):
 				ResultValue = unreal.LinearColor(ResultValue["R"],ResultValue["G"],ResultValue["B"],ResultValue["A"])
 			if CompSet == unreal.Color:
 				ResultValue = unreal.Color(ResultValue["R"],ResultValue["G"],ResultValue["B"],ResultValue["A"])
+			print(f'Uiana: Set post-processing setting {Setting}')
 			Comp.set_editor_property(Setting, ResultValue)
 def CreateNewLevel(mapname):
 	newmap = GetInitialName(mapname)
@@ -671,7 +678,7 @@ def import_map(Setting):
 	settings = Settings(Setting)
 	global Seting
 	Seting = settings
-	 = get_map_assets(Seting)
+	umap_json_paths = get_map_assets(Seting)
 	if not Seting.import_sublevel:
 		CreateNewLevel(settings.selected_map.name)
 	ClearLevel()

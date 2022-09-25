@@ -7,11 +7,14 @@
 #include "GameFramework/Actor.h"
 #include "VectorTypes.h"
 #include "Engine/StaticMesh.h"
+#include "AssetToolsModule.h"
+#include "Engine/SCS_Node.h"
 #include "json.hpp"
 #include "KismetProceduralMeshLibrary.h"
 #include "AutomatedAssetImportData.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Engine/World.h"
+#include "Kismet2/KismetEditorUtilities.h"
 #include "Misc/FileHelper.h"
 #include "Factories/TextureFactory.h"
 #include "StaticMeshDescription.h"
@@ -19,6 +22,52 @@
 #include "PSKReader.h"
 #include "Engine/RendererSettings.h"
 #include "PSKXFactory.h"
+
+
+
+
+
+UActorComponent* UBPFL::GetComponentByName(AActor* Actor, FName CompName)
+{
+	UStaticMeshComponent* Trolley = Cast<UStaticMeshComponent>(Actor->GetDefaultSubobjectByName(CompName));
+	if (!Trolley)
+	{
+		return nullptr;
+	}
+	return Trolley;
+}
+void UBPFL::SetOverrideMaterial(AActor* Actor, FName CompName, TArray<UMaterialInterface*> MatOvr)
+{
+	UStaticMeshComponent* Trolley = Cast<UStaticMeshComponent>(Actor->GetDefaultSubobjectByName(CompName));
+	if (!Trolley)
+	{
+		return;
+	}
+	Trolley->OverrideMaterials = MatOvr;
+}
+USCS_Node* UBPFL::CreateNode(UObject* Object, UClass* ClassToUse, FName CompName,UActorComponent*& ComponentReturn)
+{
+	IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	UBlueprint* Blueprint = Cast<UBlueprint>(Object);
+	USCS_Node* Node = Blueprint->SimpleConstructionScript->CreateNode(ClassToUse, CompName);
+	ComponentReturn = Node->ComponentTemplate;
+	return Node;
+}
+UActorComponent* UBPFL::CreateBPComp(UObject* Object, UClass* ClassToUse, FName CompName,TArray<USCS_Node*> AttachNodes)
+{
+	IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	UBlueprint* Blueprint = Cast<UBlueprint>(Object);
+	USCS_Node* Node = Blueprint->SimpleConstructionScript->CreateNode(ClassToUse, CompName);
+	auto Component = Node->ComponentTemplate;
+	//auto ChildNodes = Node->AddChildNode()
+	Blueprint->SimpleConstructionScript->AddNode(Node);
+	for (auto AttchNode : AttachNodes)
+	{
+		Node->AddChildNode(AttchNode);
+	}
+	FKismetEditorUtilities::CompileBlueprint(Blueprint);
+	return Component.Get();
+}
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
 {
 	TArray<FColor> FinalColors;
@@ -155,7 +204,20 @@ void UBPFL::ChangeProjectSettings()
 	Settings->Reflections == EReflectionMethod::None;
 	Settings->SaveConfig();
 }
-
+UActorComponent* UBPFL::GetComponent(AActor* Actor)
+{
+	Actor->SpriteScale;
+	UActorComponent* RootComp = Actor->GetRootComponent();
+	return Actor->GetRootComponent();
+}
+void UBPFL::ExecuteConsoleCommand(FString ConsoleCommand) {
+	if (GEditor) {
+		UWorld* World = GEditor->GetEditorWorldContext().World();
+		if (World) {
+			GEditor->Exec(World, *ConsoleCommand, *GLog);
+		}
+	}
+}
 void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 {
 	auto AutomatedData = NewObject<UAutomatedAssetImportData>();
@@ -204,7 +266,6 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		FAssetRegistryModule::AssetCreated(Tex);
 		Tex->PreEditChange(nullptr);
 		Tex->PostEditChange();
-		TexPackage->FullyLoad();
 	}
 }
 

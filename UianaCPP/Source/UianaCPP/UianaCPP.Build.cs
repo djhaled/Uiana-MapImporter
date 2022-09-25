@@ -27,7 +27,11 @@ public class UianaCPP : ModuleRules
 			{
 				"Core",
 				"Json",
-				"JsonUtilities"
+				"JsonUtilities",
+				"EditorScriptingUtilities",
+				"AssetTools",
+				"LevelEditor",
+				"MaterialEditor"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

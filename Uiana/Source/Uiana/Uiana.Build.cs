@@ -27,7 +27,9 @@ public class Uiana : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new[]
 			{
-				"Core"
+				"Core",
+				"Json",
+				"JsonUtilities"
 				// ... add other public dependencies that you statically link with here ...
 			}
 		);
