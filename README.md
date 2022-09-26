@@ -26,7 +26,7 @@ Before you download the addon, you must download these first.
 
 
 ## 1. 🔧 Installation & Usage
-1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases/download/1.04/Uiana-1.04.zip)**
+1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases)**
 2. Create a Plugins folder on your project if you don't already have
 3. Drag "UIANA" and "UnrealPSKPSA" from the .zip file and put it in your **project's** "Plugins" folder (NOT IN ENGINE PLUGINS), create the folder if its not there
 4. If asked to, rebuild your Unreal project in Visual Studio
@@ -52,9 +52,10 @@ Before you download the addon, you must download these first.
 
 
 ## Common issues
+- Error "The following modules are missing or built with a different engine". Fix: rebuild your Unreal project in Visual Studio!
 - Can't import more than 1 map in the same project (Workaround: Move the ValorantContent folder to another folder then import a new map)
 - Crash while building lights (Workaround : Saving the map before building lights)
-- White vfx's meshes / Blank skyboxes (Working on it!)
+- White vfx's meshes (Working on it, delete them as a temporary fix)
 
 ## Contact 
 * Discord
