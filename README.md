@@ -3,16 +3,16 @@
 <br />
 <div align="center">
   <a href="https://github.com/djhaled/Uiana-MapImporter">
-    <img src="HighresScreenshot00019.png" alt="Logo">
+    <img src="HighresScreenshot00018.png" alt="ScreenShot">
   </a>
-
-
   <p align="center">
-    <br />
+    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/djhaled/Uiana-MapImporter?color=green&style=for-the-badge">
+    <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/djhaled/Uiana-MapImporter/total?color=green&style=for-the-badge">
+    <img alt="GitHub All Releases" src="https://img.shields.io/discord/436687524199661599?color=7289da&style=for-the-badge">
   </p>
 </div>
 
-# **Uiana**
+# <img src=https://github.com/djhaled/Uiana-MapImporter/blob/main/Uiana/Resources/Icon128.png alt="Logo" width="26"> **Uiana**
 Unreal Engine plugin for creating VALORANT content. Heavily inspired in Piana by Luviana.
 
 
@@ -52,16 +52,18 @@ Before you download the addon, you must download these first.
 
 
 ## Common issues
-- Error "The following modules are missing or built with a different engine". Fix: rebuild your Unreal project in Visual Studio!
-- Can't import more than 1 map in the same project (Workaround: Move the ValorantContent folder to another folder then import a new map)
+- Error "The following modules are missing or built with a different engine". Fix: rebuild your unreal project in Visual Studio!
+- Can't import more than 1 map in the same project (Workaround: Rename the current ValorantContent folder, then import a new map)
 - Crash while building lights (Workaround : Saving the map before building lights)
 - White vfx's meshes (Working on it, delete them as a temporary fix)
 
 ## Contact 
-* Discord
+* Discord: https://discord.gg/ARFEYZZwMV
   - bK#6198
   - Zain#1873
 
+## ❤️ Support
+[You can support us on **Paypal**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=bekmassruha1407@gmail.com&lc=US&no_note=0&item_name=Thank+you+for+suppporting+Uiana+Map+Import+Plugin+development+&cn=&curency_code=USD&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted)
 
 ## Credits
 - Whole Piana team (Luviana,floxay,CoRe | Janik.M,Rata,Drice,Devo,Zertox)
