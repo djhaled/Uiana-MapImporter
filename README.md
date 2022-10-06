@@ -27,10 +27,10 @@ Before you download the addon, you must download these first.
 
 ## 1. 🔧 Installation & Usage
 1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases)**
-2. Create a Plugins folder on your project if you don't already have
+2. Create a Plugins folder on your **(c++ ready)** project if you don't already have
 3. Drag "UIANA" and "UnrealPSKPSA" from the .zip file and put it in your **project's** "Plugins" folder (NOT IN ENGINE PLUGINS), create the folder if its not there
 4. If asked to, rebuild your Unreal project in Visual Studio
-5. Press Uiana button (Valorant Icon) on top of the UI to open the tool
+5. Press Uiana button (Icon) on top of the UI to open the tool
 6. Inside Uiana's UI, go to Settings and fill the inputs as follows.
    ```js
    Export Folder    = "Path to save your settings & export the maps"
@@ -45,9 +45,10 @@ Before you download the addon, you must download these first.
 
 ## 3. ⚡ Baking/Fixing lighting
 1. Open "Build" tab on the top left
-2. Change lighting to desired quality level (peview <-> production)
+2. Change lighting to desired quality level (peview for the fastest bake times)
 3. Press "Build Lighting Only" 
 4. Press "Build Reflection Captures"
+5. Make sure Global Illumination is set to "none" in the Post-Process Volume
 
 
 
