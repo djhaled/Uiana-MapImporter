@@ -46,6 +46,8 @@ void AValActor::CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponen
 	AddInstanceComponent(NewComp);
 	NewComp->SetFlags(RF_Transactional);
 	NewComp->SetMobility(EComponentMobility::Static);
+	NewComp->SetWorldTransform(TForm);
+	RootComponent = NewComp;
 }
 
 void AValActor::CreateStaticComponent(UStaticMeshComponent*& NewComp, UStaticMesh* MeshToUSE)

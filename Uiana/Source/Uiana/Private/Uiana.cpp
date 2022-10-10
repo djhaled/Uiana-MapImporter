@@ -134,12 +134,16 @@ FReply FUianaModule::ExecuteFunction()
 	bool ImportDecal = Stun->ImportDecals;
 	bool ImportLights = Stun->ImportLights;
 	bool ImportSubLevels = Stun->UseSubLevels;
+	bool ImportBlueprint = Stun->ImportBlueprints;
+	float ManualLMResMult = Stun->LightmapResolutionMultiplier;
 	FString MapName = GetMapName(Stun->Map.GetValue());
 	FString ExportPath = Stun->ExportFolder.Path;
 	FString PakFolder = Stun->PaksFolder.Path;
 	FString CurrentPath = FPaths::ProjectPluginsDir();
 	Stun->SaveConfig();
 	TArray<FStringFormatArg> args;
+	args.Add(FStringFormatArg(ImportBlueprint));
+	args.Add(FStringFormatArg(ManualLMResMult));
 	args.Add(FStringFormatArg(ImportSubLevels));
 	args.Add(FStringFormatArg(ImportMesh));
 	args.Add(FStringFormatArg(ImportMat));
@@ -150,7 +154,7 @@ FReply FUianaModule::ExecuteFunction()
 	args.Add(FStringFormatArg(PakFolder));
 	args.Add(FStringFormatArg(CurrentPath));
 	FString FormattedConsoleCommand = FString::Format(
-		TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\""), args);
+		TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\" \"{9}\"\"{10}\""), args);
 	const TCHAR* TCharCommand = *FormattedConsoleCommand;
 	// GEngine->Exec(nullptr, TCharCommand);
 	FString jsonNoOpt = "[{\"Type\": \"TestType\",\"Name\": \"TestNameNoOpt\",\"Drop\": \"TestDropNoOpt\"}]";
@@ -176,6 +180,7 @@ FReply FUianaModule::ExecuteFunction()
 	
 	return FReply::Handled();
 }
+
 
 void FUianaModule::RegisterMenus()
 {
@@ -247,7 +252,7 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 				  .VAlign(VAlign_Fill)
 				[
 					SNew(SBorder)
-					.BorderImage(FEditorStyle::GetBrush("ToolPanel.DarkGroupBorder"))
+					.BorderImage(FAppStyle::Get().GetBrush("ToolPanel.DarkGroupBorder"))
 					[
 						SNew(SVerticalBox)
 
@@ -272,13 +277,13 @@ TSharedRef<class SDockTab> FUianaModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 						  .Padding(2.f, 5.f)
 						[
 							SNew(SButton)
-			.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
+			.ButtonStyle(FAppStyle::Get(), "FlatButton.Success")
 		.ForegroundColor(FSlateColor::UseForeground())
 		.OnClicked(FOnClicked::CreateRaw(this, &FUianaModule::ExecuteFunction))
 							[
 								SNew(STextBlock)
 			.Justification(ETextJustify::Center)
-		.TextStyle(FEditorStyle::Get(), "NormalText.Important")
+		.TextStyle(FAppStyle::Get(), "NormalText.Important")
 		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate Map"))
 							]
 						]
