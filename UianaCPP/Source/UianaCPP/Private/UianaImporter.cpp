@@ -1,6 +1,7 @@
 ﻿#include "UianaImporter.h"
 
 #include "KismetCompilerMisc.h"
+#include "ObjectEditorUtils.h"
 #include "VectorTypes.h"
 #include "Components/DecalComponent.h"
 #include "Engine/AssetManager.h"
@@ -11,6 +12,7 @@
 #define LOCTEXT_NAMESPACE "Uiana"
 
 FString UUianaImporter::Name = "";
+FString UUianaImporter::ValorantVersion = "";
 TArray<FString> UUianaImporter::UMaps = TArray<FString>();
 FDirectoryPath UUianaImporter::PaksPath = FDirectoryPath();
 FDirectoryPath UUianaImporter::FolderPath = FDirectoryPath();
@@ -328,8 +330,8 @@ void UUianaImporter::GetTexturePaths(const TArray<FString> matPaths, TArray<FStr
 				{
 					texturePaths.AddUnique(FPaths::Combine(ExportAssetsPath.Path, "/" +
 						param->AsObject()->GetObjectField("ParameterValue")->GetStringField("ObjectPath").Replace(
-						TEXT("ShooterGame\\Content"), TEXT("Game")).Replace(
-							TEXT("Engine\\Content"), TEXT("Engine"))));
+						TEXT("ShooterGame"), TEXT("Game")).Replace(
+							TEXT("Content"), TEXT(""))));
 				}
 			}
 		}
@@ -478,22 +480,17 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 	{
 		TSharedPtr<FJsonValue> propValue = prop.Value;
 		const FName propName = FName(*prop.Key);
-		const FProperty* objectProp = mat->GetClass()->FindPropertyByName(propName);
-		void* value;
-		const FProperty* valueProp;
-		
-		if (!UKismetSystemLibrary::Generic_GetEditorProperty(mat, objectProp, value, valueProp)) continue;
+		const FProperty* objectProp = PropertyAccessUtil::FindPropertyByName(propName, mat->GetClass());
+		if (objectProp == nullptr) continue;
 		const EJson propType = propValue.Get()->Type;
 		if (propType == EJson::Number || propType == EJson::Boolean)
 		{
 			if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
 			{
-				int num = 14680;
-				UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, &num, valueProp, EPropertyAccessChangeNotifyMode::Default);
+				FObjectEditorUtils::SetPropertyValue(mat, propName, 14680);
 				continue;
 			}
-			double num = prop.Value.Get()->AsNumber();
-			UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, &num, valueProp, EPropertyAccessChangeNotifyMode::Default);
+			FObjectEditorUtils::SetPropertyValue(mat, propName, prop.Value.Get()->AsNumber());
 			continue;
 		}
 		if (propType == EJson::String && propValue.Get()->AsString().Contains("::"))
@@ -510,7 +507,7 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 			color.R = obj->GetNumberField("R");
 			color.G = obj->GetNumberField("G");
 			color.B = obj->GetNumberField("B");
-			UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, &color, valueProp, EPropertyAccessChangeNotifyMode::Default);
+			FObjectEditorUtils::SetPropertyValue(mat, propName, color);
 		}
 		else if (objectProp->GetClass()->GetName().Equals("FVector4"))
 		{
@@ -520,7 +517,7 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 			vector.Y = obj->GetNumberField("Y");
 			vector.Z = obj->GetNumberField("Z");
 			vector.W = obj->GetNumberField("W");
-			UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, &vector, valueProp, EPropertyAccessChangeNotifyMode::Default);
+			FObjectEditorUtils::SetPropertyValue(mat, propName, vector);
 		}
 		else if (objectProp->GetClass()->GetName().Contains("Color"))
 		{
@@ -530,7 +527,7 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 			color.G = obj->GetNumberField("G");
 			color.B = obj->GetNumberField("B");
 			color.A = obj->GetNumberField("A");
-			UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, &color, valueProp, EPropertyAccessChangeNotifyMode::Default);
+			FObjectEditorUtils::SetPropertyValue(mat, propName, color);
 		}
 		else if (propType == EJson::Object)
 		{
@@ -540,7 +537,7 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 				propValue.Get()->AsObject()->GetStringField("ObjectName").Split("_", &temp, &newTextureName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 				FString assetPath = "/Uiana/IESProfiles/" + newTextureName + "." + newTextureName;
 				UTexture* newTexture = static_cast<UTexture*>(UEditorAssetLibrary::LoadAsset(assetPath));
-				UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, newTexture, valueProp, EPropertyAccessChangeNotifyMode::Default);
+				FObjectEditorUtils::SetPropertyValue(mat, propName, newTexture);
 			}
 			else if (prop.Key.Equals("Cubemap"))
 			{
@@ -548,7 +545,7 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 				FString assetPath = "/Uiana/CubeMaps/" + newCubemapName + "." + newCubemapName;
 				// TODO: Convert all static_cast with UObjects to Cast<>()
 				UTextureCube* newCube = Cast<UTextureCube, UObject>(UEditorAssetLibrary::LoadAsset(assetPath));
-				UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, newCube, valueProp, EPropertyAccessChangeNotifyMode::Default);
+				FObjectEditorUtils::SetPropertyValue(mat, propName, newCube);
 			}
 			else if (prop.Key.Equals("DecalMaterial"))
 			{
@@ -566,7 +563,7 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 				vec.X = obj->GetNumberField("X");
 				vec.Y = obj->GetNumberField("Y");
 				vec.Z = obj->GetNumberField("Z");
-				UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, &vec, valueProp, EPropertyAccessChangeNotifyMode::Default);
+				FObjectEditorUtils::SetPropertyValue(mat, propName, vec);
 			}
 			else if (prop.Key.Equals("StaticMesh"))
 			{
@@ -575,7 +572,7 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 				{
 					FString name = meshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
 					UStaticMesh* mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + name));
-					UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, mesh, valueProp, EPropertyAccessChangeNotifyMode::Default);
+					FObjectEditorUtils::SetPropertyValue(mat, propName, mesh);
 				}
 			}
 			else if (prop.Key.Equals("BoxExtent"))
@@ -585,13 +582,12 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 				vec.X = obj->GetNumberField("X");
 				vec.Y = obj->GetNumberField("Y");
 				vec.Z = obj->GetNumberField("Z");
-				UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, &vec, valueProp, EPropertyAccessChangeNotifyMode::Default);
+				FObjectEditorUtils::SetPropertyValue(mat, propName, vec);
 			}
 			else if (prop.Key.Equals("LightmassSettings"))
 			{
-				FLightmassMaterialInterfaceSettings* settings;
-				const FStructProperty* settingsProp;
-				UKismetSystemLibrary::Generic_GetEditorProperty(mat, objectProp, &settings, settingsProp);
+				// TODO: Create lightmass settings
+				
 			}
 		}
 		else if (propType == EJson::Array && prop.Key.Equals("OverrideMaterials"))
@@ -609,7 +605,7 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 				if (loaded == nullptr) loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantMaterials/Materials/" + objName));
 				overrideMats.Add(loaded);
 			}
-			UKismetSystemLibrary::Generic_SetEditorProperty(mat, objectProp, &overrideMats, valueProp, EPropertyAccessChangeNotifyMode::Default);
+			FObjectEditorUtils::SetPropertyValue(mat, propName, overrideMats);
 		}
 		else
 		{
