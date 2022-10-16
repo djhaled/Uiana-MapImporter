@@ -18,6 +18,7 @@
 #include "UianaCPPDataSettings.h"
 #include "Misc/Paths.h"
 #include "ISettingsModule.h"
+#include "UianaImporter.h"
 static const FName UianaCPPTabName("UianaCPP");
 
 #define LOCTEXT_NAMESPACE "FUianaCPPModule"
@@ -130,31 +131,14 @@ void FUianaCPPModule::PluginButtonClicked()
 
 FReply FUianaCPPModule::ExecuteFunction()
 {
-	bool ImportMesh = Stun->ImportMeshes;
-	bool ImportMat = Stun->ImportMaterials;
-	bool ImportDecal = Stun->ImportDecals;
-	bool ImportLights = Stun->ImportLights;
-	bool ImportSubLevels = Stun->UseSubLevels;
 	FString MapName = GetMapName(Stun->Map.GetValue());
 	FString ExportPath = Stun->ExportFolder.Path;
 	FString PakFolder = Stun->PaksFolder.Path;
 	FString CurrentPath = FPaths::ProjectPluginsDir();
 	Stun->SaveConfig();
-	
-	TArray<FStringFormatArg> args;
-	args.Add(FStringFormatArg(ImportSubLevels));
-	args.Add(FStringFormatArg(ImportMesh));
-	args.Add(FStringFormatArg(ImportMat));
-	args.Add(FStringFormatArg(ImportDecal));
-	args.Add(FStringFormatArg(ImportLights));
-	args.Add(FStringFormatArg(MapName));
-	args.Add(FStringFormatArg(ExportPath));
-	args.Add(FStringFormatArg(PakFolder));
-	args.Add(FStringFormatArg(CurrentPath));
-	FString FormattedConsoleCommand = FString::Format(
-		TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\""), args);
-	const TCHAR* TCharCommand = *FormattedConsoleCommand;
-	GEngine->Exec(nullptr, TCharCommand);
+	UUianaImporter* Importer = NewObject<UUianaImporter>();
+	Importer->Initialize(MapName, Stun);
+	// Importer.ImportMap();
 	return FReply::Handled();
 }
 

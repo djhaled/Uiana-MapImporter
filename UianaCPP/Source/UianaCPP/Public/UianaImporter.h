@@ -16,23 +16,30 @@
 #include "MaterialEditingLibrary.h"
 #include "Materials/MaterialInstance.h"
 #include "Subsystems/EditorActorSubsystem.h"
+#include "ObjectEditorUtils.h"
+#include "VectorTypes.h"
+#include "Components/DecalComponent.h"
+#include "Engine/AssetManager.h"
+#include "Tools/UAssetEditor.h"
+#include "Materials/MaterialInstanceBasePropertyOverrides.h"
+#include "Engine/TextureCube.h"
 #include "UianaImporter.generated.h"
 
-USTRUCT()
-struct FUianaExport
-{
-	GENERATED_BODY();
-	UPROPERTY()
-	FString version;
-
-	friend FArchive& operator <<(FArchive& Ar, FUianaExport& toSerialize)
-	{
-		FString JsonString;
-		FJsonObjectConverter::UStructToJsonObjectString(toSerialize.StaticStruct(), &toSerialize, JsonString);
-		Ar << JsonString;
-		return Ar;
-	}
-};
+// USTRUCT()
+// struct FUianaExport
+// {
+// 	GENERATED_BODY();
+// 	UPROPERTY()
+// 	FString version;
+//
+// 	friend FArchive& operator <<(FArchive& Ar, FUianaExport& toSerialize)
+// 	{
+// 		FString JsonString;
+// 		FJsonObjectConverter::UStructToJsonObjectString(toSerialize.StaticStruct(), &toSerialize, JsonString);
+// 		Ar << JsonString;
+// 		return Ar;
+// 	}
+// };
 
 UCLASS()
 class UIANACPP_API UUianaImporter : public UObject
@@ -40,8 +47,8 @@ class UIANACPP_API UUianaImporter : public UObject
 	GENERATED_BODY()
 public:
 	UUianaImporter();
-	UUianaImporter(FString MapName, UUianaCPPDataSettings Settings);
-	static void ImportMap(UUianaCPPDataSettings Settings);
+	static void Initialize(FString MapName, UUianaCPPDataSettings* Settings);
+// 	static void ImportMap();
 private:
 	inline const static FString AesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6";
 	inline const static FString TextureFormat = ".png";
@@ -72,6 +79,7 @@ private:
 		"DirtSkirt",
 		"Tech_0_RebelSupplyCargoTarpLargeCollision"
 	};
+	static UUianaCPPDataSettings* Settings;
 	static FString Name;
 	static FString ValorantVersion;
 	static TArray<FString> UMaps;
@@ -87,18 +95,18 @@ private:
 	static FDirectoryPath ScenesPath;
 	static FDirectoryPath UMapsPath;
 	static FDirectoryPath ActorsPath;
-
-	static bool NeedExport();
-	static void ExtractAssets(TArray<FString> umapPaths);
-	static void CUE4Extract(FDirectoryPath ExportDir, FString AssetList = "");
-	static void UModelExtract();
-	static FString CreateNewLevel();
-	static void GetTexturePaths(const TArray<FString> matPaths, TArray<FString> &texturePaths);
-	static void CreateMaterial(const TArray<FString> matPaths);
-	static void SetMaterial(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat);
-	static void SetTextures(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat);
-	static void SetMaterialSettings(const TSharedPtr<FJsonObject> matProps, UMaterialInstanceConstant* mat);
-	static void GetObjects(TArray<FString> &actorPaths, TArray<FString> &objPaths,
-		TArray<FString> &matPaths, const TArray<TSharedPtr<FJsonValue>> &jsonArr);
-	static void ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, const FString umapName);
+//
+// 	static bool NeedExport();
+// 	static void ExtractAssets(TArray<FString> umapPaths);
+// 	static void CUE4Extract(FDirectoryPath ExportDir, FString AssetList = "");
+// 	static void UModelExtract();
+// 	static FString CreateNewLevel();
+// 	static void GetTexturePaths(const TArray<FString> matPaths, TArray<FString> &texturePaths);
+// 	static void CreateMaterial(const TArray<FString> matPaths);
+// 	static void SetMaterial(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat);
+// 	static void SetTextures(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat);
+// 	static void SetMaterialSettings(const TSharedPtr<FJsonObject> matProps, UMaterialInstanceConstant* mat);
+// 	static void GetObjects(TArray<FString> &actorPaths, TArray<FString> &objPaths,
+// 		TArray<FString> &matPaths, const TArray<TSharedPtr<FJsonValue>> &jsonArr);
+// 	static void ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, const FString umapName);
 };
