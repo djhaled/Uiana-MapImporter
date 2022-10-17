@@ -25,7 +25,8 @@
     "/Game/Maps/Triad/Triad_Volumes",
     "/Game/Maps/Triad/Triad_Art_Skybox",
     "/Game/Maps/Triad/Triad_Art_A",
-    "ShooterGame/Content/Maps/Triad/Triad"
+    "/Game/Maps/Triad/Triad_VFX",
+    "/Game/Maps/Triad/Triad"
   ],
   "pearl": [
     "/Game/Maps/Pitt/Pitt_Art_Blockmesh",
@@ -42,12 +43,14 @@
     "/Game/Maps/Pitt/Pitt_Art_AtkPathMidToA",
     "/Game/Maps/Pitt/Pitt_Art_Signage",
     "/Game/Maps/Pitt/Pitt_Gameplay",
+    "/Game/Maps/Pitt/Pitt_Mode_BombMode",
     "/Game/Maps/Pitt/Pitt_Art_DefSpawn",
     "/Game/Maps/Pitt/Pitt_Art_BSite",
     "/Game/Maps/Pitt/Pitt_Art_AtkSpawn",
     "/Game/Maps/Pitt/Pitt_Art_AtkPathB",
     "/Game/Maps/Pitt/Pitt_Art_AtkPathA",
-    "ShooterGame/Content/Maps/Pitt/Pitt"
+    "/Game/Maps/Pitt/Pitt_Art_VFX",
+    "/Game/Maps/Pitt/Pitt"
   ],
   "fracture": [
     "/Game/Maps/Canyon/Canyon_Gameplay",
@@ -64,7 +67,8 @@
     "/Game/Maps/Canyon/Canyon_Lighting",
     "/Game/Maps/Canyon/Canyon_BackPathToB",
     "/Game/Maps/Canyon/Canyon_AtkPathToASite",
-    "ShooterGame/Content/Maps/Canyon/Canyon"
+    "/Game/Maps/Canyon/Canyon_VFX",
+    "/Game/Maps/Canyon/Canyon"
   ],
   "range": [
     "/Game/Maps/Poveglia/Range_Art_AsylumDown",
@@ -84,7 +88,8 @@
     "/Game/Maps/Poveglia/Range_Art_Cemetery",
     "/Game/Maps/Poveglia/Range_Art_Gallery",
     "/Game/Maps/Poveglia/Range_Art_Hospital",
-    "ShooterGame/Content/Maps/Poveglia/Range"
+    "/Game/Maps/Poveglia/Range_VFX",
+    "/Game/Maps/Poveglia/Range"
   ],
   "split": [
     "/Game/Maps/Bonsai/Bonsai_Art_VistaB",
@@ -110,7 +115,8 @@
     "/Game/Maps/Bonsai/Bonsai_Art_Mid",
     "/Game/Maps/Bonsai/Bonsai_Art_DefSpawn",
     "/Game/Maps/Bonsai/Bonsai_Gameplay_Dynamic",
-    "ShooterGame/Content/Maps/Bonsai/Bonsai"
+    "/Game/Maps/Bonsai/Bonsai_VFX",
+    "/Game/Maps/Bonsai/Bonsai"
   ],
   "bind": [
     "/Game/Maps/Duality/Duality_Audio",
@@ -135,7 +141,8 @@
     "/Game/Maps/Duality/Duality_Art_B",
     "/Game/Maps/Duality/Duality_Lighting",
     "/Game/Maps/Duality/Duality_Art_Atk",
-    "ShooterGame/Content/Maps/Duality/Duality"
+    "/Game/Maps/Duality/Duality_VFX",
+    "/Game/Maps/Duality/Duality"
   ],
   "breeze": [
     "/Game/Maps/Foxtrot/Foxtrot_Art_AtkPath_A",
@@ -155,7 +162,8 @@
     "/Game/Maps/Foxtrot/Foxtrot_Art_Mid",
     "/Game/Maps/Foxtrot/Foxtrot_Art_DefSpawn",
     "/Game/Maps/Foxtrot/Foxtrot_Art_AtkSpawn",
-    "ShooterGame/Content/Maps/Foxtrot/Foxtrot"
+    "/Game/Maps/Foxtrot/Foxtrot_Art_VFX",
+    "/Game/Maps/Foxtrot/Foxtrot"
   ],
   "ascent": [
     "/Game/Maps/Ascent/Ascent_Lighting",
@@ -177,7 +185,8 @@
     "/Game/Maps/Ascent/Ascent_Art_Vista",
     "/Game/Maps/Ascent/Ascent_Gameplay",
     "/Game/Maps/Ascent/Ascent_Art_VistaA",
-    "ShooterGame/Content/Maps/Ascent/Ascent"
+    "/Game/Maps/Ascent/Ascent_Art_Env_VFX",
+    "/Game/Maps/Ascent/Ascent"
   ],
   "icebox": [
     "/Game/Maps/Port/Port_Art_SnowAll",
@@ -193,7 +202,8 @@
     "/Game/Maps/Port/Port_Lighting",
     "/Game/Maps/Port/Port_Art_Vista",
     "/Game/Maps/Port/Port_Gameplay",
-    "ShooterGame/Content/Maps/Port/Port"
+    "/Game/Maps/Port/Port_Art_VFX",
+    "/Game/Maps/Port/Port"
   ],
   "menu": [
     "/Game/Maps/Menu/MainMenuV2"

@@ -138,7 +138,7 @@ FReply FUianaCPPModule::ExecuteFunction()
 	Stun->SaveConfig();
 	UUianaImporter* Importer = NewObject<UUianaImporter>();
 	Importer->Initialize(MapName, Stun);
-	// Importer.ImportMap();
+	Importer->ImportMap();
 	return FReply::Handled();
 }
 

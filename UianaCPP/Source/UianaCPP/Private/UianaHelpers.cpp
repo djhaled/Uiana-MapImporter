@@ -5,8 +5,7 @@
 
 void UianaHelpers::CreateFolder(FDirectoryPath& FolderPath, FString Root, FString Extension)
 {
-	FolderPath.Path = FPaths::Combine(Root, Extension);
-	UE_LOG(LogTemp, Error, TEXT("Creating folder at %s"), *(FolderPath.Path));
+	FolderPath.Path = FPaths::Combine(Root, Extension).Replace(TEXT("\\"), TEXT("/"));
 	IPlatformFile& FileManager = FPlatformFileManager::Get().GetPlatformFile();
 	if (FileManager.DirectoryExists(*(FolderPath.Path)))
 	{
