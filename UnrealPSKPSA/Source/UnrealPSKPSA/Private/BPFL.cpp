@@ -228,16 +228,15 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 	FScopedSlowTask ImportTask(AllTexturesPath.Num(), FText::FromString("Importing Textures"));
 	ImportTask.MakeDialog(true);
 	auto ActorIdx = -1;
-	for (auto tx : AllTexturesPath)
+	for (const FString texturePath : AllTexturesPath)
 	{
 		ActorIdx++;
-		FString TexGamePath, TexName;
-		tx.Split(TEXT("\\"), &TexGamePath, &TexName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-		FString PathForTextures = FString::Printf(TEXT("/Game/ValorantContent/Textures/%s"), *TexName.Replace(TEXT(".png"),TEXT("")));
+		const FString TexName = FPaths::GetBaseFilename(texturePath);
+		const FString TexGamePath = FPaths::GetPath(texturePath);
+		FString PathForTextures = FString::Printf(TEXT("/Game/ValorantContent/Textures/%s"), *TexName);
 		auto TexPackage = CreatePackage(nullptr ,*PathForTextures);
 		auto bCancelled = false;
-		auto NewTxName = TexName.Replace(TEXT(".png"),TEXT(""));
-		auto CreatedTexture = TextureFactory->FactoryCreateFile(UTexture2D::StaticClass(), TexPackage, FName(*NewTxName), RF_Public | RF_Standalone, tx, NULL, GWarn, bCancelled); 
+		auto CreatedTexture = TextureFactory->FactoryCreateFile(UTexture2D::StaticClass(), TexPackage, FName(*TexName), RF_Public | RF_Standalone, texturePath, NULL, GWarn, bCancelled); 
 		if (CreatedTexture == nullptr)
 		{
 			continue;
@@ -245,22 +244,22 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		auto Tex = CastChecked<UTexture2D>(CreatedTexture);
 		/// tx 
 		auto CompressionSetting = Tex->CompressionSettings;
-		if (NewTxName.EndsWith("MRA") && CompressionSetting != TC_Masks)
+		if (TexName.EndsWith("MRA") && CompressionSetting != TC_Masks)
 		{
 			Tex->SRGB = false;
 			Tex->CompressionSettings = TC_Masks;
 		}
-		if (NewTxName.EndsWith("NM") && CompressionSetting != TC_Normalmap)
+		if (TexName.EndsWith("NM") && CompressionSetting != TC_Normalmap)
 		{
 			Tex->SRGB = false;
 			Tex->CompressionSettings = TC_Normalmap;
 		}
-		if (NewTxName.EndsWith("DF") && CompressionSetting != TC_Normalmap)
+		if (TexName.EndsWith("DF") && CompressionSetting != TC_Normalmap)
 		{
 			Tex->SRGB = true;
 			Tex->CompressionSettings = TC_Default;
 		}
-		ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Texture : %d of %d: %s"), ActorIdx + 1, AllTexturesPath.Num() + 1, *NewTxName));
+		ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Texture : %d of %d: %s"), ActorIdx + 1, AllTexturesPath.Num() + 1, *TexName));
 		ImportTask.EnterProgressFrame();
 		Tex->MarkPackageDirty();
 		FAssetRegistryModule::AssetCreated(Tex);
