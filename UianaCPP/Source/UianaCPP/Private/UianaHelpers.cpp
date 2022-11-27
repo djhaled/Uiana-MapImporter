@@ -1,5 +1,8 @@
 ﻿#include "UianaHelpers.h"
 
+#include "JsonObjectConverter.h"
+#include "ObjectEditorUtils.h"
+#include "Animation/Rig.h"
 #include "Misc/FileHelper.h"
 #include "Policies/CondensedJsonPrintPolicy.h"
 #include "Serialization/JsonReader.h"
@@ -65,7 +68,7 @@ void UianaHelpers::AddPrefixPath(const FDirectoryPath path, TArray<FString> &suf
 template <class PropType, class CppType>
 bool UianaHelpers::SetStructProperty(void* data, const FProperty* objectProp, CppType value)
 {
-	if (const PropType* childProp = Cast<PropType>(objectProp))
+	if (const PropType* childProp = CastField<PropType>(objectProp))
 	{
 		childProp->SetPropertyValue(data, value);
 		return true;
@@ -77,7 +80,7 @@ template<class PropType, class CppType>
 bool UianaHelpers::SetStructPropertiesFromJson(void* data, const FProperty* objectProp, const TSharedPtr<FJsonObject> jsonObj, const TArray<FName> jsonProps)
 {
 	bool success = false;
-	if (const FStructProperty* childProp = Cast<FStructProperty>(objectProp))
+	if (const FStructProperty* childProp = CastField<FStructProperty>(objectProp))
 	{
 		success = true;
 		UScriptStruct* scriptStruct = childProp->Struct;
@@ -121,4 +124,135 @@ TEnumAsByte<EBlendMode> UianaHelpers::ParseBlendMode(const FString mode)
 	else if (mode.Equals("BLEND_AlphaHoldout")) return EBlendMode::BLEND_AlphaHoldout;
 	else if (mode.Equals("BLEND_MAX")) return EBlendMode::BLEND_MAX;
 	return EBlendMode::BLEND_Opaque;
+}
+
+TEnumAsByte<ECollisionTraceFlag> UianaHelpers::ParseCollisionTrace(const FString flag)
+{
+	if (flag.Equals("CTF_UseDefault")) return ECollisionTraceFlag::CTF_UseDefault;
+	else if (flag.Equals("CTF_UseSimpleAndComplex")) return ECollisionTraceFlag::CTF_UseSimpleAndComplex;
+	else if (flag.Equals("CTF_UseSimpleAsComplex")) return ECollisionTraceFlag::CTF_UseSimpleAsComplex;
+	else if (flag.Equals("CTF_UseComplexAsSimple")) return ECollisionTraceFlag::CTF_UseComplexAsSimple;
+	else if (flag.Equals("CTF_MAX")) return ECollisionTraceFlag::CTF_MAX;
+	return ECollisionTraceFlag::CTF_UseDefault;
+}
+
+UianaHelpers::ObjectType UianaHelpers::ParseObjectType(const FString objType)
+{
+	if (MeshRelatedObjects.Contains(objType)) return Mesh;
+	else if (LightRelatedObjects.Contains(objType)) return Light;
+	else if (DecalRelatedObjects.Contains(objType)) return Decal;
+	else if (BlueprintRelatedObjects.Contains(objType)) return Blueprint;
+	return Unknown;
+}
+
+void UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> comp, FTransform* transform)
+{
+	// Get transform
+	TSharedPtr<FJsonObject> transformData;
+	FVector location = FVector::ZeroVector;
+	FRotator rotation = FRotator::ZeroRotator;
+	FVector scale = FVector::OneVector;
+	if (comp->HasField("TransformData"))
+	{
+		transformData = comp->GetObjectField("TransformData");
+	}
+	if (JsonObjContainsFields(comp, {"RelativeLocation", "OffsetLocation", "Translation"}))
+	{
+		const TSharedPtr<FJsonObject> locationData = transformData != nullptr ? transformData->GetObjectField("Translation") : comp->GetObjectField("RelativeLocation");
+		location.X = locationData->GetNumberField("X");
+		location.Y = locationData->GetNumberField("Y");
+		location.Z = locationData->GetNumberField("Z");
+	}
+	if (JsonObjContainsFields(comp, {"RelativeScale3D", "Scale3D"}))
+	{
+		const TSharedPtr<FJsonObject> scaleData = transformData != nullptr ? transformData->GetObjectField("Scale3D") : comp->GetObjectField("RelativeScale3D");
+		scale.X = scaleData->GetNumberField("X");
+		scale.Y = scaleData->GetNumberField("Y");
+		scale.Z = scaleData->GetNumberField("Z");
+	}
+	if (JsonObjContainsFields(comp, {"RelativeRotation", "Rotation"}))
+	{
+		if (transformData != nullptr)
+		{
+			const TSharedPtr<FJsonObject> rotationData = transformData->GetObjectField("Rotation");
+			FQuat quat;
+			quat.X = rotationData->GetNumberField("X");
+			quat.Y = rotationData->GetNumberField("Y");
+			quat.Z = rotationData->GetNumberField("Z");
+			quat.W = rotationData->GetNumberField("W");
+			*transform = FTransform(quat, location, scale);
+			// FObjectEditorUtils::SetPropertyValue(&transform, FName("Rotation"), quat);
+		}
+		else
+		{
+			const TSharedPtr<FJsonObject> rotationData = comp->GetObjectField("Rotation");
+			rotation.Roll = rotationData->GetNumberField("Roll");
+			rotation.Pitch = rotationData->GetNumberField("Pitch");
+			rotation.Yaw = rotationData->GetNumberField("Yaw");
+			*transform = FTransform(rotation, location, scale);
+		}
+	}
+	else
+	{
+		*transform = FTransform(rotation, location, scale);
+	}
+}
+
+void UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject> comp, FTransform* transform)
+{
+	FVector location = FVector::ZeroVector;
+	FRotator rotation = FRotator::ZeroRotator;
+	FVector scale = FVector::OneVector;
+	if (comp->HasField("SceneAttachRelativeLocation"))
+	{
+		location.X = comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("X");
+		location.Y = comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("Y");
+		location.Z = comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("Z");
+	}
+	if (comp->HasField("SceneAttachRelativeRotation"))
+	{
+		rotation.Roll = comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Roll");
+		rotation.Pitch = comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Pitch");
+		rotation.Yaw = comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Yaw");
+	}
+	if (comp->HasField("SceneAttachRelativeScale3D"))
+	{
+		scale.X = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("X");
+		scale.Y = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Y");
+		scale.Z = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Z");
+	}
+	*transform = FTransform(rotation, location, scale);
+}
+
+bool UianaHelpers::HasTransformComponent(const TSharedPtr<FJsonObject> comp)
+{
+	const TSet<FString> transformCompNames = {"RelativeLocation", "SceneAttachRelativeLocation", "SceneAttachRelativeRotation", "SceneAttachRelativeScale3D", "RelativeRotation", "RelativeScale3D"};
+	return JsonObjContainsFields(comp, transformCompNames); // TODO: Reduce this small function
+}
+
+bool UianaHelpers::JsonObjContainsFields(const TSharedPtr<FJsonObject> obj, const TSet<FString> fields)
+{
+	for (auto field : fields)
+	{
+		if (obj->HasField(field)) return true;
+	}
+	return false;
+}
+
+bool operator == (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> arrayItem, FString item)
+{
+	return arrayItem->AsObject()->GetStringField("Name").Equals(item);
+}
+
+template <class PropType>
+bool UianaHelpers::SetActorProperty(UActorComponent* component, const FString propName, PropType propVal)
+{
+	FProperty* relativeLocationProp = UStaticMesh::StaticClass()->FindPropertyByName(FName(*propName));
+	PropType* locationAddr = relativeLocationProp->ContainerPtrToValuePtr<PropType>(component);
+	if (locationAddr == nullptr) return false;
+	component->PreEditChange(relativeLocationProp);
+	*locationAddr = propVal;
+	FPropertyChangedEvent locationChangedEvent(relativeLocationProp);
+	component->PostEditChangeProperty(locationChangedEvent);
+	return true;
 }

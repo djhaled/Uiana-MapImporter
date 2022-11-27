@@ -43,7 +43,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ImportTextures(TArray<FString> AllTexturesPath);
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
-	static void ImportMeshes(TArray<FString> AllMeshesPath, FString ObjectsPath);
+	static void ImportMeshes(TSet<FString> AllMeshesPath, FString ObjectsPath);
 	static ECollisionTraceFlag GetTraceFlag(FString tflag);
 	UFUNCTION(BlueprintCallable, Category = "Unreal Python")
 		static void ExecuteConsoleCommand(FString ConsoleCommand);

@@ -268,7 +268,7 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 	}
 }
 
-void UBPFL::ImportMeshes(TArray<FString> AllMeshesPath, FString ObjectsPath)
+void UBPFL::ImportMeshes(TSet<FString> AllMeshesPath, FString ObjectsPath)
 {
 	auto AutomatedData = NewObject<UAutomatedAssetImportData>();
 	AutomatedData->bReplaceExisting = false;
