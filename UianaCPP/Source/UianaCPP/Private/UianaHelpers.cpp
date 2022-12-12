@@ -7,6 +7,7 @@
 #include "Policies/CondensedJsonPrintPolicy.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "UObject/PropertyAccessUtil.h"
 
 void UianaHelpers::CreateFolder(FDirectoryPath& FolderPath, FString Root, FString Extension)
 {
@@ -145,7 +146,22 @@ UianaHelpers::ObjectType UianaHelpers::ParseObjectType(const FString objType)
 	return Unknown;
 }
 
-void UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> comp, FTransform* transform)
+EComponentMobility::Type UianaHelpers::ParseMobility(const FString mobility)
+{
+	if (mobility.Equals("EComponentMobility::Static")) return EComponentMobility::Static;
+	else if (mobility.Equals("EComponentMobility::Stationary")) return EComponentMobility::Stationary;
+	return EComponentMobility::Movable;
+}
+
+TEnumAsByte<EDetailMode> UianaHelpers::ParseDetailMode(const FString mode)
+{
+	if (mode.Equals("DM_Low")) return EDetailMode::DM_Low;
+	else if (mode.Equals("DM_Medium")) return EDetailMode::DM_Medium;
+	else if (mode.Equals("DM_High")) return EDetailMode::DM_High;
+	return EDetailMode::DM_MAX;
+}
+
+FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> comp)
 {
 	// Get transform
 	TSharedPtr<FJsonObject> transformData;
@@ -180,29 +196,36 @@ void UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> comp, FTr
 			quat.Y = rotationData->GetNumberField("Y");
 			quat.Z = rotationData->GetNumberField("Z");
 			quat.W = rotationData->GetNumberField("W");
-			*transform = FTransform(quat, location, scale);
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Returning transform with position %d, %d, %d"), location.X, location.Y, location.Z);
+			return FTransform(quat, location, scale);
 			// FObjectEditorUtils::SetPropertyValue(&transform, FName("Rotation"), quat);
 		}
 		else
 		{
-			const TSharedPtr<FJsonObject> rotationData = comp->GetObjectField("Rotation");
+			const TSharedPtr<FJsonObject> rotationData = comp->GetObjectField("RelativeRotation");
 			rotation.Roll = rotationData->GetNumberField("Roll");
 			rotation.Pitch = rotationData->GetNumberField("Pitch");
 			rotation.Yaw = rotationData->GetNumberField("Yaw");
-			*transform = FTransform(rotation, location, scale);
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Returning transform with position %d, %d, %d"), location.X, location.Y, location.Z);
+			return FTransform(rotation, location, scale);
 		}
 	}
 	else
 	{
-		*transform = FTransform(rotation, location, scale);
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Returning transform with position %d, %d, %d"), location.X, location.Y, location.Z);
+		return FTransform(rotation, location, scale);
 	}
 }
 
-void UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject> comp, FTransform* transform)
+FTransform UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject> comp)
 {
 	FVector location = FVector::ZeroVector;
 	FRotator rotation = FRotator::ZeroRotator;
 	FVector scale = FVector::OneVector;
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(comp.ToSharedRef(), Writer);
+	UE_LOG(LogTemp, Display, TEXT("Uiana: SceneTransform Input Obj is %s"), *OutputString);
 	if (comp->HasField("SceneAttachRelativeLocation"))
 	{
 		location.X = comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("X");
@@ -221,7 +244,8 @@ void UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject> comp
 		scale.Y = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Y");
 		scale.Z = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Z");
 	}
-	*transform = FTransform(rotation, location, scale);
+	UE_LOG(LogTemp, Display, TEXT("Uiana: Returning transform with position %d, %d, %d"), location.X, location.Y, location.Z);
+	return FTransform(rotation, location, scale);
 }
 
 bool UianaHelpers::HasTransformComponent(const TSharedPtr<FJsonObject> comp)
@@ -245,14 +269,40 @@ bool operator == (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> arrayItem, FString
 }
 
 template <class PropType>
-bool UianaHelpers::SetActorProperty(UActorComponent* component, const FString propName, PropType propVal)
+bool UianaHelpers::SetActorProperty(UClass* actorClass, UObject* component, const FString propName, PropType propVal)
 {
-	FProperty* relativeLocationProp = UStaticMesh::StaticClass()->FindPropertyByName(FName(*propName));
+	FProperty* relativeLocationProp = PropertyAccessUtil::FindPropertyByName(FName(*propName), actorClass);
 	PropType* locationAddr = relativeLocationProp->ContainerPtrToValuePtr<PropType>(component);
 	if (locationAddr == nullptr) return false;
 	component->PreEditChange(relativeLocationProp);
 	*locationAddr = propVal;
 	FPropertyChangedEvent locationChangedEvent(relativeLocationProp);
 	component->PostEditChangeProperty(locationChangedEvent);
+	return true;
+}
+
+template <class ObjType, class ValueType>
+bool UianaHelpers::SetGivenObjectProperty(ObjType* obj, FProperty* prop, ValueType propVal)
+{
+	ValueType* SourceAddr = prop->ContainerPtrToValuePtr<ValueType>(obj);
+	if ( SourceAddr == NULL )
+	{
+		return false;
+	}
+	if ( !obj->HasAnyFlags(RF_ClassDefaultObject) )
+	{
+		FEditPropertyChain PropertyChain;
+		PropertyChain.AddHead(prop);
+		obj->PreEditChange(PropertyChain);
+	}
+
+	// Set the value on the destination object.
+	*SourceAddr = propVal;
+
+	if ( !obj->HasAnyFlags(RF_ClassDefaultObject) )
+	{
+		FPropertyChangedEvent PropertyEvent(prop);
+		obj->PostEditChangeProperty(PropertyEvent);
+	}
 	return true;
 }

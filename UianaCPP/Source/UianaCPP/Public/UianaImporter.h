@@ -98,7 +98,7 @@ private:
 	static FDirectoryPath ActorsPath;
 
 	static bool NeedExport();
-	static void ExtractAssets(TArray<FString> umapNames);
+	static void ExtractAssets(TArray<FString> umapPaths);
 	static void CUE4Extract(FDirectoryPath ExportDir);
 	static void CUE4Extract(FDirectoryPath ExportDir, FString AssetList);
 	static void UModelExtract();
@@ -116,9 +116,12 @@ private:
 	static void ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, const FString umapName);
 	static void ImportBlueprint(const TSharedPtr<FJsonObject> obj, TMap<FString, AActor*> &bpMapping);
 	static void ImportMesh(const TSharedPtr<FJsonObject> obj, const FString umapName, const TMap<FString, AActor*> bpMapping);
+	static void ImportDecal(const TSharedPtr<FJsonObject> obj);
+	static void ImportLight(const TSharedPtr<FJsonObject> obj);
 
 	static TArray<USCS_Node*> GetLocalBPChildren(TArray<TSharedPtr<FJsonValue>> childNodes, TArray<TSharedPtr<FJsonValue>> bpData, UBlueprint* bpActor);
 	static void SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActorComponent* bp);
+	static void SetObjSettings(const TSharedPtr<FJsonObject> bpProps, UObject* mainObj);
 	static void FixActorBP(const TSharedPtr<FJsonObject> bpData, const TMap<FString, AActor*> bpMapping);
 
 	static bool IsBlacklisted(const FString itemName);

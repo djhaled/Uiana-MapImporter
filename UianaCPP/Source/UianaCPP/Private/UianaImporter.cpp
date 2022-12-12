@@ -1,10 +1,15 @@
 ﻿#include "UianaImporter.h"
+#include "UianaImporter.h"
 
+#include "ActorEditorUtils.h"
 #include "EditorClassUtils.h"
 #include "EditorLevelUtils.h"
 #include "HismActorCPP.h"
 #include "IHeadMountedDisplay.h"
+#include "Components/BrushComponent.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
+#include "Components/LightComponent.h"
+#include "Engine/DecalActor.h"
 #include "Engine/LevelStreamingAlwaysLoaded.h"
 #include "Engine/SCS_Node.h"
 #include "Engine/StaticMeshActor.h"
@@ -13,6 +18,7 @@
 #include "Kismet2/ComponentEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Kismet2/StructureEditorUtils.h"
+#include "Lightmass/LightmassCharacterIndirectDetailVolume.h"
 
 #define LOCTEXT_NAMESPACE "UUianaImporter"
 
@@ -81,6 +87,7 @@ void UUianaImporter::ImportMap()
 	TArray<FString> levelPaths = {};
 	TArray<FString> texturePaths = {};
 	FFileManagerGeneric::Get().FindFiles(umapPaths, *(UMapsPath.Path), TEXT(".json"));
+	UianaHelpers::AddPrefixPath(UMapsPath, umapPaths);
 	if (NeedExport())
 	{
 		ExtractAssets(umapPaths);
@@ -125,11 +132,12 @@ void UUianaImporter::ImportMap()
 		{
 			if (IsBlacklisted(FPaths::GetCleanFilename(meshRawPath))) continue;
 			FString temp, temp1, meshPath;
-			meshRawPath.Split(TEXT("/"), &temp, &temp1);
+			meshRawPath.Replace(TEXT("\\"), TEXT("/")).Split(TEXT("/"), &temp, &temp1);
 			if (temp.Equals("Engine")) continue;
 			temp1.Split(TEXT("/"), &temp, &meshPath);
 			meshPath = FPaths::Combine(ExportAssetsPath.Path, "Game", meshPath);
 			meshes.Emplace(FPaths::SetExtension(meshPath, TEXT(".pskx")));
+			// UE_LOG(LogTemp, Display, TEXT("Uiana: Found mesh with result path %s from raw path %s filtered to %s"), *FPaths::SetExtension(meshPath, TEXT(".pskx")), *meshRawPath, *meshPath);
 		}
 		UBPFL::ImportMeshes(meshes, ObjectsPath.Path);
 	}
@@ -137,12 +145,14 @@ void UUianaImporter::ImportMap()
 	{
 		TArray<FString> bpPaths;
 		FFileManagerGeneric::Get().FindFiles(bpPaths, *ActorsPath.Path, TEXT(".json"));
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Found %d BPs to import!"), bpPaths.Num());
 		UianaHelpers::AddPrefixPath(ActorsPath, bpPaths);
 		CreateBlueprints(bpPaths);
 	}
 	FScopedSlowTask UianaTask(umapPaths.Num(), LOCTEXT ("UianaTask", "Importing Map"));
 	UianaTask.MakeDialog();
-	UWorld* world = UEditorLevelLibrary::GetEditorWorld();
+	// UWorld* world = GEditor->GetEditorWorldContext().World();
+	UWorld* world = GEditor->PlayWorld;
 	for (int i = umapPaths.Num() - 1; i >= 0; i--)
 	{
 		FString umapStr;
@@ -160,22 +170,21 @@ void UUianaImporter::ImportMap()
 		ImportUmap(umapData, umapName);
 		if (Settings->UseSubLevels)
 		{
-			CreateNewLevel(umapName);
+			levelPaths.Add(CreateNewLevel(umapName));
 		}
 	}
 	if (Settings->UseSubLevels)
 	{
 		UEditorLevelUtils::AddLevelsToWorld(world, levelPaths, ULevelStreamingAlwaysLoaded::StaticClass());
 	}
-	// TODO: Add import mesh logic line 805 main.py
 	if (Settings->ImportMeshes)
 	{
 		TArray<FString> objPaths;
-		TArray<TSharedPtr<FJsonValue>> objData;
 		FFileManagerGeneric::Get().FindFiles(objPaths, *ObjectsPath.Path, TEXT(".json"));
 		UianaHelpers::AddPrefixPath(ObjectsPath, objPaths);
 		for (const FString objPath : objPaths)
 		{
+			TArray<TSharedPtr<FJsonValue>> objData;
 			FString objStr;
 			FFileHelper::LoadFileToString(objStr, *objPath);
 			const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(objStr);
@@ -184,10 +193,11 @@ void UUianaImporter::ImportMap()
 				UE_LOG(LogScript, Warning, TEXT("Uiana: Failed to deserialize obj %s"), *objPath);
 				continue;
 			}
-			
 			for (TSharedPtr<FJsonValue> component : objData)
 			{
+				if (component->IsNull() || !component.IsValid()) continue;
 				const TSharedPtr<FJsonObject> componentObj = component->AsObject();
+				if (!componentObj->HasField("Properties")) continue;
 				const TSharedPtr<FJsonObject> componentProps = componentObj->GetObjectField("Properties");
 				if (componentObj->HasTypedField<EJson::String>("Type"))
 				{
@@ -225,17 +235,17 @@ void UUianaImporter::ImportMap()
 	}
 }
 
-void UUianaImporter::ExtractAssets(TArray<FString> umapNames)
+void UUianaImporter::ExtractAssets(TArray<FString> umapPaths)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracting assets!"));
 	CUE4Extract(UMapsPath);
 	UModelExtract();
-	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracted %d umaps"), umapNames.Num());
+	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracted %d umaps"), umapPaths.Num());
 	TArray<FString> actorPaths, objPaths, matOvrPaths;
-	for (FString umapName : umapNames)
+	for (FString umapPath : umapPaths)
 	{
 		FString umapStr;
-		FString umapPath = FPaths::Combine(UMapsPath.Path, umapName);
+		// FString umapPath = FPaths::Combine(UMapsPath.Path, umapName);
 		FFileHelper::LoadFileToString(umapStr, *umapPath);
 		TArray<TSharedPtr<FJsonValue>> umapRaw, umapFiltered;
 		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(umapStr);
@@ -819,9 +829,15 @@ void UUianaImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps,
 			UMaterialInstanceConstant* loaded = nullptr;
 			for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> ovrMat : propValue.Get()->AsArray())
 			{
+				if (!ovrMat.IsValid() || ovrMat.Get()->IsNull())
+				{
+					overrideMats.Add(nullptr);
+					continue;
+				}
 				const TSharedPtr<FJsonObject> matData = ovrMat.Get()->AsObject();
 				FString temp, objName;
 				matData.Get()->GetStringField("ObjectName").Split(" ", &temp, &objName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
+				if (matData->HasTypedField<EJson::Object>("ObjectName")) UE_LOG(LogTemp, Error, TEXT("Uiana: Material Override Material ObjectName is not a string!"));
 				if (objName.Contains("MaterialInstanceDynamic")) continue;
 				loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/UianaCPP/Materials/" + objName));
 				if (loaded == nullptr) loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + objName));
@@ -959,12 +975,14 @@ void UUianaImporter::ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, c
 	// Filter objects
 	TArray<TSharedPtr<FJsonObject>> filteredObjs;
 	TMap<FString, AActor*> bpMapping = {};
+	int i = -1;
 	for (const TSharedPtr<FJsonValue> objData : umapData)
 	{
+		i += 1;
 		const TSharedPtr<FJsonObject> obj = objData.Get()->AsObject();
 		FString objName;
 		if (!obj.Get()->HasField("Properties")) objName = "None";
-		else if (obj.Get()->GetObjectField("Properties")->HasField("StaticMesh"))
+		else if (obj.Get()->GetObjectField("Properties")->HasTypedField<EJson::Object>("StaticMesh"))
 		{
 			objName = obj.Get()->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath");
 		}
@@ -989,35 +1007,42 @@ void UUianaImporter::ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, c
 		{
 			ImportMesh(obj, umapName, bpMapping);
 		}
-		// TODO: Add importing decal logic here line 515 main.py
-		// TODO: Add importing light logic here line 517 main.py
+		if (Settings->ImportDecals && objType == UianaHelpers::ObjectType::Decal)
+		{
+			ImportDecal(obj);
+		}
+		if (Settings->ImportLights && objType == UianaHelpers::ObjectType::Light)
+		{
+			ImportLight(obj);
+		}
 	}
 }
 
 void UUianaImporter::ImportBlueprint(const TSharedPtr<FJsonObject> obj, TMap<FString, AActor*> &bpMapping)
 {
-	FTransform* transform;
-	if (UianaHelpers::HasTransformComponent(obj))
+	if (!obj->HasField("Properties")) return;
+	FTransform transform;
+	if (UianaHelpers::HasTransformComponent(obj->GetObjectField("Properties")))
 	{
-		UianaHelpers::GetTransformComponent(obj, transform);
+		transform = UianaHelpers::GetTransformComponent(obj->GetObjectField("Properties"));
 	}
 	else
 	{
-		UianaHelpers::GetSceneTransformComponent(obj, transform);
+		transform = UianaHelpers::GetSceneTransformComponent(obj->GetObjectField("Properties"));
 	}
-	if (transform == nullptr) return;
-	const FString bpName = obj->GetStringField("Type").Mid(0, obj->GetStringField("Type").Len() - 2);
+	const FString bpName = obj->GetStringField("Type");//.Mid(0, obj->GetStringField("Type").Len() - 2);
 	UClass* bpClass = UEditorAssetLibrary::LoadBlueprintClass(FPaths::Combine("/Game/ValorantContent/Blueprints/", bpName + "." + bpName));
-	AActor* bpActor = UEditorLevelLibrary::SpawnActorFromObject(bpClass, transform->GetTranslation(), transform->GetRotation().Rotator());
+	AActor* bpActor = UEditorLevelLibrary::SpawnActorFromObject(bpClass, transform.GetTranslation(), transform.GetRotation().Rotator());
 	if (bpActor == nullptr) return;
 	bpActor->SetActorLabel(obj->GetStringField("Name"));
-	bpActor->SetActorScale3D(transform->GetScale3D());
+	bpActor->SetActorScale3D(transform.GetScale3D());
 	bpMapping.Add(bpName, bpActor);
 }
 
 void UUianaImporter::FixActorBP(const TSharedPtr<FJsonObject> bpData, const TMap<FString, AActor*> bpMapping)
 {
 	const FName bpComponentName = FName(*bpData->GetStringField("Name"));
+	if (!bpMapping.Contains(bpData->GetStringField("Outer"))) return;
 	AActor* bpActor = bpMapping[bpData->GetStringField("Outer")];
 	UActorComponent* bpComponent = UBPFL::GetComponentByName(bpActor, bpComponentName);
 	if (bpComponent == nullptr) return;
@@ -1029,8 +1054,7 @@ void UUianaImporter::FixActorBP(const TSharedPtr<FJsonObject> bpData, const TMap
 		{
 			FString name = meshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
 			UStaticMesh* mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + name));
-			UianaHelpers::SetActorProperty<UStaticMesh*>(bpComponent, "StaticMesh", mesh);
-			// FObjectEditorUtils::SetPropertyValue(bp, propName, mesh);
+			UianaHelpers::SetActorProperty<UStaticMesh*>(UStaticMesh::StaticClass(), bpComponent, "StaticMesh", mesh);
 		}
 		if (Settings->ImportMaterials && bpProps->HasField("OverrideMaterials"))
 		{
@@ -1042,11 +1066,10 @@ void UUianaImporter::FixActorBP(const TSharedPtr<FJsonObject> bpData, const TMap
 		}
 		if (bpProps->HasField("AttachParent") && UianaHelpers::HasTransformComponent(bpData->GetObjectField("Properties")))
 		{
-			FTransform transform;
-			UianaHelpers::GetTransformComponent(bpProps, &transform);
-			if (bpProps->HasField("RelativeScale3D")) UianaHelpers::SetActorProperty(bpComponent, "RelativeScale3D", transform.GetScale3D());
-			if (bpProps->HasField("RelativeLocation")) UianaHelpers::SetActorProperty(bpComponent, "RelativeLocation", transform.GetTranslation());
-			if (bpProps->HasField("RelativeRotation")) UianaHelpers::SetActorProperty(bpComponent, "RelativeRotation", transform.GetRotation().Rotator());
+			FTransform transform = UianaHelpers::GetTransformComponent(bpProps);
+			if (bpProps->HasField("RelativeScale3D")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeScale3D", transform.GetScale3D());
+			if (bpProps->HasField("RelativeLocation")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeLocation", transform.GetTranslation());
+			if (bpProps->HasField("RelativeRotation")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeRotation", transform.GetRotation().Rotator());
 		}
 	}
 }
@@ -1062,12 +1085,10 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 	{
 		return;
 	}
-	FTransform* transform;
-	UianaHelpers::GetTransformComponent(obj->GetObjectField("Properties"), transform);
-	if (transform == nullptr) return;
+	FTransform transform = UianaHelpers::GetTransformComponent(obj->GetObjectField("Properties"));
 	UClass* meshActorClass = obj->HasField("PerInstanceSMData") && obj->GetStringField("Type").Contains("Instanced") ? AHismActorCPP::StaticClass() : AStaticMeshActor::StaticClass();
 	AActor* meshActor = UEditorLevelLibrary::SpawnActorFromClass(meshActorClass, FVector::ZeroVector);
-	meshActor->SetActorLabel(obj->GetStringField("Actor"));
+	meshActor->SetActorLabel(obj->GetStringField("Outer"));
 	TArray<UObject*> meshActorObjects;
 	meshActor->GetDefaultSubobjects(meshActorObjects);
 	UHierarchicalInstancedStaticMeshComponent* meshInstancedObject = Cast<UHierarchicalInstancedStaticMeshComponent>(meshActorObjects.Last());
@@ -1078,8 +1099,8 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 		const TArray<TSharedPtr<FJsonValue>> perInstanceData = obj->GetArrayField("PerInstanceSMData");
 		for (const TSharedPtr<FJsonValue> instance : perInstanceData)
 		{
-			FTransform instanceTransform;
-			UianaHelpers::GetTransformComponent(instance->AsObject(), &instanceTransform);
+			if (instance->AsObject()->HasField("Properties")) UE_LOG(LogTemp, Error, TEXT("Uiana: Need to use Properties field for PerInstanceSM Data!"));
+			FTransform instanceTransform = UianaHelpers::GetTransformComponent(instance->AsObject());
 			meshInstancedObject->AddInstance(instanceTransform);
 		}
 	}
@@ -1089,7 +1110,7 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 		meshActor->SetFolderPath(FName(*FPaths::Combine("Meshes", umapType)));
 	}
 	SetBPSettings(obj->GetObjectField("Properties"), meshObject); // TODO: If there are no bugs with this, rename to "SetActorSettings()"!
-	meshObject->SetWorldTransform(*transform);
+	meshObject->SetWorldTransform(transform);
 	if (obj->HasField("LODData"))
 	{
 		const TArray<TSharedPtr<FJsonValue>> lodData = obj->GetArrayField("LODData");
@@ -1111,12 +1132,85 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 		{
 			modelPath = FPaths::Combine(ExportAssetsPath.Path, FPaths::GetBaseFilename(obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"), false)) + ".pskx";
 		}
-		UBPFL::PaintSMVertices(meshObject, vtxArray, modelPath);
+		if (!vtxArray.IsEmpty())
+		{
+			UBPFL::PaintSMVertices(meshObject, vtxArray, modelPath);
+		}
 	}
 	if (Settings->ImportMaterials && obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
 	{
-		FObjectEditorUtils::SetPropertyValue(meshObject, FName("OverrideMaterials"), CreateOverrideMaterials(obj));
+		UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), meshObject, "OverrideMaterials", CreateOverrideMaterials(obj));
 	}
+}
+
+void UUianaImporter::ImportDecal(const TSharedPtr<FJsonObject> obj)
+{
+	if (obj->HasField("Template") || !UianaHelpers::HasTransformComponent(obj->GetObjectField("Properties"))) return;
+	FTransform transform = UianaHelpers::GetTransformComponent(obj->GetObjectField("Properties"));
+	ADecalActor* decalActor = Cast<ADecalActor>(UEditorLevelLibrary::SpawnActorFromClass(ADecalActor::StaticClass(), transform.GetTranslation(), transform.GetRotation().Rotator()));
+	decalActor->SetFolderPath("Decals");
+	decalActor->SetActorLabel(obj->GetStringField("Name"));
+	decalActor->SetActorScale3D(transform.GetScale3D());
+	// FString decalPath = FPaths::GetPath(obj->GetObjectField("DecalMaterial")->GetStringField("ObjectPath"));
+	FString decalPath = obj->GetObjectField("Properties")->GetObjectField("DecalMaterial")->GetStringField("ObjectPath");
+	UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + decalPath + "." + decalPath));
+	decalActor->SetDecalMaterial(decalMat);
+	SetBPSettings(obj->GetObjectField("Properties"), decalActor->GetDecal());
+}
+
+void UUianaImporter::ImportLight(const TSharedPtr<FJsonObject> obj)
+{
+	const FString lightType = obj->GetStringField("Type").Replace(TEXT("Component"), TEXT(""), ESearchCase::CaseSensitive);
+	FTransform transform;
+	if (UianaHelpers::HasTransformComponent(obj->GetObjectField("Properties")))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Light has TransformComponent, using it"));
+		transform = UianaHelpers::GetTransformComponent(obj->GetObjectField("Properties"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Light is using SceneTransform!"));
+		transform = UianaHelpers::GetSceneTransformComponent(obj->GetObjectField("Properties"));
+	}
+	UClass* lightClass = FEditorClassUtils::GetClassFromString(lightType);
+	UEditorActorSubsystem* EditorActorSubsystem = GEditor->GetEditorSubsystem<UEditorActorSubsystem>();
+	UE_LOG(LogTemp, Display, TEXT("Uiana: Creating light at position %d, %d, %d"), transform.GetTranslation().X, transform.GetTranslation().Y, transform.GetTranslation().Z);
+	AActor* light = EditorActorSubsystem->SpawnActorFromClass(lightClass, transform.GetTranslation(), transform.GetRotation().Rotator());
+	light->SetFolderPath(FName("Lights/" + lightType));
+	light->SetActorLabel(obj->GetStringField("Name"));
+	light->SetActorScale3D(transform.GetScale3D());
+	UActorComponent* lightComponent = light->GetRootComponent();
+	if (Cast<UBrushComponent>(lightComponent))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Uiana: Casting BrushComponent's parent as UObject!"));
+		lightComponent = Cast<UActorComponent>(light);
+		if (lightComponent == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to convert parent of BrushComponent!"));
+			return;
+		}
+		const FProperty* settingsProp = PropertyAccessUtil::FindPropertyByName("Settings", lightComponent->GetClass());
+		if (settingsProp != nullptr)
+		{
+			UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Unbound", true);
+			UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Priority", 1.0);
+			// UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Unbound", true);
+			// UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Priority", 1.0);
+			SetBPSettings(obj->GetObjectField("Properties")->GetObjectField("Settings"), lightComponent);
+		}
+		SetBPSettings(obj->GetObjectField("Properties"), lightComponent);
+		return;
+	}
+	const FProperty* settingsProp = PropertyAccessUtil::FindPropertyByName("Settings", lightComponent->GetClass());
+	if (settingsProp != nullptr)
+	{
+		UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Unbound", true);
+		UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Priority", 1.0);
+		// UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Unbound", true);
+		// UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Priority", 1.0);
+		SetBPSettings(obj->GetObjectField("Properties")->GetObjectField("Settings"), lightComponent);
+	}
+	SetBPSettings(obj->GetObjectField("Properties"), lightComponent);
 }
 
 void UUianaImporter::CreateBlueprints(const TArray<FString> bpPaths)
@@ -1125,9 +1219,10 @@ void UUianaImporter::CreateBlueprints(const TArray<FString> bpPaths)
 	TArray<TSharedPtr<FJsonValue>> newJsons, gameObjs;
 	for (const FString bpPath : bpPaths)
 	{
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Importing BP at path: %s"), *bpPath);
 		const TArray<FString> blacklistedBPs = {"SoundBarrier", "SpawnBarrierProjectile", "BP_UnwalkableBlockingVolumeCylinder",
 				   "BP_StuckPickupVolume", "BP_BlockingVolume", "TargetingBlockingVolume_Box", "directional_look_up" };
-		const FString bpName = FPaths::GetCleanFilename(bpPath);
+		const FString bpName = FPaths::GetBaseFilename(bpPath);
 		if (blacklistedBPs.Contains(bpName)) continue;
 		
 		// Reduce BP JSON
@@ -1160,15 +1255,15 @@ void UUianaImporter::CreateBlueprints(const TArray<FString> bpPaths)
 				FString temp, nodeName;
 				objName.Split(TEXT(":"), &temp, &nodeName, ESearchCase::CaseSensitive, ESearchDir::FromEnd);
 				TSharedPtr<FJsonObject> nodeComponent;
-				for (TTuple<FString, TSharedPtr<FJsonValue>> bpComponent : bpObj->Values)
+				for (const TSharedPtr<FJsonValue> componentBP : bpRaws)
 				{
-					if (bpComponent.Value.Get()->AsObject()->HasField("Name"))
+					if (componentBP->AsObject()->HasField("Name"))
 					{
-						nodeComponent = bpComponent.Value.Get()->AsObject();
+						nodeComponent = componentBP->AsObject();
 						break;
 					}
 				}
-				if (nodeComponent->HasField("Properties"))
+				if (nodeComponent.IsValid() && nodeComponent->HasField("Properties")) // TODO: CAUSE FOR CRASH - nodeComponent is null and causes crash
 					bpProps->SetObjectField("CompProps", nodeComponent->GetObjectField("Properties"));
 				newJsons.Add(bp);
 				if (bpProps->HasField("ChildNodes"))
@@ -1194,13 +1289,19 @@ void UUianaImporter::CreateBlueprints(const TArray<FString> bpPaths)
 		// bpJson.SetArrayField("ChildNodes", childNodes);
 
 		// Create BP
-		UBlueprint* bpActor = Cast<UBlueprint>(UEditorAssetLibrary::LoadBlueprintClass("/Game/ValorantContent/Blueprints/" + bpName));
-		if (bpActor != nullptr) return;
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Checking if BP %s exists"), *bpName);
+		UBlueprint* bpActor = Cast<UBlueprint>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Blueprints/" + bpName));
+		if (bpActor != nullptr) continue;
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Creating BP %s"), *bpName);
 		UBlueprintFactory* factory = NewObject<UBlueprintFactory>();
 		IAssetTools& assetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 		bpActor = static_cast<UBlueprint*>(assetTools.CreateAsset(bpName, "/Game/ValorantContent/Blueprints/", UBlueprint::StaticClass(), factory));
 		
-		if (newJsons.IsEmpty()) return;
+		if (newJsons.IsEmpty())
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: No nodes in BP %s, skipping"), *bpName);
+			continue;
+		}
 		// Get all characters after '.' using GetExtension. Little hacky but works
 		const FString defaultRoot = FPaths::GetExtension(sceneRoots[0]);
 		int defaultIndex = newJsons.IndexOfByKey(defaultRoot);
@@ -1212,46 +1313,55 @@ void UUianaImporter::CreateBlueprints(const TArray<FString> bpPaths)
 		{
 			const TSharedPtr<FJsonValue> bpNode = newJsons[i];
 			const TSharedPtr<FJsonObject> bpNodeObj = bpNode.Get()->AsObject();
+			const FString bpNodeName = bpNodeObj->GetStringField("Name");
 			TSharedPtr<FJsonObject> bpNodeProps = bpNodeObj->GetObjectField("Properties");
-			if (childNodes.Contains(bpNodeObj->GetStringField("Name"))) continue;
-			const FString componentName = bpNodeProps->GetObjectField("ComponentClass")->GetStringField("ObjectName").Replace(TEXT("Class"), TEXT(""), ESearchCase::CaseSensitive);
+			if (childNodes.Contains(bpNodeName)) continue;
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Importing BP Node %s"), *bpNodeObj->GetStringField("Name"));
+			const FString componentName = bpNodeProps->GetObjectField("ComponentClass")->GetStringField("ObjectName").Replace(TEXT("Class "), TEXT(""), ESearchCase::CaseSensitive);
 			UClass* componentClass = FEditorClassUtils::GetClassFromString(componentName);
-			if (componentClass == nullptr) continue;
+			if (componentClass == nullptr)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Uiana: Node Class %s not Unreal Component, skipping"), *componentName);
+				continue;
+			}
 			if (bpNodeProps->HasField("ChildNodes"))
 			{
+				UE_LOG(LogTemp, Display, TEXT("Uiana: Importing Child Nodes for BP Node %s"), *bpNodeName);
 				bpNodeArray = GetLocalBPChildren(bpNodeProps->GetArrayField("ChildNodes"), newJsons, bpActor);
 			}
 			const FString componentInternalName = bpNodeProps->GetStringField("InternalVariableName");
 			UActorComponent* component = UBPFL::CreateBPComp(bpActor, componentClass, FName(*componentInternalName), bpNodeArray);
 			if (bpNodeProps->HasField("CompProps"))
 			{
+				UE_LOG(LogTemp, Display, TEXT("Uiana: BP Node %s has specified component properties, using them."), *bpNodeName);
 				bpNodeProps = bpNodeProps->GetObjectField("CompProps");
 			}
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Setting BP Node %s properties!"), *bpNodeName);
 			SetBPSettings(bpNodeProps, component);
 			// TODO: Rework this SetBPSettings() + Set editor property section, corresponds with set_mesh_settings and handle_child_nodes
-			FTransform transform;
-			UianaHelpers::GetTransformComponent(bpNodeProps, &transform);
-			UianaHelpers::SetActorProperty<FTransform>(component, "RelativeLocation", transform);
+			FTransform transform = UianaHelpers::GetTransformComponent(bpNodeProps);
+			UianaHelpers::SetActorProperty<FVector>(componentClass, component, "RelativeLocation", transform.GetLocation());
 			// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeLocation"), transform.GetLocation());
-			UianaHelpers::SetActorProperty<FTransform>(component, "RelativeRotation", transform);
+			UianaHelpers::SetActorProperty<FRotator>(componentClass, component, "RelativeRotation", transform.GetRotation().Rotator());
 			// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeRotation"), transform.GetRotation());
-			UianaHelpers::SetActorProperty<FTransform>(component, "RelativeScale3D", transform);
+			UianaHelpers::SetActorProperty<FVector>(componentClass, component, "RelativeScale3D", transform.GetScale3D());
 			// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeScale3D"), transform.GetScale3D());
 		}
 		if (bpName.Equals("SpawnBarrier")) continue;
 		for (TSharedPtr<FJsonValue> gameObj : gameObjs)
 		{
-			UActorComponent* component = UBPFL::CreateBPComp(bpActor, UStaticMeshComponent::StaticClass(), FName("GameObjectMesh"), bpNodeArray);
+			UClass* componentClass = UStaticMeshComponent::StaticClass();
+			UActorComponent* component = UBPFL::CreateBPComp(bpActor, componentClass, FName("GameObjectMesh"), bpNodeArray);
 			const TSharedPtr<FJsonObject> gameObjProps = gameObj->AsObject()->GetObjectField("Properties");
-			FTransform transform;
-			UianaHelpers::GetTransformComponent(gameObjProps, &transform);
+			SetBPSettings(gameObjProps, component);
+			FTransform transform = UianaHelpers::GetTransformComponent(gameObjProps);
 			// TODO: Make this function with above!
-			UianaHelpers::SetActorProperty<FTransform>(component, "RelativeLocation", transform);
+			UianaHelpers::SetActorProperty<FVector>(componentClass, component, "RelativeLocation", transform.GetLocation());
 			// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeLocation"), transform.GetLocation());
-			UianaHelpers::SetActorProperty<FTransform>(component, "RelativeRotation", transform);
 			// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeRotation"), transform.GetRotation());
-			UianaHelpers::SetActorProperty<FTransform>(component, "RelativeScale3D", transform);
+			UianaHelpers::SetActorProperty<FVector>(componentClass, component, "RelativeScale3D", transform.GetScale3D());
 			// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeScale3D"), transform.GetScale3D());
+			UianaHelpers::SetActorProperty<FRotator>(componentClass, component, "RelativeRotation", transform.GetRotation().Rotator());
 		}
 	}
 }
@@ -1266,7 +1376,9 @@ TArray<USCS_Node*> UUianaImporter::GetLocalBPChildren(TArray<TSharedPtr<FJsonVal
 		for (const TSharedPtr<FJsonValue> cNode : bpData)
 		{
 			const TSharedPtr<FJsonObject> nodeDataObj = cNode->AsObject();
-			const FString componentName = nodeDataObj->GetObjectField("ComponentClass")->GetStringField("ObjectName").Replace(TEXT("Class"), TEXT(""), ESearchCase::CaseSensitive);
+			// FString temp, componentName;
+			// nodeDataObj->GetObjectField("Properties")->GetObjectField("ComponentClass")->GetStringField("ObjectName").Split(TEXT("."), &temp, &componentName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+			const FString componentName = nodeDataObj->GetObjectField("Properties")->GetObjectField("ComponentClass")->GetStringField("ObjectName").Replace(TEXT("Class "), TEXT(""), ESearchCase::CaseSensitive);
 			UClass* componentClass = FEditorClassUtils::GetClassFromString(componentName);
 			if (componentClass == nullptr) continue;
 			const FString internalName = nodeDataObj->GetObjectField("Properties")->GetStringField("InternalVariableName");
@@ -1279,13 +1391,12 @@ TArray<USCS_Node*> UUianaImporter::GetLocalBPChildren(TArray<TSharedPtr<FJsonVal
 				SetBPSettings(nodeDataObj->GetObjectField("Properties")->GetObjectField("CompProps"), componentNode);
 				if (UianaHelpers::HasTransformComponent(nodeDataObj->GetObjectField("Properties")->GetObjectField("CompProps")))
 				{
-					FTransform transform;
-					UianaHelpers::GetTransformComponent(nodeDataObj->GetObjectField("Properties")->GetObjectField("CompProps"), &transform);
-					UianaHelpers::SetActorProperty<FTransform>(componentNode, "RelativeLocation", transform);
+					FTransform transform = UianaHelpers::GetTransformComponent(nodeDataObj->GetObjectField("Properties")->GetObjectField("CompProps"));
+					UianaHelpers::SetActorProperty<FTransform>(UActorComponent::StaticClass(), componentNode, "RelativeLocation", transform);
 					// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeLocation"), transform.GetLocation());
-					UianaHelpers::SetActorProperty<FTransform>(componentNode, "RelativeRotation", transform);
+					UianaHelpers::SetActorProperty<FTransform>(UActorComponent::StaticClass(), componentNode, "RelativeRotation", transform);
 					// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeRotation"), transform.GetRotation());
-					UianaHelpers::SetActorProperty<FTransform>(componentNode, "RelativeScale3D", transform);
+					UianaHelpers::SetActorProperty<FTransform>(UActorComponent::StaticClass(), componentNode, "RelativeScale3D", transform);
 					// FObjectEditorUtils::SetPropertyValue(componentNode, FName("RelativeScale3D"), transform.GetScale3D());
 				}
 				break;
@@ -1295,10 +1406,245 @@ TArray<USCS_Node*> UUianaImporter::GetLocalBPChildren(TArray<TSharedPtr<FJsonVal
 	return localChildren;
 }
 
+void UUianaImporter::SetObjSettings(const TSharedPtr<FJsonObject> bpProps, UObject* mainObj)
+{
+	// Loop through all JSON values (type <FString, TSharedPtr<FJsonValue>>)
+	for (auto const& prop : bpProps.Get()->Values)
+	{
+		TSharedPtr<FJsonValue> propValue = prop.Value;
+		const FName propName = FName(*prop.Key);
+		FProperty* objectProp = PropertyAccessUtil::FindPropertyByName(propName, mainObj->GetClass());
+		if (objectProp == nullptr) continue;
+		const EJson propType = propValue.Get()->Type;
+		if (propType == EJson::Number || propType == EJson::Boolean)
+		{
+			if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
+			{
+				// UianaHelpers::SetActorProperty<float>(mainObj->GetClass(), mainObj, prop.Key, 14680.0);
+				// FObjectEditorUtils::SetPropertyValue(mainObj, propName, 14680);
+				UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, 14680);
+				continue;
+			}
+			// UianaHelpers::SetActorProperty<float>(mainObj->GetClass(), mainObj, prop.Key, prop.Value.Get()->AsNumber());
+			UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, prop.Value.Get()->AsNumber());
+			// FObjectEditorUtils::SetPropertyValue(mainObj, propName, prop.Value.Get()->AsNumber());
+			continue;
+		}
+		// TODO: This is necessary for lighting/post processing stuff but crashes BP due to needing to free the propValue afterward
+		// if (propType == EJson::String && propValue.Get()->AsString().Contains("::"))
+		// {
+		// 	FString temp, splitResult;
+		// 	propValue.Get()->AsString().Split("::", &temp, &splitResult);
+		// 	FJsonValueString valString = FJsonValueString(splitResult);
+		// 	propValue = MakeShareable<FJsonValueString>(&valString);
+		// }
+		if (objectProp->GetClass()->GetName().Equals("FLinearColor"))
+		{
+			FLinearColor color;
+			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
+			color.R = obj->GetNumberField("R");
+			color.G = obj->GetNumberField("G");
+			color.B = obj->GetNumberField("B");
+			UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, color);
+			// UianaHelpers::SetActorProperty<FLinearColor>(mainObj->GetClass(), mainObj, prop.Key, color);
+			// FObjectEditorUtils::SetPropertyValue(mainObj, propName, color);
+		}
+		else if (objectProp->GetClass()->GetName().Equals("FVector4"))
+		{
+			FVector4 vector;
+			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
+			vector.X = obj->GetNumberField("X");
+			vector.Y = obj->GetNumberField("Y");
+			vector.Z = obj->GetNumberField("Z");
+			vector.W = obj->GetNumberField("W");
+			UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, vector);
+			// UianaHelpers::SetActorProperty<FVector4>(mainObj->GetClass(), mainObj, prop.Key, vector);
+			// FObjectEditorUtils::SetPropertyValue(mainObj, propName, vector);
+		}
+		else if (objectProp->GetClass()->GetName().Contains("Color"))
+		{
+			FColor color;
+			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
+			color.R = obj->GetNumberField("R");
+			color.G = obj->GetNumberField("G");
+			color.B = obj->GetNumberField("B");
+			color.A = obj->GetNumberField("A");
+			UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, color);
+			// UianaHelpers::SetActorProperty<FColor>(mainObj->GetClass(), mainObj, prop.Key, color);
+			// FObjectEditorUtils::SetPropertyValue(mainObj, propName, color);
+		}
+		else if (propType == EJson::Object)
+		{
+			if (prop.Key.Equals("IESTexture"))
+			{
+				FString temp, newTextureName;
+				propValue.Get()->AsObject()->GetStringField("ObjectName").Split("_", &temp, &newTextureName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+				FString assetPath = "/UianaCPP/IESProfiles/" + newTextureName + "." + newTextureName;
+				UTexture* newTexture = static_cast<UTexture*>(UEditorAssetLibrary::LoadAsset(assetPath));
+				UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, newTexture);
+				// UianaHelpers::SetActorProperty<UTexture*>(mainObj->GetClass(), mainObj, prop.Key, newTexture);
+				// FObjectEditorUtils::SetPropertyValue(mainObj, propName, newTexture);
+			}
+			else if (prop.Key.Equals("Cubemap"))
+			{
+				FString newCubemapName = propValue.Get()->AsObject()->GetStringField("ObjectName").Replace(TEXT("TextureCube "), TEXT(""));
+				FString assetPath = "/UianaCPP/CubeMaps/" + newCubemapName + "." + newCubemapName;
+				// TODO: Convert all static_cast with UObjects to Cast<>()
+				UTextureCube* newCube = Cast<UTextureCube, UObject>(UEditorAssetLibrary::LoadAsset(assetPath));
+				UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, newCube);
+				// UianaHelpers::SetActorProperty<UTextureCube*>(mainObj->GetClass(), mainObj, prop.Key, newCube);
+				// FObjectEditorUtils::SetPropertyValue(mainObj, propName, newCube);
+			}
+			else if (prop.Key.Equals("DecalMaterial"))
+			{
+				// UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set BP Property %s somehow!"), *prop.Key);
+				FString decalPath = FPaths::GetPath(propValue.Get()->AsObject()->GetStringField("ObjectPath"));
+				UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + decalPath + "." + decalPath));
+				UDecalComponent decalComponent;
+				decalComponent.SetMaterial(0, Cast<UMaterialInterface>(mainObj));
+				decalComponent.SetDecalMaterial(decalMat);
+			}
+			else if (prop.Key.Equals("DecalSize"))
+			{
+				FVector vec;
+				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
+				vec.X = obj->GetNumberField("X");
+				vec.Y = obj->GetNumberField("Y");
+				vec.Z = obj->GetNumberField("Z");
+				UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, vec);
+				// UianaHelpers::SetActorProperty<FVector>(mainObj->GetClass(), mainObj, prop.Key, vec);
+				// FObjectEditorUtils::SetPropertyValue(mainObj, propName, vec);
+			}
+			else if (prop.Key.Equals("StaticMesh"))
+			{
+				FString meshName;
+				if (propValue->AsObject()->TryGetStringField("ObjectName", meshName))
+				{
+					FString name = meshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
+					UStaticMesh* mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + name));
+					if (mesh == nullptr) continue;
+					UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, mesh);
+					// UianaHelpers::SetActorProperty<UStaticMesh*>(mainObj->GetClass(), mainObj, prop.Key, mesh);
+					// FObjectEditorUtils::SetPropertyValue(mainObj, propName, mesh);
+				}
+			}
+			else if (prop.Key.Equals("BoxExtent"))
+			{
+				FVector vec;
+				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
+				vec.X = obj->GetNumberField("X");
+				vec.Y = obj->GetNumberField("Y");
+				vec.Z = obj->GetNumberField("Z");
+				// UianaHelpers::SetActorProperty<FVector>(mainObj->GetClass(), mainObj, "BoxExtent", vec);
+				// FObjectEditorUtils::SetPropertyValue(mainObj, "BoxExtent", vec);
+				UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, vec);
+			}
+			else if (prop.Key.Equals("LightmassSettings"))
+			{
+				// TODO: Investigate why lightmass settings do not seem to be getting applied although no error!
+				FLightmassMaterialInterfaceSettings lightmassSettings;
+				FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
+				// if (!UianaHelpers::SetActorProperty<FLightmassMaterialInterfaceSettings>(mainObj->GetClass(), mainObj, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings for BP!"));
+				if (!UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings!"));
+			}
+		}
+		else if (propType == EJson::Array && prop.Key.Equals("OverrideMaterials"))
+		{
+			TArray<UMaterialInstanceConstant*> overrideMats = {};
+			for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> ovrMat : propValue.Get()->AsArray())
+			{
+				if (!ovrMat.IsValid() || ovrMat.Get()->IsNull())
+				{
+					overrideMats.Add(nullptr);
+					continue;
+				}
+				const TSharedPtr<FJsonObject> matData = ovrMat.Get()->AsObject();
+				FString temp, objName;
+				matData.Get()->GetStringField("ObjectName").Split(" ", &temp, &objName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
+				if (matData->HasTypedField<EJson::Object>("ObjectName")) UE_LOG(LogTemp, Error, TEXT("Uiana: Obj Override Material ObjectName is not a string!"));
+				if (objName.Contains("MaterialInstanceDynamic")) continue;
+				UMaterialInstanceConstant* loaded = nullptr;
+				loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/UianaCPP/Materials/", objName)));
+				if (loaded == nullptr) loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/Game/ValorantContent/Materials/", objName)));
+				if (loaded == nullptr)
+				{
+					UE_LOG(LogTemp, Display, TEXT("Failed to load override material %s, skipping"), *objName);
+					continue;
+				}
+				overrideMats.Add(loaded);
+			}
+			// UianaHelpers::SetActorProperty<TArray<UMaterialInstanceConstant*>>(mainObj->GetClass(), mainObj, prop.Key, overrideMats);
+			// FObjectEditorUtils::SetPropertyValue(mainObj, propName, overrideMats);
+			UianaHelpers::SetGivenObjectProperty(mainObj, objectProp, overrideMats);
+		}
+		else
+		{
+			if (propType == EJson::Array)
+			{
+				const TArray<TSharedPtr<FJsonValue>> parameterArray = propValue.Get()->AsArray();
+				if (prop.Key.Equals("TextureStreamingData"))
+				{
+					TArray<FMaterialTextureInfo> textures;
+					for (const TSharedPtr<FJsonValue> texture : parameterArray)
+					{
+						FMaterialTextureInfo textureInfo;
+						const TSharedPtr<FJsonObject> textureObj = texture.Get()->AsObject();
+						FJsonObjectConverter::JsonObjectToUStruct(textureObj.ToSharedRef(), &textureInfo);
+						textures.Add(textureInfo);
+					}
+					UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set TextureStreamingData for Obj!"));
+					// bp->SetTextureStreamingData(textures);
+				}
+				else
+				{
+					if (prop.Key.Equals("ScalarParameterValues") || prop.Key.Equals("VectorParameterValues") || prop.Key.Equals("TextureParameterValues")) continue;
+					for (const TSharedPtr<FJsonValue> parameter : parameterArray)
+					{
+						const TSharedPtr<FJsonObject> paramObj = parameter.Get()->AsObject();
+						// const TSharedPtr<FJsonObject> paramInfo = paramObj.Get()->GetObjectField("ParameterInfo");
+						// FMaterialParameterInfo info;
+						// FJsonObjectConverter::JsonObjectToUStruct(paramInfo.ToSharedRef(), &info);
+						// if (prop.Key.Equals("ScalarParameterValues"))
+						// {
+						// 	double paramValue = paramObj.Get()->GetNumberField("ParameterValue");
+						// 	mat->SetScalarParameterValueEditorOnly(info, paramValue);
+						// }
+						// else if (prop.Key.Equals("VectorParameterValues"))
+						// {
+						// 	FLinearColor paramValue;
+						// 	const TSharedPtr<FJsonObject> vectorParams = paramObj.Get()->GetObjectField("ParameterValue");
+						// 	paramValue.R = vectorParams.Get()->GetNumberField("R");
+						// 	paramValue.G = vectorParams.Get()->GetNumberField("G");
+						// 	paramValue.B = vectorParams.Get()->GetNumberField("B");
+						// 	paramValue.A = vectorParams.Get()->GetNumberField("A");
+						// 	mat->SetVectorParameterValueEditorOnly(info, paramValue);
+						// }
+						// else if (prop.Key.Equals("TextureParameterValues"))
+						// {
+						// 	FString temp, textureName;
+						// 	paramObj.Get()->GetObjectField("ParameterValue").Get()->GetStringField("ObjectName").Split(TEXT(" "), &temp, &textureName);
+						// 	UTexture* paramValue = static_cast<UTexture*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Textures/" + textureName));
+						// 	mat->SetTextureParameterValueEditorOnly(info, paramValue);
+						// }
+						// else
+						// {
+						FString OutputString;
+						TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+						FJsonSerializer::Serialize(paramObj.ToSharedRef(), Writer);
+						UE_LOG(LogTemp, Warning, TEXT("Uiana: Array Obj Property %s unaccounted"), *prop.Key);	
+						// }
+					}	
+				}
+			}
+			else UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set Obj Property %s of unknown type!"), *prop.Key);
+		}
+	}
+}
+
 void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActorComponent* bp)
 {
 	// Loop through all JSON values (type <FString, TSharedPtr<FJsonValue>>)
-	for (auto const& prop : bpProps->Values)
+	for (auto const& prop : bpProps.Get()->Values)
 	{
 		TSharedPtr<FJsonValue> propValue = prop.Value;
 		const FName propName = FName(*prop.Key);
@@ -1309,20 +1655,13 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 		{
 			if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
 			{
-				UianaHelpers::SetActorProperty<int>(bp, prop.Key, 14680);
+				UianaHelpers::SetActorProperty<float>(bp->GetClass(), bp, prop.Key, 14680.0);
 				// FObjectEditorUtils::SetPropertyValue(bp, propName, 14680);
 				continue;
 			}
-			UianaHelpers::SetActorProperty<float>(bp, prop.Key, prop.Value.Get()->AsNumber());
+			UianaHelpers::SetActorProperty<float>(bp->GetClass(), bp, prop.Key, prop.Value.Get()->AsNumber());
 			// FObjectEditorUtils::SetPropertyValue(bp, propName, prop.Value.Get()->AsNumber());
 			continue;
-		}
-		if (propType == EJson::String && propValue.Get()->AsString().Contains("::"))
-		{
-			FString temp, splitResult;
-			propValue.Get()->AsString().Split("::", &temp, &splitResult);
-			FJsonValueString valString = FJsonValueString(splitResult);
-			propValue = MakeShareable<FJsonValueString>(&valString);
 		}
 		if (objectProp->GetClass()->GetName().Equals("FLinearColor"))
 		{
@@ -1331,7 +1670,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			color.R = obj->GetNumberField("R");
 			color.G = obj->GetNumberField("G");
 			color.B = obj->GetNumberField("B");
-			UianaHelpers::SetActorProperty<FLinearColor>(bp, prop.Key, color);
+			UianaHelpers::SetActorProperty<FLinearColor>(bp->GetClass(), bp, prop.Key, color);
 			// FObjectEditorUtils::SetPropertyValue(bp, propName, color);
 		}
 		else if (objectProp->GetClass()->GetName().Equals("FVector4"))
@@ -1342,7 +1681,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			vector.Y = obj->GetNumberField("Y");
 			vector.Z = obj->GetNumberField("Z");
 			vector.W = obj->GetNumberField("W");
-			UianaHelpers::SetActorProperty<FVector4>(bp, prop.Key, vector);
+			UianaHelpers::SetActorProperty<FVector4>(bp->GetClass(), bp, prop.Key, vector);
 			// FObjectEditorUtils::SetPropertyValue(bp, propName, vector);
 		}
 		else if (objectProp->GetClass()->GetName().Contains("Color"))
@@ -1353,7 +1692,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			color.G = obj->GetNumberField("G");
 			color.B = obj->GetNumberField("B");
 			color.A = obj->GetNumberField("A");
-			UianaHelpers::SetActorProperty<FColor>(bp, prop.Key, color);
+			UianaHelpers::SetActorProperty<FColor>(bp->GetClass(), bp, prop.Key, color);
 			// FObjectEditorUtils::SetPropertyValue(bp, propName, color);
 		}
 		else if (propType == EJson::Object)
@@ -1364,7 +1703,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				propValue.Get()->AsObject()->GetStringField("ObjectName").Split("_", &temp, &newTextureName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 				FString assetPath = "/UianaCPP/IESProfiles/" + newTextureName + "." + newTextureName;
 				UTexture* newTexture = static_cast<UTexture*>(UEditorAssetLibrary::LoadAsset(assetPath));
-				UianaHelpers::SetActorProperty<UTexture*>(bp, prop.Key, newTexture);
+				UianaHelpers::SetActorProperty<UTexture*>(bp->GetClass(), bp, prop.Key, newTexture);
 				// FObjectEditorUtils::SetPropertyValue(bp, propName, newTexture);
 			}
 			else if (prop.Key.Equals("Cubemap"))
@@ -1373,17 +1712,8 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				FString assetPath = "/UianaCPP/CubeMaps/" + newCubemapName + "." + newCubemapName;
 				// TODO: Convert all static_cast with UObjects to Cast<>()
 				UTextureCube* newCube = Cast<UTextureCube, UObject>(UEditorAssetLibrary::LoadAsset(assetPath));
-				UianaHelpers::SetActorProperty<UTextureCube*>(bp, prop.Key, newCube);
+				UianaHelpers::SetActorProperty<UTextureCube*>(bp->GetClass(), bp, prop.Key, newCube);
 				// FObjectEditorUtils::SetPropertyValue(bp, propName, newCube);
-			}
-			else if (prop.Key.Equals("DecalMaterial"))
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set BP Property %s somehow!"), *prop.Key);
-				// FString decalPath = FPaths::GetPath(propValue.Get()->AsObject()->GetStringField("ObjectPath"));
-				// UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + decalPath + "." + decalPath));
-				// UDecalComponent decalComponent;
-				// decalComponent.SetMaterial(0, bp);
-				// decalComponent.SetDecalMaterial(decalMat);
 			}
 			else if (prop.Key.Equals("DecalSize"))
 			{
@@ -1392,7 +1722,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				vec.X = obj->GetNumberField("X");
 				vec.Y = obj->GetNumberField("Y");
 				vec.Z = obj->GetNumberField("Z");
-				UianaHelpers::SetActorProperty<FVector>(bp, prop.Key, vec);
+				UianaHelpers::SetActorProperty<FVector>(bp->GetClass(), bp, prop.Key, vec);
 				// FObjectEditorUtils::SetPropertyValue(bp, propName, vec);
 			}
 			else if (prop.Key.Equals("StaticMesh"))
@@ -1402,7 +1732,8 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				{
 					FString name = meshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
 					UStaticMesh* mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + name));
-					UianaHelpers::SetActorProperty<UStaticMesh*>(bp, prop.Key, mesh);
+					if (mesh == nullptr) continue;
+					UianaHelpers::SetActorProperty<UStaticMesh*>(bp->GetClass(), bp, prop.Key, mesh);
 					// FObjectEditorUtils::SetPropertyValue(bp, propName, mesh);
 				}
 			}
@@ -1413,7 +1744,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				vec.X = obj->GetNumberField("X");
 				vec.Y = obj->GetNumberField("Y");
 				vec.Z = obj->GetNumberField("Z");
-				UianaHelpers::SetActorProperty<FVector>(bp, "BoxExtent", vec);
+				UianaHelpers::SetActorProperty<FVector>(bp->GetClass(), bp, "BoxExtent", vec);
 				// FObjectEditorUtils::SetPropertyValue(bp, "BoxExtent", vec);
 			}
 			else if (prop.Key.Equals("LightmassSettings"))
@@ -1421,26 +1752,58 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				// TODO: Investigate why lightmass settings do not seem to be getting applied although no error!
 				FLightmassMaterialInterfaceSettings lightmassSettings;
 				FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
-				if (!UianaHelpers::SetActorProperty<FLightmassMaterialInterfaceSettings>(bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings for BP!"));
+				if (!UianaHelpers::SetActorProperty<FLightmassMaterialInterfaceSettings>(bp->GetClass(), bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings for BP!"));
 				// if (!FObjectEditorUtils::SetPropertyValue(bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings!"));
 			}
 		}
 		else if (propType == EJson::Array && prop.Key.Equals("OverrideMaterials"))
 		{
-			TArray<UMaterialInstanceConstant*> overrideMats;
-			UMaterialInstanceConstant* loaded = nullptr;
+			TArray<UMaterialInstanceConstant*> overrideMats = {};
 			for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> ovrMat : propValue.Get()->AsArray())
 			{
+				if (!ovrMat.IsValid() || ovrMat.Get()->IsNull())
+				{
+					overrideMats.Add(nullptr);
+				 	continue;
+				}
+				if (ovrMat.Get()->Type != EJson::Object)
+				{
+					FString OutputString;
+					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+					TArray<TSharedPtr<FJsonValue>> TempArr = {ovrMat};
+					FJsonSerializer::Serialize(TempArr, Writer);
+					UE_LOG(LogTemp, Error, TEXT("Uiana: BP Override Material in Array is not an object and instead is:\n %s!"), *OutputString);
+					overrideMats.Add(nullptr);
+					continue;
+				}
 				const TSharedPtr<FJsonObject> matData = ovrMat.Get()->AsObject();
 				FString temp, objName;
-				matData.Get()->GetStringField("ObjectName").Split(" ", &temp, &objName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
+				matData->GetStringField("ObjectName").Split(" ", &temp, &objName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
+				if (matData->HasTypedField<EJson::Object>("ObjectName")) UE_LOG(LogTemp, Error, TEXT("Uiana: BP Override Material ObjectName is not a string!"));
 				if (objName.Contains("MaterialInstanceDynamic")) continue;
-				loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/UianaCPP/Materials/" + objName));
-				if (loaded == nullptr) loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + objName));
+				UMaterialInstanceConstant* loaded = nullptr;
+				loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/UianaCPP/Materials/", objName)));
+				if (loaded == nullptr) loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/Game/ValorantContent/Materials/", objName)));
+				if (loaded == nullptr)
+				{
+					UE_LOG(LogTemp, Display, TEXT("Failed to load override material %s, skipping"), *objName);
+					continue;
+				}
 				overrideMats.Add(loaded);
 			}
-			UianaHelpers::SetActorProperty<TArray<UMaterialInstanceConstant*>>(bp, prop.Key, overrideMats);
+			UianaHelpers::SetActorProperty<TArray<UMaterialInstanceConstant*>>(bp->GetClass(), bp, prop.Key, overrideMats);
 			// FObjectEditorUtils::SetPropertyValue(bp, propName, overrideMats);
+		}
+		else if (propType == EJson::String)
+		{
+			if (prop.Key.Equals("Mobility"))
+			{
+				UianaHelpers::SetActorProperty(bp->GetClass(), bp, prop.Key, UianaHelpers::ParseMobility(propValue->AsString()));
+			}
+			else if (prop.Key.Equals("DetailMode"))
+			{
+				UianaHelpers::SetActorProperty(bp->GetClass(), bp, prop.Key, UianaHelpers::ParseDetailMode(propValue->AsString()));
+			}
 		}
 		else
 		{
@@ -1496,12 +1859,26 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 						FString OutputString;
 						TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 						FJsonSerializer::Serialize(paramObj.ToSharedRef(), Writer);
-						UE_LOG(LogTemp, Warning, TEXT("Uiana: Array BP Property unaccounted for with value: %s"), *OutputString);	
+						UE_LOG(LogTemp, Warning, TEXT("Uiana: Array BP Property %s unaccounted for"), *prop.Key);
 						// }
 					}	
 				}
 			}
-			else UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set BP Property %s of unknown type!"), *prop.Key);
+			else
+			{
+				FString type = "None";
+				if (propType == EJson::Array) type = "Array";
+				if (propType == EJson::Object) type = "Object";
+				if (propType == EJson::Boolean) type = "Bool";
+				if (propType == EJson::String) type = "String";
+				if (propType == EJson::Number) type = "Number";
+				if (propType == EJson::Null) type = "Null";
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set BP Property %s of type %s!"), *prop.Key, *type);
+				if (propType == EJson::String)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Uiana: String BP Property unset - %s: %s"), *prop.Key, *propValue->AsString());
+				}
+			}
 		}
 	}
 }
@@ -1520,8 +1897,17 @@ TArray<UMaterialInterface*> UUianaImporter::CreateOverrideMaterials(const TShare
 	TArray<UMaterialInterface*> mats = {};
 	for (const TSharedPtr<FJsonValue> mat : obj->GetObjectField("Properties")->GetArrayField("OverrideMaterials"))
 	{
+		if (mat.Get()->Type != EJson::Object)
+		{
+		    FString OutputString;
+		    TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+		    TArray<TSharedPtr<FJsonValue>> TempArr = {mat};
+		    FJsonSerializer::Serialize(TempArr, Writer);
+		    UE_LOG(LogTemp, Error, TEXT("Uiana: Override Material in Array is not Object and instead is:\n %s!"), *OutputString);
+		    continue;
+		}
 		FString objName, temp;
-		mat->AsString().Split(TEXT(" "), &temp, &objName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+		mat->AsObject()->GetStringField("ObjectName").Split(TEXT(" "), &temp, &objName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 		if (objName.Equals("Stone_M2_Steps_MI1")) objName = "Stone_M2_Steps_MI";
 		if (objName.Contains("MaterialInstanceDynamic")) continue;
 		mats.Add(Cast<UMaterialInterface>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/Game/ValorantContent/Materials/", objName))));

@@ -31,15 +31,19 @@ public:
 	template<class PropType, class CppType>
 	static bool SetStructPropertiesFromJson(void* data, const FProperty* objectProp, const TSharedPtr<FJsonObject> jsonObj, const TArray<FName> jsonProps);
 	template <class PropType>
-    static bool SetActorProperty(UActorComponent* component, const FString propName, PropType propVal);
+    static bool SetActorProperty(UClass* actorClass, UObject* component, const FString propName, PropType propVal);
+	template <class ObjType, class ValueType>
+    static bool SetGivenObjectProperty(ObjType* obj, FProperty* prop, ValueType propVal);
 
 	static TEnumAsByte<EBlendMode> ParseBlendMode(const FString mode);
 	static TEnumAsByte<EMaterialShadingModel> ParseShadingModel(const FString model);
 	static TEnumAsByte<ECollisionTraceFlag> ParseCollisionTrace(const FString flag);
 	static ObjectType ParseObjectType(const FString objType);
+	static EComponentMobility::Type ParseMobility(const FString mobility);
+	static TEnumAsByte<EDetailMode> ParseDetailMode(const FString mode);
 
 	static bool HasTransformComponent(const TSharedPtr<FJsonObject> comp);
-	static void GetTransformComponent(const TSharedPtr<FJsonObject> comp, FTransform* transform);
-	static void GetSceneTransformComponent(const TSharedPtr<FJsonObject> comp, FTransform* transform);
+	static FTransform GetTransformComponent(const TSharedPtr<FJsonObject> comp);
+	static FTransform GetSceneTransformComponent(const TSharedPtr<FJsonObject> comp);
 	static bool JsonObjContainsFields(const TSharedPtr<FJsonObject> obj, const TSet<FString> fields);
 };

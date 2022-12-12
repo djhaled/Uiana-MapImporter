@@ -95,7 +95,6 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 		if (VtxColorsArray.Num() != CurrentVerts.Num())
 		{
 			FinalColors = FixBrokenMesh(SM,FileName,VtxColorsArray, Reader->Vertices);
-
 		}
 		else
 		{
@@ -121,7 +120,7 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 		}
 		if (FinalColors.IsEmpty())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("This one has no  FinalColors %s"), *SM->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("This one has no FinalColors %s"), *SM->GetName());
 			return;
 		}
 		LODInfo->OverrideVertexColors->InitFromColorArray(FinalColors);
@@ -170,8 +169,12 @@ TArray<FColor> UBPFL::FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArr
 	for (auto vt : CurrentVerticesPosition)
 	{
 		auto finder = Hasher.Find(FVector3f(vt));
+		if (finder == nullptr)
+		{
+			LocalVtxColors.Add(FColor::White);
+			continue;
+		}
 		LocalVtxColors.Add(*finder);
-
 	}
 	return LocalVtxColors;
 }
@@ -279,9 +282,11 @@ void UBPFL::ImportMeshes(TSet<FString> AllMeshesPath, FString ObjectsPath)
 	int ActorIdx = -1;
 	for (FString MPath : AllMeshesPath)
 	{
-		FString MeshGamePath, MeshName;
-		MPath.Split(TEXT("\\"), &MeshGamePath, &MeshName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-		MeshName = MeshName.Replace(TEXT(".pskx"), TEXT(".json"));
+		const FString MeshName = FPaths::GetBaseFilename(MPath);
+		const FString MeshGamePath = FPaths::GetPath(MPath);
+		// FString MeshGamePath, MeshName;
+		// MPath.Split(TEXT("\\"), &MeshGamePath, &MeshName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+		// MeshName = MeshName.Replace(TEXT(".pskx"), TEXT(".json"));
 		FPaths Path;
 		ActorIdx++;
 		// JSON Stuff
@@ -290,7 +295,7 @@ void UBPFL::ImportMeshes(TSet<FString> AllMeshesPath, FString ObjectsPath)
 		std::string BodySetupProps = "CTF_UseDefault";
 		int LMCoord = 0; 
 		float LMDens = 0.0;
-		FString Filename = Path.Combine(ObjectsPath, MeshName);
+		FString Filename = Path.Combine(ObjectsPath, MeshName + ".json");
 		FFileHelper::LoadFileToString(UmapJson, *Filename);
 		auto Umap = nlohmann::json::parse(TCHAR_TO_UTF8(*UmapJson));
 		auto BodySetup = Umap[0];
@@ -313,7 +318,7 @@ void UBPFL::ImportMeshes(TSet<FString> AllMeshesPath, FString ObjectsPath)
 			LMDens = StaticProps["LightMapDensity"].get<float>();
 		}
 		///// end json stuff
-		MeshName = MeshName.Replace(TEXT(".json"), TEXT(""));
+		// MeshName = MeshName.Replace(TEXT(".json"), TEXT(""));
 		FString PathForMeshes = FString::Printf(TEXT("/Game/ValorantContent/Meshes/%s"), *MeshName);
 		auto MeshPackage = CreatePackage(*PathForMeshes);
 		auto bCancelled = false;
