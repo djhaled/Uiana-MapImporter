@@ -197,59 +197,63 @@ TSharedRef<class SDockTab> FUianaCPPModule::OnSpawnPluginTab(const FSpawnTabArgs
 		FText::FromString(TEXT("PLUGIN_NAME.cpp"))
 	);
 	return SNew(SDockTab)
-		.TabRole(NomadTab)
+		.TabRole(ETabRole::NomadTab)
 		[
 			// Put your tab content here!
 			SNew(SBorder)
 			.BorderImage(new FSlateColorBrush(FColor(5, 5, 5)))
-			[
-				SNew(SVerticalBox)
+		[
+			SNew(SVerticalBox)
 
-				+ SVerticalBox::Slot()
-				  .AutoHeight()
-				  .Padding(8.f, 5.f, 8.f, 0.f)
-				  .HAlign(HAlign_Fill)
-				  .VAlign(VAlign_Fill)
-				[
-					SNew(SBorder)
-					.BorderImage(FEditorStyle::GetBrush("ToolPanel.DarkGroupBorder"))
-					[
-						SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(8.f, 5.f, 8.f, 0.f)
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
+		[
+			SNew(SBorder)
+			.BorderImage(FAppStyle::Get().GetBrush("ToolPanel.DarkGroupBorder"))
+		[
+			SNew(SVerticalBox)
 
-						+ SVerticalBox::Slot()
-						  .AutoHeight()
-						  .Padding(1.f, 1.f, 0.f, 0.f)
-						  .HAlign(HAlign_Left)
-						  .VAlign(VAlign_Top)
+			+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(1.f, 1.f, 0.f, 0.f)
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Top)
 
 
-						+ SVerticalBox::Slot()
-						  .AutoHeight()
-						  .VAlign(VAlign_Bottom)
-						[
-							MakeDataManagementSettingsDetailsWidget()
-						]
 
-						+ SVerticalBox::Slot()
-						  .AutoHeight()
-						  .VAlign(VAlign_Bottom)
-						  .HAlign(HAlign_Right)
-						  .Padding(2.f, 5.f)
-						[
-							SNew(SButton)
-			.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
+
+
+
+		+SVerticalBox::Slot()
+		.AutoHeight()
+		.VAlign(VAlign_Bottom)
+		[
+			MakeDataManagementSettingsDetailsWidget()
+		]
+
+	+ SVerticalBox::Slot()
+		.AutoHeight()
+		.VAlign(VAlign_Bottom)
+		.HAlign(HAlign_Right)
+		.Padding(2.f, 5.f)
+		[
+			SNew(SButton)
+			.ButtonStyle(FAppStyle::Get(), "FlatButton.Success")
 		.ForegroundColor(FSlateColor::UseForeground())
 		.OnClicked(FOnClicked::CreateRaw(this, &FUianaCPPModule::ExecuteFunction))
-							[
-								SNew(STextBlock)
+		[
+			SNew(STextBlock)
 			.Justification(ETextJustify::Center)
-		.TextStyle(FEditorStyle::Get(), "NormalText.Important")
+		.TextStyle(FAppStyle::Get(), "NormalText.Important")
 		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate Map"))
-							]
-						]
-					]
-				]
-			]
+		]
+		]
+		]
+		]
+		]
 		];
 }
 
