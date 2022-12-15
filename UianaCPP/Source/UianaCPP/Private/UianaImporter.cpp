@@ -220,8 +220,10 @@ void UUianaImporter::ImportMap()
 							lightmapRes = round(componentProps->GetNumberField("LightMapResolution") * Settings->LightmapResolutionMultiplier / 4) * 4;
 						}
 						UE_LOG(LogTemp, Display, TEXT("Uiana: Mesh %s has lightmap resolution %d and lightmapCoord %d"), *componentObj->GetStringField("Name"), static_cast<int32>(lightmapRes), lightmapCoord);
-						mesh->SetLightMapResolution(lightmapRes);
-						mesh->SetLightMapCoordinateIndex(lightmapCoord);
+						// mesh->SetLightMapResolution(lightmapRes);
+						// mesh->SetLightMapCoordinateIndex(lightmapCoord);
+						UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), mesh, "LightMapResolution", lightmapRes);
+						UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), mesh, "LightMapCoordinateIndex", lightmapCoord);
 					}
 					if (componentObj->GetStringField("Type").Equals("BodySetup") && componentProps.IsValid() && componentProps->HasField("CollisionTraceFlag"))
 					{
