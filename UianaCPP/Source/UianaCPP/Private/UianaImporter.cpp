@@ -238,11 +238,13 @@ void UUianaImporter::ImportMap()
 	}
 }
 
-void UUianaImporter::ExtractAssets(TArray<FString> umapPaths)
+void UUianaImporter::ExtractAssets(TArray<FString> &umapPaths)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracting assets!"));
 	CUE4Extract(UMapsPath);
 	UModelExtract();
+	FFileManagerGeneric::Get().FindFiles(umapPaths, *(UMapsPath.Path), TEXT(".json"));
+	UianaHelpers::AddPrefixPath(UMapsPath, umapPaths);
 	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracted %d umaps"), umapPaths.Num());
 	TArray<FString> actorPaths, objPaths, matOvrPaths;
 	for (FString umapPath : umapPaths)
@@ -428,10 +430,14 @@ void UUianaImporter::UModelExtract()
 		TextureFormat.Replace(TEXT("."), TEXT("")),
 		ExportAssetsPath.Path
 	};
-	const FString ConsoleCommand = FString::Format(TEXT("-path=\"{0}\" -game=valorant -aes={1} -files=\"{2}\" -export -{3} -out=\"{4}\""), args);
+	const FString ConsoleCommand = FString::Format(TEXT("-path=\"{0}\" -game=valorant -aes={1} -files=\"{2}\" -export -{3} -out=\"{4}\" *"), args);
 	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(ToolsPath.Path, "umodel.exe"), *ConsoleCommand);
 	FProcHandle handle = FPlatformProcess::CreateProc(*FPaths::Combine(ToolsPath.Path, "umodel.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
-	FPlatformProcess::WaitForProc(handle);
+	if (handle.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Uiana: Ran UModel successfully!"));
+		FPlatformProcess::WaitForProc(handle);
+	}
 }
 
 FString UUianaImporter::CreateNewLevel(const FString levelName)

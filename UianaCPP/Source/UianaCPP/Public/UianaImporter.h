@@ -98,7 +98,7 @@ private:
 	static FDirectoryPath ActorsPath;
 
 	static bool NeedExport();
-	static void ExtractAssets(TArray<FString> umapPaths);
+	static void ExtractAssets(TArray<FString> &umapPaths);
 	static void CUE4Extract(FDirectoryPath ExportDir);
 	static void CUE4Extract(FDirectoryPath ExportDir, FString AssetList);
 	static void UModelExtract();
