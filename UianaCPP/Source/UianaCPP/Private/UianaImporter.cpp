@@ -26,7 +26,7 @@
 #define LOCTEXT_NAMESPACE "UUianaImporter"
 
 TArray<FString> UUianaImporter::UMaps = {};
-UUianaSettings* UUianaImporter::Settings;
+UianaSettings UUianaImporter::Settings;
 AssetImporter UUianaImporter::AssetImporterComp;
 MaterialImporter UUianaImporter::MaterialImporterComp;
 BlueprintImporter UUianaImporter::BlueprintImporterComp;
@@ -38,8 +38,7 @@ UUianaImporter::UUianaImporter()
 
 void UUianaImporter::Initialize(FString MapName, UUianaCPPDataSettings* InputSettings)
 {
-	Settings = NewObject<UUianaSettings>();
-	Settings->Initialize(MapName, InputSettings);
+	Settings = UianaSettings(MapName, InputSettings);
 	FString InputSettingsStr = "INPUT SETTINGS: ";
 	if (InputSettings->ImportMaterials) InputSettingsStr += "MATS ";
 	if (InputSettings->ImportBlueprints) InputSettingsStr += "BPS ";
@@ -48,13 +47,13 @@ void UUianaImporter::Initialize(FString MapName, UUianaCPPDataSettings* InputSet
 	if (InputSettings->ImportMeshes) InputSettingsStr += "MESHES ";
 	if (InputSettings->UseSubLevels) InputSettingsStr += "SUBLEVELS ";
 	UE_LOG(LogTemp, Display, TEXT("Uiana: Called with %s"), *InputSettingsStr);
-	AssetImporterComp = AssetImporter(Settings);
-	MaterialImporterComp = MaterialImporter(Settings);
-	BlueprintImporterComp = BlueprintImporter(Settings);
+	AssetImporterComp = AssetImporter(&Settings);
+	MaterialImporterComp = MaterialImporter(&Settings);
+	BlueprintImporterComp = BlueprintImporter(&Settings);
 	// Open umaps JSON file and read the UMaps to store
 	FString UMapJSON;
-	Settings->UMapJsonPath.Path = FPaths::Combine(Settings->AssetsPath.Path, "umaps.json");
-	FFileHelper::LoadFileToString(UMapJSON, *Settings->UMapJsonPath.Path);
+	Settings.UMapJsonPath.Path = FPaths::Combine(Settings.AssetsPath.Path, "umaps.json");
+	FFileHelper::LoadFileToString(UMapJSON, *Settings.UMapJsonPath.Path);
 	TSharedPtr<FJsonObject> JsonParsed = UianaHelpers::ParseJson(UMapJSON);
 	if (!JsonParsed.IsValid() || !JsonParsed->TryGetStringArrayField(MapName, UMaps))
 	{
@@ -70,25 +69,25 @@ void UUianaImporter::ImportMap()
 	TArray<FString> umapPaths = AssetImporterComp.GetExtractedUmaps();
 	UE_LOG(LogTemp, Display, TEXT("Found %d umaps"), umapPaths.Num());
 	TArray<FString> levelPaths = {};
-	if (!Settings->InputSettings->UseSubLevels)
+	if (!Settings.UseSubLevels)
 	{
-		levelPaths.Add(CreateNewLevel(Settings->Name));
+		levelPaths.Add(CreateNewLevel(Settings.Name));
 	}
 	// Clear level
 	UEditorActorSubsystem* actorSubsystem = GEditor->GetEditorSubsystem<UEditorActorSubsystem>();
 	actorSubsystem->DestroyActors(actorSubsystem->GetAllLevelActors());
-	if (Settings->InputSettings->ImportMaterials)
+	if (Settings.ImportMaterials)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Importing Textures!"));
 		// Import textures first
 		MaterialImporterComp.ImportMaterials();
 	}
-	if (Settings->InputSettings->ImportMeshes)
+	if (Settings.ImportMeshes)
 	{
 		TSet<FString> meshes;
 		TArray<FString> meshRawPaths;
 		// TODO: Try using LoadFileToStringArrayWithPredicate() or WithLineVisitor to reduce code complexity with blacklist
-		FFileHelper::LoadFileToStringArray(meshRawPaths, *FPaths::Combine(Settings->FolderPath.Path, "_assets_objects.txt"));
+		FFileHelper::LoadFileToStringArray(meshRawPaths, *FPaths::Combine(Settings.FolderPath.Path, "_assets_objects.txt"));
 		for (FString meshRawPath : meshRawPaths)
 		{
 			if (IsBlacklisted(FPaths::GetCleanFilename(meshRawPath))) continue;
@@ -96,24 +95,22 @@ void UUianaImporter::ImportMap()
 			meshRawPath.Replace(TEXT("\\"), TEXT("/")).Split(TEXT("/"), &temp, &temp1);
 			if (temp.Equals("Engine")) continue;
 			temp1.Split(TEXT("/"), &temp, &meshPath);
-			meshPath = FPaths::Combine(Settings->ExportAssetsPath.Path, "Game", meshPath);
+			meshPath = FPaths::Combine(Settings.ExportAssetsPath.Path, "Game", meshPath);
 			meshes.Emplace(FPaths::SetExtension(meshPath, TEXT(".pskx")));
 			// UE_LOG(LogTemp, Display, TEXT("Uiana: Found mesh with result path %s from raw path %s filtered to %s"), *FPaths::SetExtension(meshPath, TEXT(".pskx")), *meshRawPath, *meshPath);
 		}
-		UBPFL::ImportMeshes(meshes, Settings->ObjectsPath.Path);
+		UBPFL::ImportMeshes(meshes, Settings.ObjectsPath.Path);
 	}
-	if (Settings->InputSettings->ImportBlueprints)
+	if (Settings.ImportBlueprints)
 	{
 		TArray<FString> bpPaths;
-		FFileManagerGeneric::Get().FindFiles(bpPaths, *Settings->ActorsPath.Path, TEXT(".json"));
+		FFileManagerGeneric::Get().FindFiles(bpPaths, *Settings.ActorsPath.Path, TEXT(".json"));
 		UE_LOG(LogTemp, Display, TEXT("Uiana: Found %d BPs to import!"), bpPaths.Num());
-		UianaHelpers::AddPrefixPath(Settings->ActorsPath, bpPaths);
-		BlueprintImporterComp.CreateBlueprints(Settings, bpPaths);
+		UianaHelpers::AddPrefixPath(Settings.ActorsPath, bpPaths);
+		BlueprintImporterComp.CreateBlueprints(bpPaths);
 	}
 	FScopedSlowTask UianaTask(umapPaths.Num(), LOCTEXT ("UianaTask", "Importing Map"));
 	UianaTask.MakeDialog();
-	// UWorld* world = GEditor->GetEditorWorldContext().World();
-	UWorld* world = GEditor->PlayWorld;
 	for (int i = umapPaths.Num() - 1; i >= 0; i--)
 	{
 		FString umapStr;
@@ -128,21 +125,91 @@ void UUianaImporter::ImportMap()
 		FString umapName = FPaths::GetBaseFilename(umapPaths[i]);
 		// TODO: Add level name to format text
 		UianaTask.EnterProgressFrame(1, FText::Format(LOCTEXT("UianaTask", "Importing level {1}/{2}"), umapPaths.Num() - i, umapPaths.Num()));
-		if (Settings->InputSettings->UseSubLevels)
+		if (Settings.UseSubLevels)
 		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Attempting to create level for umap %s"), *umapName);
 			levelPaths.Add(CreateNewLevel(umapName));
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Exiting creating level for umap %s"), *umapName);
 		}
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Attempting to import umap %s"), *umapName);
+		FString InputSettingsStr = "INPUT SETTINGS AT UMAP IMPORT: ";
+		if (Settings.ImportMaterials) InputSettingsStr += "MATS ";
+		if (Settings.ImportBlueprints) InputSettingsStr += "BPS ";
+		if (Settings.ImportDecals) InputSettingsStr += "DECALS ";
+		if (Settings.ImportLights) InputSettingsStr += "LIGHTS ";
+		if (Settings.ImportMeshes) InputSettingsStr += "MESHES ";
+		if (Settings.UseSubLevels) InputSettingsStr += "SUBLEVELS ";
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Called with %s"), *InputSettingsStr);
 		ImportUmap(umapData, umapName);
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Finished importing assets from umap %s"), *umapName);
+		if (Settings.UseSubLevels)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Saving level for umap %s"), *umapName);
+			if (!UEditorLevelLibrary::SaveCurrentLevel()) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to save level for umap %s!"), *umapName);
+		}
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Saved level for umap %s"), *umapName);
 	}
-	if (Settings->InputSettings->UseSubLevels)
+	if (Settings.UseSubLevels)
 	{
-		UEditorLevelUtils::AddLevelsToWorld(world, levelPaths, ULevelStreamingAlwaysLoaded::StaticClass());
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Adding all levels to world!"));
+		UWorld* world = UEditorLevelLibrary::GetEditorWorld();
+		if (world == nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorld is not valid world, trying GetEditorWorldContext()!"));
+			world = GEditor->GetEditorWorldContext().World();
+		}
+		if (world == nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorldContext is not valid world, trying GetEditorSubsystem()!"));
+			world = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->GetWorld();
+		}
+		if (world == nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorSubsystem is not valid world, trying all GetEditorWorldContext worlds()!"));
+			UWorld* PIE = nullptr;
+			UWorld* GamePreview = nullptr;
+			for (FWorldContext const& Context : GEngine->GetWorldContexts())
+			{
+				switch (Context.WorldType)
+				{
+				case EWorldType::PIE:
+					PIE = Context.World();
+					break;
+				case EWorldType::GamePreview:
+					GamePreview = Context.World();
+					break;
+				}
+			}
+			if (PIE)
+			{
+				world = PIE;
+			}
+			else if (GamePreview)
+			{
+				world = GamePreview;
+			}
+		}
+		
+		if (world == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Uiana: World pointer is null!"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: World pointer not null, saving all levels!"));
+		}
+		// UEditorLevelUtils::AddLevelsToWorld(world, levelPaths, ULevelStreamingAlwaysLoaded::StaticClass());
+		for (const FString levelPath : levelPaths)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Adding level %s to world!"), *levelPath);
+			UEditorLevelUtils::AddLevelToWorld(world, *levelPath, ULevelStreamingAlwaysLoaded::StaticClass());
+		}
 	}
-	if (Settings->InputSettings->ImportMeshes)
+	if (Settings.ImportMeshes)
 	{
 		TArray<FString> objPaths;
-		FFileManagerGeneric::Get().FindFiles(objPaths, *Settings->ObjectsPath.Path, TEXT(".json"));
-		UianaHelpers::AddPrefixPath(Settings->ObjectsPath, objPaths);
+		FFileManagerGeneric::Get().FindFiles(objPaths, *Settings.ObjectsPath.Path, TEXT(".json"));
+		UianaHelpers::AddPrefixPath(Settings.ObjectsPath, objPaths);
 		for (const FString objPath : objPaths)
 		{
 			TArray<TSharedPtr<FJsonValue>> objData;
@@ -170,7 +237,7 @@ void UUianaImporter::ImportMap()
 					}
 					if (componentObj->GetStringField("Type").Equals("StaticMesh"))
 					{
-						double lightmapRes = round(256 * Settings->InputSettings->LightmapResolutionMultiplier / 4) * 4;
+						double lightmapRes = round(256 * Settings.LightmapResolutionMultiplier / 4) * 4;
 						int lightmapCoord = 1;
 						if (componentProps.IsValid() && componentProps->HasTypedField<EJson::Number>("LightMapCoordinateIndex"))
 						{
@@ -178,7 +245,7 @@ void UUianaImporter::ImportMap()
 						}
 						if (componentProps.IsValid() && componentProps->HasTypedField<EJson::Number>("LightMapResolution"))
 						{
-							lightmapRes = round(componentProps->GetNumberField("LightMapResolution") * Settings->InputSettings->LightmapResolutionMultiplier / 4) * 4;
+							lightmapRes = round(componentProps->GetNumberField("LightMapResolution") * Settings.LightmapResolutionMultiplier / 4) * 4;
 						}
 						UE_LOG(LogTemp, Display, TEXT("Uiana: Mesh %s has lightmap resolution %d and lightmapCoord %d"), *componentObj->GetStringField("Name"), static_cast<int32>(lightmapRes), lightmapCoord);
 						// mesh->SetLightMapResolution(lightmapRes);
@@ -226,6 +293,7 @@ void UUianaImporter::ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, c
 	{
 		i += 1;
 		const TSharedPtr<FJsonObject> obj = objData.Get()->AsObject();
+		if (!obj.IsValid()) UE_LOG(LogTemp, Error, TEXT("Uiana: Umap obj is not object!"));
 		FString objName;
 		if (!obj.Get()->HasField("Properties")) objName = "None";
 		else if (obj.Get()->GetObjectField("Properties")->HasTypedField<EJson::Object>("StaticMesh"))
@@ -240,7 +308,7 @@ void UUianaImporter::ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, c
 		objName = FPaths::GetCleanFilename(objName).ToLower();
 		if (IsBlacklisted(objName)) continue;
 		UianaHelpers::ObjectType objType = UianaHelpers::ParseObjectType(obj->GetStringField("Type"));
-		if (Settings->InputSettings->ImportBlueprints && objType == UianaHelpers::ObjectType::Blueprint)
+		if (Settings.ImportBlueprints && objType == UianaHelpers::ObjectType::Blueprint)
 		{
 			BlueprintImporterComp.ImportBlueprint(obj, bpMapping);
 		}
@@ -249,16 +317,18 @@ void UUianaImporter::ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, c
 	for (const TSharedPtr<FJsonObject> obj : filteredObjs)
 	{
 		UianaHelpers::ObjectType objType = UianaHelpers::ParseObjectType(obj->GetStringField("Type"));
-		if (Settings->InputSettings->ImportMeshes && objType == UianaHelpers::ObjectType::Mesh)
+		if (Settings.ImportMeshes && objType == UianaHelpers::ObjectType::Mesh)
 		{
 			ImportMesh(obj, umapName, bpMapping);
 		}
-		if (Settings->InputSettings->ImportDecals && objType == UianaHelpers::ObjectType::Decal)
+		if (Settings.ImportDecals && objType == UianaHelpers::ObjectType::Decal)
 		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Importing decal!"));
 			ImportDecal(obj);
 		}
-		if (Settings->InputSettings->ImportLights && objType == UianaHelpers::ObjectType::Light)
+		if (Settings.ImportLights && objType == UianaHelpers::ObjectType::Light)
 		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Importing light!"));
 			ImportLight(obj);
 		}
 	}
@@ -268,7 +338,7 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 {
 	if (obj->HasField("Template"))
 	{
-		BlueprintImporter::FixActorBP(obj, bpMapping, Settings->InputSettings->ImportMaterials);
+		BlueprintImporter::FixActorBP(obj, bpMapping, Settings.ImportMaterials);
 		return;
 	}
 	if (!obj->GetObjectField("Properties")->HasField("StaticMesh"))
@@ -320,14 +390,14 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 		FString modelPath = "NoPath";
 		if (obj->GetObjectField("Properties")->HasField("StaticMesh"))
 		{
-			modelPath = FPaths::Combine(Settings->ExportAssetsPath.Path, FPaths::GetBaseFilename(obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"), false)) + ".pskx";
+			modelPath = FPaths::Combine(Settings.ExportAssetsPath.Path, FPaths::GetBaseFilename(obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"), false)) + ".pskx";
 		}
 		if (!vtxArray.IsEmpty())
 		{
 			UBPFL::PaintSMVertices(meshObject, vtxArray, modelPath);
 		}
 	}
-	if (Settings->InputSettings->ImportMaterials && obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
+	if (Settings.ImportMaterials && obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
 	{
 		UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), meshObject, "OverrideMaterials", MaterialImporterComp.CreateOverrideMaterials(obj));
 	}
@@ -342,8 +412,8 @@ void UUianaImporter::ImportDecal(const TSharedPtr<FJsonObject> obj)
 	decalActor->SetActorLabel(obj->GetStringField("Name"));
 	decalActor->SetActorScale3D(transform.GetScale3D());
 	// FString decalPath = FPaths::GetPath(obj->GetObjectField("DecalMaterial")->GetStringField("ObjectPath"));
-	FString decalPath = obj->GetObjectField("Properties")->GetObjectField("DecalMaterial")->GetStringField("ObjectPath");
-	UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + decalPath + "." + decalPath));
+	FString decalName = FPaths::GetBaseFilename(obj->GetObjectField("Properties")->GetObjectField("DecalMaterial")->GetStringField("ObjectPath"));
+	UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + decalName + "." + decalName));
 	decalActor->SetDecalMaterial(decalMat);
 	SetBPSettings(obj->GetObjectField("Properties"), decalActor->GetDecal());
 }
@@ -525,18 +595,8 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			{
 				if (!ovrMat.IsValid() || ovrMat.Get()->IsNull())
 				{
-					overrideMats.Add(nullptr);
+					// overrideMats.Add(nullptr);
 				 	continue;
-				}
-				if (ovrMat.Get()->Type != EJson::Object)
-				{
-					FString OutputString;
-					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-					TArray<TSharedPtr<FJsonValue>> TempArr = {ovrMat};
-					FJsonSerializer::Serialize(TempArr, Writer);
-					UE_LOG(LogTemp, Error, TEXT("Uiana: BP Override Material in Array is not an object and instead is:\n %s!"), *OutputString);
-					overrideMats.Add(nullptr);
-					continue;
 				}
 				const TSharedPtr<FJsonObject> matData = ovrMat.Get()->AsObject();
 				FString temp, objName;
@@ -647,7 +707,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 
 bool UUianaImporter::IsBlacklisted(const FString itemName)
 {
-	for (const FString blacklistObj : Settings->BlacklistedObjs)
+	for (const FString blacklistObj : Settings.BlacklistedObjs)
 	{
 		if (itemName.Contains(blacklistObj)) return true;
 	}

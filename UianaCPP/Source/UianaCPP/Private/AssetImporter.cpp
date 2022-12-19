@@ -11,7 +11,7 @@ AssetImporter::AssetImporter()
 	Settings = nullptr;
 }
 
-AssetImporter::AssetImporter(const UUianaSettings* UianaSettings)
+AssetImporter::AssetImporter(const UianaSettings* UianaSettings)
 {
 	Settings = UianaSettings;
 }

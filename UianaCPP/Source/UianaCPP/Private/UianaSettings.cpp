@@ -5,19 +5,32 @@
 
 #include "UianaHelpers.h"
 
-UUianaSettings::UUianaSettings()
+UianaSettings::UianaSettings()
 {
-	
+	PaksPath.Path = "C:/Riot Games/VALORANT/live/ShooterGame/Content/Paks";
+	Name = "Ascent";
+	ImportMeshes = true;
+	ImportMaterials = true;
+	ImportDecals = false;
+	ImportLights = true;
+	UseSubLevels = true;
+	LightmapResolutionMultiplier = 1;
+	ValorantVersion = "1.0";
 }
 
-
-void UUianaSettings::Initialize(FString MapName, UUianaCPPDataSettings* Settings)
+UianaSettings::UianaSettings(FString MapName, UUianaCPPDataSettings* Settings)
 {
-	InputSettings = Settings;
 	FString RelativeContentDir = IPluginManager::Get().FindPlugin(TEXT("UianaCPP"))->GetContentDir();
 	FString ContentDir = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*RelativeContentDir);
 	PaksPath = Settings->PaksFolder;
 	ValorantVersion = Settings->ValorantVersion;
+	ImportMaterials = Settings->ImportMaterials;
+	ImportBlueprints = Settings->ImportBlueprints;
+	ImportDecals = Settings->ImportDecals;
+	ImportLights = Settings->ImportLights;
+	ImportMeshes = Settings->ImportMeshes;
+	UseSubLevels = Settings->UseSubLevels;
+	LightmapResolutionMultiplier = Settings->LightmapResolutionMultiplier;
 	
 	Name = MapName;
 	// Create content directories

@@ -13,11 +13,11 @@ class AssetImporter
 {
 public:
 	AssetImporter();
-	AssetImporter(const UUianaSettings* Settings);
+	AssetImporter(const UianaSettings* Settings);
 	TArray<FString> GetExtractedUmaps();
 
 private:
-	const UUianaSettings* Settings;
+	const UianaSettings* Settings;
 	bool NeedExport();
 	TArray<FString> ExtractAssets();
 	void GetObjects(TArray<FString> &actorPaths, TArray<FString> &objPaths, TArray<FString> &matPaths, const TArray<TSharedPtr<FJsonValue>> &jsonArr);

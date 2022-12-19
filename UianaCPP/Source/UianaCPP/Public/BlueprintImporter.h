@@ -13,12 +13,12 @@ class BlueprintImporter
 {
 public:
 	BlueprintImporter();
-	BlueprintImporter(const UUianaSettings* UianaSettings);
-	void CreateBlueprints(const UUianaSettings* Settings, const TArray<FString> bpPaths);
+	BlueprintImporter(const UianaSettings* UianaSettings);
+	void CreateBlueprints(const TArray<FString> bpPaths);
 	void ImportBlueprint(const TSharedPtr<FJsonObject> obj, TMap<FString, AActor*> &bpMapping);
 	static void FixActorBP(const TSharedPtr<FJsonObject> bpData, const TMap<FString, AActor*> bpMapping, bool bImportMaterials);
 private:
-	const UUianaSettings* Settings;
+	const UianaSettings* Settings;
 	TArray<USCS_Node*> GetLocalBPChildren(TArray<TSharedPtr<FJsonValue>> childNodes, TArray<TSharedPtr<FJsonValue>> bpData, UBlueprint* bpActor);
 	void SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActorComponent* bp);
 };

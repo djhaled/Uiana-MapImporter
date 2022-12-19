@@ -22,15 +22,14 @@ BlueprintImporter::BlueprintImporter()
 	Settings = nullptr;
 }
 
-BlueprintImporter::BlueprintImporter(const UUianaSettings* UianaSettings)
+BlueprintImporter::BlueprintImporter(const UianaSettings* UianaSettings)
 {
 	Settings = UianaSettings;
 }
 
 
-void BlueprintImporter::CreateBlueprints(const UUianaSettings* UianaSettings, const TArray<FString> bpPaths)
+void BlueprintImporter::CreateBlueprints(const TArray<FString> bpPaths)
 {
-	Settings = UianaSettings;
 	TArray<FString> sceneRoots, childNodes;
 	TArray<TSharedPtr<FJsonValue>> newJsons, gameObjs;
 	for (const FString bpPath : bpPaths)

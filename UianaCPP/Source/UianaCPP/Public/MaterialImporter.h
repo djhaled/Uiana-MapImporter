@@ -13,12 +13,12 @@ class MaterialImporter
 {
 public:
 	MaterialImporter();
-	MaterialImporter(const UUianaSettings* UianaSettings);
+	MaterialImporter(const UianaSettings* UianaSettings);
 	void ImportMaterials();
 
 	static TArray<UMaterialInterface*> CreateOverrideMaterials(const TSharedPtr<FJsonObject> obj);
 private:
-	const UUianaSettings* Settings;
+	const UianaSettings* Settings;
 	void GetTexturePaths(const TArray<FString> matPaths, TArray<FString> &texturePaths);
 	void CreateMaterials(const TArray<FString> matPaths);
 	void SetMaterial(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat);

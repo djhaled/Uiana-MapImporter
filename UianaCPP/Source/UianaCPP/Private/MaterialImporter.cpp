@@ -24,7 +24,7 @@ MaterialImporter::MaterialImporter()
 	Settings = nullptr;
 }
 
-MaterialImporter::MaterialImporter(const UUianaSettings* UianaSettings)
+MaterialImporter::MaterialImporter(const UianaSettings* UianaSettings)
 {
 	Settings = UianaSettings;
 }

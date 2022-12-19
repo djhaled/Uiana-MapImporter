@@ -56,7 +56,7 @@ public:
 	static void ImportMap();
 private:
 	static TArray<FString> UMaps;
-	static UUianaSettings* Settings;
+	static UianaSettings Settings;
 	static AssetImporter AssetImporterComp;
 	static MaterialImporter MaterialImporterComp;
 	static BlueprintImporter BlueprintImporterComp;

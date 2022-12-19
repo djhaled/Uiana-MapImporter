@@ -4,16 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UianaCPPDataSettings.h"
-#include "UObject/Object.h"
-#include "UianaSettings.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class UIANACPP_API UUianaSettings : public UObject
+class UianaSettings
 {
-	GENERATED_BODY()
 public:
 	inline const static FString AesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6";
 	inline const static FString TextureFormat = ".png";
@@ -46,6 +42,7 @@ public:
 	};
 	FString Name;
 	FString ValorantVersion;
+	FDirectoryPath ExportFolder;
 	FDirectoryPath PaksPath;
 	FDirectoryPath FolderPath;
 	FDirectoryPath ToolsPath;
@@ -59,9 +56,14 @@ public:
 	FDirectoryPath UMapsPath;
 	FDirectoryPath UMapJsonPath;
 	FDirectoryPath ActorsPath;
-	UPROPERTY()
-	UUianaCPPDataSettings* InputSettings;
+	bool ImportMaterials;
+	bool ImportMeshes;
+	bool UseSubLevels;
+	bool ImportDecals;
+	bool ImportLights;
+	bool ImportBlueprints;
+	float LightmapResolutionMultiplier;
 
-	UUianaSettings();
-	void Initialize(FString MapName, UUianaCPPDataSettings* Settings);
+	UianaSettings();
+	UianaSettings(FString MapName, UUianaCPPDataSettings* Settings);
 };
