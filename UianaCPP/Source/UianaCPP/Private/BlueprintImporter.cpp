@@ -491,9 +491,9 @@ void BlueprintImporter::FixActorBP(const TSharedPtr<FJsonObject> bpData, const T
 	AActor* bpActor = bpMapping[bpData->GetStringField("Outer")];
 	UActorComponent* bpComponent = UBPFL::GetComponentByName(bpActor, bpComponentName);
 	if (bpComponent == nullptr) return;
-	if (bpData->HasField("StaticMesh"))
+	const TSharedPtr<FJsonObject> bpProps = bpData->GetObjectField("Properties");
+	if (bpProps->HasField("StaticMesh"))
 	{
-		const TSharedPtr<FJsonObject> bpProps = bpData->GetObjectField("Properties");
 		FString meshName;
 		if (bpProps->TryGetStringField("ObjectName", meshName))
 		{
@@ -501,20 +501,20 @@ void BlueprintImporter::FixActorBP(const TSharedPtr<FJsonObject> bpData, const T
 			UStaticMesh* mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + name));
 			UianaHelpers::SetActorProperty<UStaticMesh*>(UStaticMesh::StaticClass(), bpComponent, "StaticMesh", mesh);
 		}
-		if (bImportMaterials && bpProps->HasField("OverrideMaterials"))
+	}
+	if (bImportMaterials && bpProps->HasField("OverrideMaterials"))
+	{
+		TArray<UMaterialInterface*> overrideMats = MaterialImporter::CreateOverrideMaterials(bpData);
+		if (!overrideMats.IsEmpty() && !bpData->GetStringField("Name").Contains("Barrier"))
 		{
-			TArray<UMaterialInterface*> overrideMats = MaterialImporter::CreateOverrideMaterials(bpData);
-			if (!overrideMats.IsEmpty() && !bpData->GetStringField("Name").Contains("Barrier"))
-			{
-				UBPFL::SetOverrideMaterial(bpActor, bpComponentName, overrideMats);
-			}
+			UBPFL::SetOverrideMaterial(bpActor, bpComponentName, overrideMats);
 		}
-		if (bpProps->HasField("AttachParent") && UianaHelpers::HasTransformComponent(bpData->GetObjectField("Properties")))
-		{
-			FTransform transform = UianaHelpers::GetTransformComponent(bpProps);
-			if (bpProps->HasField("RelativeScale3D")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeScale3D", transform.GetScale3D());
-			if (bpProps->HasField("RelativeLocation")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeLocation", transform.GetTranslation());
-			if (bpProps->HasField("RelativeRotation")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeRotation", transform.GetRotation().Rotator());
-		}
+	}
+	if (bpProps->HasField("AttachParent") && UianaHelpers::HasTransformComponent(bpProps))
+	{
+		FTransform transform = UianaHelpers::GetTransformComponent(bpProps);
+		if (bpProps->HasField("RelativeScale3D")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeScale3D", transform.GetScale3D());
+		if (bpProps->HasField("RelativeLocation")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeLocation", transform.GetTranslation());
+		if (bpProps->HasField("RelativeRotation")) UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), bpComponent, "RelativeRotation", transform.GetRotation().Rotator());
 	}
 }

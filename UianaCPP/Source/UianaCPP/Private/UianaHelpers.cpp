@@ -164,31 +164,33 @@ TEnumAsByte<EDetailMode> UianaHelpers::ParseDetailMode(const FString mode)
 FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> comp)
 {
 	// Get transform
-	TSharedPtr<FJsonObject> transformData;
+	bool directTransform = false;
+	TSharedPtr<FJsonObject> transformData = comp;
 	FVector location = FVector::ZeroVector;
 	FRotator rotation = FRotator::ZeroRotator;
 	FVector scale = FVector::OneVector;
 	if (comp->HasField("TransformData"))
 	{
 		transformData = comp->GetObjectField("TransformData");
+		directTransform = true;
 	}
-	if (JsonObjContainsFields(comp, {"RelativeLocation", "OffsetLocation", "Translation"}))
+	if (JsonObjContainsFields(transformData, {"RelativeLocation", "OffsetLocation", "Translation"}))
 	{
-		const TSharedPtr<FJsonObject> locationData = transformData != nullptr ? transformData->GetObjectField("Translation") : comp->GetObjectField("RelativeLocation");
+		const TSharedPtr<FJsonObject> locationData = directTransform ? transformData->GetObjectField("Translation") : transformData->GetObjectField("RelativeLocation");
 		location.X = locationData->GetNumberField("X");
 		location.Y = locationData->GetNumberField("Y");
 		location.Z = locationData->GetNumberField("Z");
 	}
 	if (JsonObjContainsFields(comp, {"RelativeScale3D", "Scale3D"}))
 	{
-		const TSharedPtr<FJsonObject> scaleData = transformData != nullptr ? transformData->GetObjectField("Scale3D") : comp->GetObjectField("RelativeScale3D");
+		const TSharedPtr<FJsonObject> scaleData = directTransform ? transformData->GetObjectField("Scale3D") : transformData->GetObjectField("RelativeScale3D");
 		scale.X = scaleData->GetNumberField("X");
 		scale.Y = scaleData->GetNumberField("Y");
 		scale.Z = scaleData->GetNumberField("Z");
 	}
 	if (JsonObjContainsFields(comp, {"RelativeRotation", "Rotation"}))
 	{
-		if (transformData != nullptr)
+		if (directTransform)
 		{
 			const TSharedPtr<FJsonObject> rotationData = transformData->GetObjectField("Rotation");
 			FQuat quat;
@@ -196,23 +198,20 @@ FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> com
 			quat.Y = rotationData->GetNumberField("Y");
 			quat.Z = rotationData->GetNumberField("Z");
 			quat.W = rotationData->GetNumberField("W");
-			UE_LOG(LogTemp, Display, TEXT("Uiana: Returning transform with position %d, %d, %d"), location.X, location.Y, location.Z);
 			return FTransform(quat, location, scale);
 			// FObjectEditorUtils::SetPropertyValue(&transform, FName("Rotation"), quat);
 		}
 		else
 		{
-			const TSharedPtr<FJsonObject> rotationData = comp->GetObjectField("RelativeRotation");
+			const TSharedPtr<FJsonObject> rotationData = transformData->GetObjectField("RelativeRotation");
 			rotation.Roll = rotationData->GetNumberField("Roll");
 			rotation.Pitch = rotationData->GetNumberField("Pitch");
 			rotation.Yaw = rotationData->GetNumberField("Yaw");
-			UE_LOG(LogTemp, Display, TEXT("Uiana: Returning transform with position %d, %d, %d"), location.X, location.Y, location.Z);
 			return FTransform(rotation, location, scale);
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Display, TEXT("Uiana: Returning transform with position %d, %d, %d"), location.X, location.Y, location.Z);
 		return FTransform(rotation, location, scale);
 	}
 }
@@ -225,7 +224,6 @@ FTransform UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 	FJsonSerializer::Serialize(comp.ToSharedRef(), Writer);
-	UE_LOG(LogTemp, Display, TEXT("Uiana: SceneTransform Input Obj is %s"), *OutputString);
 	if (comp->HasField("SceneAttachRelativeLocation"))
 	{
 		location.X = comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("X");
@@ -244,7 +242,6 @@ FTransform UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject
 		scale.Y = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Y");
 		scale.Z = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Z");
 	}
-	UE_LOG(LogTemp, Display, TEXT("Uiana: Returning transform with position %d, %d, %d"), location.X, location.Y, location.Z);
 	return FTransform(rotation, location, scale);
 }
 

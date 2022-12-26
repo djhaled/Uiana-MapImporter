@@ -39,14 +39,6 @@ UUianaImporter::UUianaImporter()
 void UUianaImporter::Initialize(FString MapName, UUianaCPPDataSettings* InputSettings)
 {
 	Settings = UianaSettings(MapName, InputSettings);
-	FString InputSettingsStr = "INPUT SETTINGS: ";
-	if (InputSettings->ImportMaterials) InputSettingsStr += "MATS ";
-	if (InputSettings->ImportBlueprints) InputSettingsStr += "BPS ";
-	if (InputSettings->ImportDecals) InputSettingsStr += "DECALS ";
-	if (InputSettings->ImportLights) InputSettingsStr += "LIGHTS ";
-	if (InputSettings->ImportMeshes) InputSettingsStr += "MESHES ";
-	if (InputSettings->UseSubLevels) InputSettingsStr += "SUBLEVELS ";
-	UE_LOG(LogTemp, Display, TEXT("Uiana: Called with %s"), *InputSettingsStr);
 	AssetImporterComp = AssetImporter(&Settings);
 	MaterialImporterComp = MaterialImporter(&Settings);
 	BlueprintImporterComp = BlueprintImporter(&Settings);
@@ -132,14 +124,6 @@ void UUianaImporter::ImportMap()
 			UE_LOG(LogTemp, Display, TEXT("Uiana: Exiting creating level for umap %s"), *umapName);
 		}
 		UE_LOG(LogTemp, Display, TEXT("Uiana: Attempting to import umap %s"), *umapName);
-		FString InputSettingsStr = "INPUT SETTINGS AT UMAP IMPORT: ";
-		if (Settings.ImportMaterials) InputSettingsStr += "MATS ";
-		if (Settings.ImportBlueprints) InputSettingsStr += "BPS ";
-		if (Settings.ImportDecals) InputSettingsStr += "DECALS ";
-		if (Settings.ImportLights) InputSettingsStr += "LIGHTS ";
-		if (Settings.ImportMeshes) InputSettingsStr += "MESHES ";
-		if (Settings.UseSubLevels) InputSettingsStr += "SUBLEVELS ";
-		UE_LOG(LogTemp, Display, TEXT("Uiana: Called with %s"), *InputSettingsStr);
 		ImportUmap(umapData, umapName);
 		UE_LOG(LogTemp, Display, TEXT("Uiana: Finished importing assets from umap %s"), *umapName);
 		if (Settings.UseSubLevels)
@@ -147,7 +131,7 @@ void UUianaImporter::ImportMap()
 			UE_LOG(LogTemp, Display, TEXT("Uiana: Saving level for umap %s"), *umapName);
 			if (!UEditorLevelLibrary::SaveCurrentLevel()) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to save level for umap %s!"), *umapName);
 		}
-		UE_LOG(LogTemp, Display, TEXT("Uiana: Saved level for umap %s"), *umapName);
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Finished level for umap %s"), *umapName);
 	}
 	if (Settings.UseSubLevels)
 	{
@@ -225,14 +209,14 @@ void UUianaImporter::ImportMap()
 			{
 				if (component->IsNull() || !component.IsValid()) continue;
 				const TSharedPtr<FJsonObject> componentObj = component->AsObject();
-				if (!componentObj->HasField("Properties")) continue;
+				// if (!componentObj->HasField("Properties")) continue; // Cannot just assume every static mesh has Properties!
 				const TSharedPtr<FJsonObject> componentProps = componentObj->GetObjectField("Properties");
 				if (componentObj->HasTypedField<EJson::String>("Type"))
 				{
 					UStaticMesh* mesh = Cast<UStaticMesh>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/Game/ValorantContent/Meshes/", componentObj->GetStringField("Name"))));
 					if (mesh == nullptr)
 					{
-						UE_LOG(LogScript, Warning, TEXT("Uiana: Failed to import mesh to modify: %s"), *componentObj->GetStringField("Name"));
+						if (!componentObj->GetStringField("Name").Contains("BodySetup")) UE_LOG(LogScript, Warning, TEXT("Uiana: Failed to import mesh to modify: %s"), *componentObj->GetStringField("Name"));
 						continue;
 					}
 					if (componentObj->GetStringField("Type").Equals("StaticMesh"))
@@ -247,9 +231,6 @@ void UUianaImporter::ImportMap()
 						{
 							lightmapRes = round(componentProps->GetNumberField("LightMapResolution") * Settings.LightmapResolutionMultiplier / 4) * 4;
 						}
-						UE_LOG(LogTemp, Display, TEXT("Uiana: Mesh %s has lightmap resolution %d and lightmapCoord %d"), *componentObj->GetStringField("Name"), static_cast<int32>(lightmapRes), lightmapCoord);
-						// mesh->SetLightMapResolution(lightmapRes);
-						// mesh->SetLightMapCoordinateIndex(lightmapCoord);
 						UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), mesh, "LightMapResolution", lightmapRes);
 						UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), mesh, "LightMapCoordinateIndex", lightmapCoord);
 					}
@@ -341,33 +322,37 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 		BlueprintImporter::FixActorBP(obj, bpMapping, Settings.ImportMaterials);
 		return;
 	}
-	if (!obj->GetObjectField("Properties")->HasField("StaticMesh"))
+	if (!obj->GetObjectField("Properties")->HasField("StaticMesh") || !UianaHelpers::HasTransformComponent(obj->GetObjectField("Properties")))
 	{
 		return;
 	}
+	const bool isInstanced = obj->HasField("PerInstanceSMData") && obj->GetStringField("Type").Contains("Instanced");
 	FTransform transform = UianaHelpers::GetTransformComponent(obj->GetObjectField("Properties"));
-	UClass* meshActorClass = obj->HasField("PerInstanceSMData") && obj->GetStringField("Type").Contains("Instanced") ? AHismActorCPP::StaticClass() : AStaticMeshActor::StaticClass();
+	UClass* meshActorClass = isInstanced ? AHismActorCPP::StaticClass() : AStaticMeshActor::StaticClass();
 	AActor* meshActor = UEditorLevelLibrary::SpawnActorFromClass(meshActorClass, FVector::ZeroVector);
 	meshActor->SetActorLabel(obj->GetStringField("Outer"));
 	TArray<UObject*> meshActorObjects;
 	meshActor->GetDefaultSubobjects(meshActorObjects);
 	UHierarchicalInstancedStaticMeshComponent* meshInstancedObject = Cast<UHierarchicalInstancedStaticMeshComponent>(meshActorObjects.Last());
-	UStaticMeshComponent* meshObject = Cast<UStaticMeshComponent>(meshActorObjects.Last());
-	if (meshInstancedObject != nullptr) // Mesh is Instanced already
+	UStaticMeshComponent* meshObject;
+	if (isInstanced)
 	{
-		meshActor->SetFolderPath("Meshes/Static");
+		meshActor->SetFolderPath("Meshes/Instanced");
 		const TArray<TSharedPtr<FJsonValue>> perInstanceData = obj->GetArrayField("PerInstanceSMData");
 		for (const TSharedPtr<FJsonValue> instance : perInstanceData)
 		{
-			if (instance->AsObject()->HasField("Properties")) UE_LOG(LogTemp, Error, TEXT("Uiana: Need to use Properties field for PerInstanceSM Data!"));
+			// Do not need to access Properties attribute for instance data
 			FTransform instanceTransform = UianaHelpers::GetTransformComponent(instance->AsObject());
 			meshInstancedObject->AddInstance(instanceTransform);
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Added instance of SM %s"), *meshActor->GetActorLabel());
 		}
+		meshObject = meshInstancedObject;
 	}
 	else
 	{
 		FString umapType = umapName.Contains("_VFX") ? "VFX" : "Static";
 		meshActor->SetFolderPath(FName(*FPaths::Combine("Meshes", umapType)));
+		meshObject = Cast<UStaticMeshComponent>(meshActorObjects.Last());
 	}
 	SetBPSettings(obj->GetObjectField("Properties"), meshObject); // TODO: If there are no bugs with this, rename to "SetActorSettings()"!
 	meshObject->SetWorldTransform(transform);
@@ -399,7 +384,11 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 	}
 	if (Settings.ImportMaterials && obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
 	{
-		UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), meshObject, "OverrideMaterials", MaterialImporterComp.CreateOverrideMaterials(obj));
+		TArray<UMaterialInterface*> OverrideMats = MaterialImporterComp.CreateOverrideMaterials(obj);
+		if (!OverrideMats.IsEmpty())
+		{
+			UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), meshObject, "OverrideMaterials", OverrideMats);	
+		}
 	}
 }
 
@@ -595,22 +584,26 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			{
 				if (!ovrMat.IsValid() || ovrMat.Get()->IsNull())
 				{
-					// overrideMats.Add(nullptr);
+					overrideMats.Add(nullptr);
 				 	continue;
 				}
 				const TSharedPtr<FJsonObject> matData = ovrMat.Get()->AsObject();
 				FString temp, objName;
 				matData->GetStringField("ObjectName").Split(" ", &temp, &objName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
 				if (matData->HasTypedField<EJson::Object>("ObjectName")) UE_LOG(LogTemp, Error, TEXT("Uiana: BP Override Material ObjectName is not a string!"));
-				if (objName.Contains("MaterialInstanceDynamic")) continue;
-				UMaterialInstanceConstant* loaded = nullptr;
-				loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/UianaCPP/Materials/", objName)));
-				if (loaded == nullptr) loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/Game/ValorantContent/Materials/", objName)));
-				if (loaded == nullptr)
+				if (objName.Contains("MaterialInstanceDynamic"))
 				{
-					UE_LOG(LogTemp, Display, TEXT("Failed to load override material %s, skipping"), *objName);
+					overrideMats.Add(nullptr);
 					continue;
 				}
+				UMaterialInstanceConstant* loaded = nullptr;
+				loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/UianaCPP/Materials/", objName)));
+				if (loaded == nullptr) loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + objName));
+				// if (loaded == nullptr)
+				// {
+				// 	UE_LOG(LogTemp, Display, TEXT("Failed to load override material %s, skipping"), *objName);
+				// 	continue;
+				// }
 				overrideMats.Add(loaded);
 			}
 			UianaHelpers::SetActorProperty<TArray<UMaterialInstanceConstant*>>(bp->GetClass(), bp, prop.Key, overrideMats);
@@ -681,7 +674,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 						FString OutputString;
 						TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 						FJsonSerializer::Serialize(paramObj.ToSharedRef(), Writer);
-						UE_LOG(LogTemp, Warning, TEXT("Uiana: Array BP Property %s unaccounted for"), *prop.Key);
+						if (!prop.Key.Equals("StreamingTextureData") )UE_LOG(LogTemp, Warning, TEXT("Uiana: Array BP Property %s unaccounted for"), *prop.Key);
 						// }
 					}	
 				}

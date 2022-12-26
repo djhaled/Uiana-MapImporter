@@ -13,6 +13,7 @@
 #include "Components/DecalComponent.h"
 #include "Factories/MaterialInstanceConstantFactoryNew.h"
 #include "HAL/FileManagerGeneric.h"
+#include "Kismet2/EnumEditorUtils.h"
 #include "Materials/MaterialInstanceBasePropertyOverrides.h"
 #include "Misc/FileHelper.h"
 #include "Serialization/JsonReader.h"
@@ -422,6 +423,22 @@ void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProp
 				// TODO: Investigate why lightmass settings do not seem to be getting applied although no error!
 				FLightmassMaterialInterfaceSettings lightmassSettings;
 				FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
+				// FLightmassMaterialInterfaceSettings* lightmassSettings = objectProp->ContainerPtrToValuePtr<FLightmassMaterialInterfaceSettings>(mat);
+				// for (const TTuple<FString, TSharedPtr<FJsonValue>> lightmassProp : propValue.Get()->AsObject()->Values)
+				// {
+				// 	if (lightmassProp.Key.Equals("bLightAsBackFace") || lightmassProp.Key.Equals("bUseTwoSidedLighting"))
+				// 	{
+				// 		continue;
+				// 	}
+				// 	bool removedBoolIdentifier;
+				// 	FName lightmassPropEditorName = FName(*lightmassProp.Key.TrimChar('b', &removedBoolIdentifier));
+				// 	FProperty* lightmassPropEditor = PropertyAccessUtil::FindPropertyByName(lightmassPropEditorName, mat->GetClass());
+				// 	if (removedBoolIdentifier)
+				// 	{
+				// 		uint8* lightmassPropEditorAddr = lightmassPropEditor->ContainerPtrToValuePtr<uint8>(static_cast<uint8>(lightmassProp.Value->AsBool()));
+				// 		if (lightmassPropEditorAddr == NULL) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set bool lightmass setting %s"), *lightmassProp.Key);
+				// 	}
+				// }
 				if (!FObjectEditorUtils::SetPropertyValue(mat, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings!"));
 			}
 		}
@@ -515,19 +532,19 @@ TArray<UMaterialInterface*> MaterialImporter::CreateOverrideMaterials(const TSha
 	TArray<UMaterialInterface*> mats = {};
 	for (const TSharedPtr<FJsonValue> mat : obj->GetObjectField("Properties")->GetArrayField("OverrideMaterials"))
 	{
-		if (mat.Get()->Type != EJson::Object)
+		if (!mat.IsValid() || mat->IsNull())
 		{
-			FString OutputString;
-			TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-			TArray<TSharedPtr<FJsonValue>> TempArr = {mat};
-			FJsonSerializer::Serialize(TempArr, Writer);
-			UE_LOG(LogTemp, Error, TEXT("Uiana: Override Material in Array is not Object and instead is:\n %s!"), *OutputString);
+			mats.Add(nullptr);
 			continue;
 		}
 		FString objName, temp;
 		mat->AsObject()->GetStringField("ObjectName").Split(TEXT(" "), &temp, &objName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 		if (objName.Equals("Stone_M2_Steps_MI1")) objName = "Stone_M2_Steps_MI";
-		if (objName.Contains("MaterialInstanceDynamic")) continue;
+		if (objName.Contains("MaterialInstanceDynamic"))
+		{
+			mats.Add(nullptr);
+			continue;
+		}
 		mats.Add(Cast<UMaterialInterface>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/Game/ValorantContent/Materials/", objName))));
 	}
 	return mats;
