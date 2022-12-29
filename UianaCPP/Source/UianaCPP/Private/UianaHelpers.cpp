@@ -270,7 +270,11 @@ bool UianaHelpers::SetActorProperty(UClass* actorClass, UObject* component, cons
 {
 	FProperty* relativeLocationProp = PropertyAccessUtil::FindPropertyByName(FName(*propName), actorClass);
 	PropType* locationAddr = relativeLocationProp->ContainerPtrToValuePtr<PropType>(component);
-	if (locationAddr == nullptr) return false;
+	if (locationAddr == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set property %s"), *propName);
+		return false;
+	}
 	component->PreEditChange(relativeLocationProp);
 	*locationAddr = propVal;
 	FPropertyChangedEvent locationChangedEvent(relativeLocationProp);

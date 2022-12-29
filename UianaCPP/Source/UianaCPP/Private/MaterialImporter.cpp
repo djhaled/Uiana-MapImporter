@@ -19,6 +19,7 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "UObject/PropertyAccessUtil.h"
+#include "UObject/UnrealTypePrivate.h"
 
 MaterialImporter::MaterialImporter()
 {
@@ -421,25 +422,74 @@ void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProp
 			else if (prop.Key.Equals("LightmassSettings"))
 			{
 				// TODO: Investigate why lightmass settings do not seem to be getting applied although no error!
-				FLightmassMaterialInterfaceSettings lightmassSettings;
-				FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
-				// FLightmassMaterialInterfaceSettings* lightmassSettings = objectProp->ContainerPtrToValuePtr<FLightmassMaterialInterfaceSettings>(mat);
-				// for (const TTuple<FString, TSharedPtr<FJsonValue>> lightmassProp : propValue.Get()->AsObject()->Values)
-				// {
-				// 	if (lightmassProp.Key.Equals("bLightAsBackFace") || lightmassProp.Key.Equals("bUseTwoSidedLighting"))
-				// 	{
-				// 		continue;
-				// 	}
-				// 	bool removedBoolIdentifier;
-				// 	FName lightmassPropEditorName = FName(*lightmassProp.Key.TrimChar('b', &removedBoolIdentifier));
-				// 	FProperty* lightmassPropEditor = PropertyAccessUtil::FindPropertyByName(lightmassPropEditorName, mat->GetClass());
-				// 	if (removedBoolIdentifier)
-				// 	{
-				// 		uint8* lightmassPropEditorAddr = lightmassPropEditor->ContainerPtrToValuePtr<uint8>(static_cast<uint8>(lightmassProp.Value->AsBool()));
-				// 		if (lightmassPropEditorAddr == NULL) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set bool lightmass setting %s"), *lightmassProp.Key);
-				// 	}
-				// }
-				if (!FObjectEditorUtils::SetPropertyValue(mat, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings!"));
+				// FLightmassPrimitiveSettings lightmassSettings;
+				// FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
+				// FString OutputString;
+				// TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+				// FJsonSerializer::Serialize(propValue.Get()->AsObject().ToSharedRef(), Writer);
+				// UE_LOG(LogTemp, Display, TEXT("Uiana: Set LMSettings on Material %s"), *OutputString);
+				FProperty* lightmassSettingsProp = mat->GetClass()->FindPropertyByName("LightmassSettings");
+				if (lightmassSettingsProp)
+				{
+					void* lightmassSettingsAddr = lightmassSettingsProp->ContainerPtrToValuePtr<void>(mat);
+					if (FStructProperty* lightmassSettings = Cast<FStructProperty>(lightmassSettingsProp))
+					{
+						UScriptStruct* scriptStruct = lightmassSettings->Struct;
+						for (const TTuple<FString, TSharedPtr<FJsonValue>> lightmassProp : propValue.Get()->AsObject()->Values)
+						{
+							if (lightmassProp.Key.Equals("bLightAsBackFace") || lightmassProp.Key.Equals("bUseTwoSidedLighting"))
+							{
+								continue;
+							}
+							bool removedBoolIdentifier;
+							FName lightmassPropEditorName = FName(*lightmassProp.Key.TrimChar('b', &removedBoolIdentifier));
+							FProperty* lightmassChildProp = scriptStruct->FindPropertyByName(lightmassPropEditorName);
+							if (lightmassChildProp)
+							{
+								UE_LOG(LogTemp, Display, TEXT("Uiana: Setting LMProp %s"), *lightmassProp.Key);
+								if (removedBoolIdentifier)
+								{
+									if (FBoolProperty* childBoolProp = CastField<FBoolProperty>(lightmassChildProp))
+									{
+										childBoolProp->SetPropertyValue(lightmassSettingsAddr, lightmassProp.Value->AsBool());
+									}
+									else
+									{
+										UE_LOG(LogTemp, Error, TEXT("Uiana: LMProp %s was not boolean"), *lightmassProp.Key);
+									}
+								}
+								else
+								{
+									if (FFloatProperty* childFloatProp = CastField<FFloatProperty>(lightmassChildProp))
+									{
+										UE_LOG(LogTemp, Display, TEXT("Uiana: Setting LMProp %s value as %d"), *lightmassProp.Key, lightmassProp.Value->AsNumber())
+										childFloatProp->SetFloatingPointPropertyValue(lightmassSettingsAddr, lightmassProp.Value->AsNumber());
+									}
+									else
+									{
+										UE_LOG(LogTemp, Error, TEXT("Uiana: LMProp %s was not float"), *lightmassProp.Key);
+									}
+								}
+								FPropertyChangedEvent PropertyEvent(lightmassChildProp);
+								mat->PostEditChangeProperty(PropertyEvent);
+							}
+							else
+							{
+								UE_LOG(LogTemp, Error, TEXT("Uiana: LMProp %s not found in LMSettings!"), *lightmassProp.Key);
+							}
+						}
+						FPropertyChangedEvent PropertyEvent(lightmassSettings);
+						mat->PostEditChangeProperty(PropertyEvent);
+					}
+					else
+					{
+						UE_LOG(LogTemp, Error, TEXT("Uiana: LMSettings not found!"));
+					}
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to get material's lightmap settings from editor!"));
+				}
 			}
 		}
 		else if (propType == EJson::Array && prop.Key.Equals("OverrideMaterials"))

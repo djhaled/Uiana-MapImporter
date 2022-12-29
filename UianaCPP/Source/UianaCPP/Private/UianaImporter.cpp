@@ -472,7 +472,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 		const FProperty* objectProp = PropertyAccessUtil::FindPropertyByName(propName, bp->GetClass());
 		if (objectProp == nullptr) continue;
 		const EJson propType = propValue.Get()->Type;
-		if (propType == EJson::Number || propType == EJson::Boolean)
+		if (propType == EJson::Number)// || propType == EJson::Boolean)
 		{
 			if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
 			{
@@ -482,6 +482,18 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			}
 			UianaHelpers::SetActorProperty<float>(bp->GetClass(), bp, prop.Key, prop.Value.Get()->AsNumber());
 			// FObjectEditorUtils::SetPropertyValue(bp, propName, prop.Value.Get()->AsNumber());
+			continue;
+		}
+		if (propType == EJson::Boolean)
+		{
+			if (const FBoolProperty* boolProp = CastField<FBoolProperty>(objectProp))
+			{
+				boolProp->SetPropertyValue_InContainer(bp, prop.Value.Get()->AsBool());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into bool prop!"), *prop.Key);
+			}
 			continue;
 		}
 		if (objectProp->GetClass()->GetName().Equals("FLinearColor"))
