@@ -181,14 +181,14 @@ FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> com
 		location.Y = locationData->GetNumberField("Y");
 		location.Z = locationData->GetNumberField("Z");
 	}
-	if (JsonObjContainsFields(comp, {"RelativeScale3D", "Scale3D"}))
+	if (JsonObjContainsFields(transformData, {"RelativeScale3D", "Scale3D"}))
 	{
 		const TSharedPtr<FJsonObject> scaleData = directTransform ? transformData->GetObjectField("Scale3D") : transformData->GetObjectField("RelativeScale3D");
 		scale.X = scaleData->GetNumberField("X");
 		scale.Y = scaleData->GetNumberField("Y");
 		scale.Z = scaleData->GetNumberField("Z");
 	}
-	if (JsonObjContainsFields(comp, {"RelativeRotation", "Rotation"}))
+	if (JsonObjContainsFields(transformData, {"RelativeRotation", "Rotation"}))
 	{
 		if (directTransform)
 		{
@@ -199,7 +199,6 @@ FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> com
 			quat.Z = rotationData->GetNumberField("Z");
 			quat.W = rotationData->GetNumberField("W");
 			return FTransform(quat, location, scale);
-			// FObjectEditorUtils::SetPropertyValue(&transform, FName("Rotation"), quat);
 		}
 		else
 		{
@@ -210,10 +209,7 @@ FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> com
 			return FTransform(rotation, location, scale);
 		}
 	}
-	else
-	{
-		return FTransform(rotation, location, scale);
-	}
+	return FTransform(rotation, location, scale);
 }
 
 FTransform UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject> comp)

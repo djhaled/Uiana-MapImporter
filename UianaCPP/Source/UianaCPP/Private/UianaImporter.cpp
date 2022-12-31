@@ -344,7 +344,6 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 			// Do not need to access Properties attribute for instance data
 			FTransform instanceTransform = UianaHelpers::GetTransformComponent(instance->AsObject());
 			meshInstancedObject->AddInstance(instanceTransform);
-			UE_LOG(LogTemp, Display, TEXT("Uiana: Added instance of SM %s"), *meshActor->GetActorLabel());
 		}
 		meshObject = meshInstancedObject;
 	}
@@ -474,14 +473,29 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 		const EJson propType = propValue.Get()->Type;
 		if (propType == EJson::Number)// || propType == EJson::Boolean)
 		{
-			if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
+			if (const FFloatProperty* floatProp = CastField<FFloatProperty>(objectProp))
 			{
-				UianaHelpers::SetActorProperty<float>(bp->GetClass(), bp, prop.Key, 14680.0);
-				// FObjectEditorUtils::SetPropertyValue(bp, propName, 14680);
-				continue;
+				if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
+				{
+					floatProp->SetPropertyValue_InContainer(bp, 14680.0);
+				}
+				else
+				{
+					floatProp->SetPropertyValue_InContainer(bp, prop.Value.Get()->AsNumber());
+				}
 			}
-			UianaHelpers::SetActorProperty<float>(bp->GetClass(), bp, prop.Key, prop.Value.Get()->AsNumber());
-			// FObjectEditorUtils::SetPropertyValue(bp, propName, prop.Value.Get()->AsNumber());
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into float prop!"), *prop.Key);
+				if (const FIntProperty* intProp = CastField<FIntProperty>(objectProp))
+				{
+					intProp->SetPropertyValue_InContainer(bp, prop.Value.Get()->AsNumber());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into int prop as well!"), *prop.Key);	
+				}
+			}
 			continue;
 		}
 		if (propType == EJson::Boolean)
@@ -611,15 +625,9 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				UMaterialInstanceConstant* loaded = nullptr;
 				loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/UianaCPP/Materials/", objName)));
 				if (loaded == nullptr) loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + objName));
-				// if (loaded == nullptr)
-				// {
-				// 	UE_LOG(LogTemp, Display, TEXT("Failed to load override material %s, skipping"), *objName);
-				// 	continue;
-				// }
 				overrideMats.Add(loaded);
 			}
 			UianaHelpers::SetActorProperty<TArray<UMaterialInstanceConstant*>>(bp->GetClass(), bp, prop.Key, overrideMats);
-			// FObjectEditorUtils::SetPropertyValue(bp, propName, overrideMats);
 		}
 		else if (propType == EJson::String)
 		{
