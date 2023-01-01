@@ -463,7 +463,7 @@ void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProp
 									if (FFloatProperty* childFloatProp = CastField<FFloatProperty>(lightmassChildProp))
 									{
 										UE_LOG(LogTemp, Display, TEXT("Uiana: Setting LMProp %s value as %d"), *lightmassProp.Key, lightmassProp.Value->AsNumber())
-										childFloatProp->SetFloatingPointPropertyValue(lightmassSettingsAddr, lightmassProp.Value->AsNumber());
+										childFloatProp->SetPropertyValue(lightmassSettingsAddr, lightmassProp.Value->AsNumber());
 									}
 									else
 									{

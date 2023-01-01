@@ -309,7 +309,7 @@ void UUianaImporter::ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, c
 		}
 		if (Settings.ImportLights && objType == UianaHelpers::ObjectType::Light)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Uiana: Importing light!"));
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Importing light %s!"), *obj.Get()->GetStringField("Name"));
 			ImportLight(obj);
 		}
 	}
@@ -412,17 +412,14 @@ void UUianaImporter::ImportLight(const TSharedPtr<FJsonObject> obj)
 	FTransform transform;
 	if (UianaHelpers::HasTransformComponent(obj->GetObjectField("Properties")))
 	{
-		UE_LOG(LogTemp, Display, TEXT("Uiana: Light has TransformComponent, using it"));
 		transform = UianaHelpers::GetTransformComponent(obj->GetObjectField("Properties"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Display, TEXT("Uiana: Light is using SceneTransform!"));
 		transform = UianaHelpers::GetSceneTransformComponent(obj->GetObjectField("Properties"));
 	}
 	UClass* lightClass = FEditorClassUtils::GetClassFromString(lightType);
 	UEditorActorSubsystem* EditorActorSubsystem = GEditor->GetEditorSubsystem<UEditorActorSubsystem>();
-	UE_LOG(LogTemp, Display, TEXT("Uiana: Creating light at position %d, %d, %d"), transform.GetTranslation().X, transform.GetTranslation().Y, transform.GetTranslation().Z);
 	AActor* light = EditorActorSubsystem->SpawnActorFromClass(lightClass, transform.GetTranslation(), transform.GetRotation().Rotator());
 	light->SetFolderPath(FName("Lights/" + lightType));
 	light->SetActorLabel(obj->GetStringField("Name"));
@@ -442,8 +439,6 @@ void UUianaImporter::ImportLight(const TSharedPtr<FJsonObject> obj)
 		{
 			UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Unbound", true);
 			UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Priority", 1.0);
-			// UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Unbound", true);
-			// UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Priority", 1.0);
 			SetBPSettings(obj->GetObjectField("Properties")->GetObjectField("Settings"), lightComponent);
 		}
 		SetBPSettings(obj->GetObjectField("Properties"), lightComponent);
@@ -454,8 +449,6 @@ void UUianaImporter::ImportLight(const TSharedPtr<FJsonObject> obj)
 	{
 		UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Unbound", true);
 		UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Priority", 1.0);
-		// UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Unbound", true);
-		// UianaHelpers::SetActorProperty(lightComponent->GetClass(), lightComponent, "Priority", 1.0);
 		SetBPSettings(obj->GetObjectField("Properties")->GetObjectField("Settings"), lightComponent);
 	}
 	SetBPSettings(obj->GetObjectField("Properties"), lightComponent);
@@ -468,10 +461,10 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 	{
 		TSharedPtr<FJsonValue> propValue = prop.Value;
 		const FName propName = FName(*prop.Key);
-		const FProperty* objectProp = PropertyAccessUtil::FindPropertyByName(propName, bp->GetClass());
+		FProperty* objectProp = PropertyAccessUtil::FindPropertyByName(propName, bp->GetClass());
 		if (objectProp == nullptr) continue;
 		const EJson propType = propValue.Get()->Type;
-		if (propType == EJson::Number)// || propType == EJson::Boolean)
+		if (propType == EJson::Number)
 		{
 			if (const FFloatProperty* floatProp = CastField<FFloatProperty>(objectProp))
 			{
@@ -484,21 +477,16 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 					floatProp->SetPropertyValue_InContainer(bp, prop.Value.Get()->AsNumber());
 				}
 			}
+			else if (const FIntProperty* intProp = CastField<FIntProperty>(objectProp))
+			{
+				intProp->SetPropertyValue_InContainer(bp, prop.Value.Get()->AsNumber());
+			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into float prop!"), *prop.Key);
-				if (const FIntProperty* intProp = CastField<FIntProperty>(objectProp))
-				{
-					intProp->SetPropertyValue_InContainer(bp, prop.Value.Get()->AsNumber());
-				}
-				else
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into int prop as well!"), *prop.Key);	
-				}
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into numeric prop!"), *prop.Key);	
 			}
-			continue;
 		}
-		if (propType == EJson::Boolean)
+		else if (propType == EJson::Boolean)
 		{
 			if (const FBoolProperty* boolProp = CastField<FBoolProperty>(objectProp))
 			{
@@ -508,39 +496,6 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into bool prop!"), *prop.Key);
 			}
-			continue;
-		}
-		if (objectProp->GetClass()->GetName().Equals("FLinearColor"))
-		{
-			FLinearColor color;
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			color.R = obj->GetNumberField("R");
-			color.G = obj->GetNumberField("G");
-			color.B = obj->GetNumberField("B");
-			UianaHelpers::SetActorProperty<FLinearColor>(bp->GetClass(), bp, prop.Key, color);
-			// FObjectEditorUtils::SetPropertyValue(bp, propName, color);
-		}
-		else if (objectProp->GetClass()->GetName().Equals("FVector4"))
-		{
-			FVector4 vector;
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			vector.X = obj->GetNumberField("X");
-			vector.Y = obj->GetNumberField("Y");
-			vector.Z = obj->GetNumberField("Z");
-			vector.W = obj->GetNumberField("W");
-			UianaHelpers::SetActorProperty<FVector4>(bp->GetClass(), bp, prop.Key, vector);
-			// FObjectEditorUtils::SetPropertyValue(bp, propName, vector);
-		}
-		else if (objectProp->GetClass()->GetName().Contains("Color"))
-		{
-			FColor color;
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			color.R = obj->GetNumberField("R");
-			color.G = obj->GetNumberField("G");
-			color.B = obj->GetNumberField("B");
-			color.A = obj->GetNumberField("A");
-			UianaHelpers::SetActorProperty<FColor>(bp->GetClass(), bp, prop.Key, color);
-			// FObjectEditorUtils::SetPropertyValue(bp, propName, color);
 		}
 		else if (propType == EJson::Object)
 		{
@@ -564,6 +519,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			}
 			else if (prop.Key.Equals("DecalSize"))
 			{
+				if (objectProp->GetClass()->GetName().Equals("StructProperty")) UE_LOG(LogTemp, Error, TEXT("Uiana: Mesh Setting DecalSize already handled by Struct logic!"));
 				FVector vec;
 				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
 				vec.X = obj->GetNumberField("X");
@@ -586,6 +542,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 			}
 			else if (prop.Key.Equals("BoxExtent"))
 			{
+				if (objectProp->GetClass()->GetName().Equals("StructProperty")) UE_LOG(LogTemp, Error, TEXT("Uiana: Mesh Setting BoxExtent already handled by Struct logic!"));
 				FVector vec;
 				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
 				vec.X = obj->GetNumberField("X");
@@ -594,13 +551,58 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				UianaHelpers::SetActorProperty<FVector>(bp->GetClass(), bp, "BoxExtent", vec);
 				// FObjectEditorUtils::SetPropertyValue(bp, "BoxExtent", vec);
 			}
-			else if (prop.Key.Equals("LightmassSettings"))
+			// else if (prop.Key.Equals("LightmassSettings"))
+			// {
+			// 	// TODO: Investigate why lightmass settings do not seem to be getting applied although no error!
+			// 	FLightmassMaterialInterfaceSettings lightmassSettings;
+			// 	FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
+			// 	if (!UianaHelpers::SetActorProperty<FLightmassMaterialInterfaceSettings>(bp->GetClass(), bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings for BP!"));
+			// 	// if (!FObjectEditorUtils::SetPropertyValue(bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings!"));
+			// }
+			else if (objectProp->GetClass()->GetName().Equals("StructProperty"))
 			{
-				// TODO: Investigate why lightmass settings do not seem to be getting applied although no error!
-				FLightmassMaterialInterfaceSettings lightmassSettings;
-				FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
-				if (!UianaHelpers::SetActorProperty<FLightmassMaterialInterfaceSettings>(bp->GetClass(), bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings for BP!"));
-				// if (!FObjectEditorUtils::SetPropertyValue(bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings!"));
+				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
+				if (const FStructProperty* colorValues = CastField<FStructProperty>(objectProp))
+				{
+					if (objectProp->GetCPPType().Equals("FColor"))
+					{
+						FColor* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FColor>(bp);
+						structSettingsAddr->R = obj->GetNumberField("R");
+						structSettingsAddr->G = obj->GetNumberField("G");
+						structSettingsAddr->B = obj->GetNumberField("B");
+						structSettingsAddr->A = obj->GetNumberField("A");
+					}
+					else if (objectProp->GetCPPType().Equals("FVector"))
+					{
+						FVector* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FVector>(bp);
+						structSettingsAddr->X = obj->GetNumberField("X");
+						structSettingsAddr->Y = obj->GetNumberField("Y");
+						structSettingsAddr->Z = obj->GetNumberField("Z");
+					}
+					else if (objectProp->GetCPPType().Equals("FVector4"))
+					{
+						FVector4* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FVector4>(bp);
+						structSettingsAddr->X = obj->GetNumberField("X");
+						structSettingsAddr->Y = obj->GetNumberField("Y");
+						structSettingsAddr->Z = obj->GetNumberField("Z");
+						structSettingsAddr->W = obj->GetNumberField("W");
+					}
+					else if (objectProp->GetCPPType().Equals("FRotator"))
+					{
+						FRotator* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FRotator>(bp);
+						structSettingsAddr->Pitch = obj->GetNumberField("Pitch");
+						structSettingsAddr->Yaw = obj->GetNumberField("Yaw");
+						structSettingsAddr->Roll = obj->GetNumberField("Roll");
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Uiana: Missing StructProperty definition for type %s!"), *objectProp->GetCPPType());
+					}
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Failed to cast %s into StructProperty struct!"), *prop.Key);
+				}
 			}
 		}
 		else if (propType == EJson::Array && prop.Key.Equals("OverrideMaterials"))
@@ -708,7 +710,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				if (propType == EJson::String) type = "String";
 				if (propType == EJson::Number) type = "Number";
 				if (propType == EJson::Null) type = "Null";
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set BP Property %s of type %s!"), *prop.Key, *type);
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: Unset BP Property %s of type %s!"), *prop.Key, *type);
 				if (propType == EJson::String)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("Uiana: String BP Property unset - %s: %s"), *prop.Key, *propValue->AsString());
@@ -728,3 +730,4 @@ bool UUianaImporter::IsBlacklisted(const FString itemName)
 }
 
 #undef LOCTEXT_NAMESPACE
+
