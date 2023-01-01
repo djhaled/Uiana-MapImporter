@@ -374,10 +374,19 @@ void UUianaImporter::ImportMesh(const TSharedPtr<FJsonObject> obj, const FString
 		FString modelPath = "NoPath";
 		if (obj->GetObjectField("Properties")->HasField("StaticMesh"))
 		{
-			modelPath = FPaths::Combine(Settings.ExportAssetsPath.Path, FPaths::GetBaseFilename(obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"), false)) + ".pskx";
+			modelPath = FPaths::Combine(
+					Settings.ExportAssetsPath.Path,
+					FPaths::GetBaseFilename(
+						obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"),
+						false
+						)
+					)
+					.Replace(TEXT("ShooterGame"), TEXT("Game"), ESearchCase::CaseSensitive)
+					.Replace(TEXT("/Content"), TEXT(""), ESearchCase::CaseSensitive) + ".pskx";
 		}
 		if (!vtxArray.IsEmpty())
 		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Painting %d SM Vertices for mesh %s with modelPath %s"), vtxArray.Num(), *meshActor->GetActorLabel(), *modelPath);
 			UBPFL::PaintSMVertices(meshObject, vtxArray, modelPath);
 		}
 	}
