@@ -142,11 +142,6 @@ void MaterialImporter::SetMaterial(const TSharedPtr<FJsonObject> matData, UMater
 	SetTextures(matData, mat);
 	SetMaterialSettings(matData->GetObjectField("Properties"), mat);
 	const TSharedPtr<FJsonObject> matProps = matData.Get()->GetObjectField("Properties");
-	if (matProps.Get()->HasTypedField<EJson::Object>("BasePropertyOverrides"))
-	{
-		FMaterialInstanceBasePropertyOverrides overrides = SetBasePropertyOverrides(matProps.Get()->GetObjectField("BasePropertyOverrides"));
-		mat->BasePropertyOverrides = overrides;
-	}
 	if (matProps.Get()->HasField("StaticParameters"))
 	{
 		if (matProps.Get()->GetObjectField("StaticParameters")->HasField("StaticSwitchParameters"))
@@ -227,88 +222,6 @@ void MaterialImporter::SetTextures(const TSharedPtr<FJsonObject> matData, UMater
 	}
 }
 
-FMaterialInstanceBasePropertyOverrides MaterialImporter::SetBasePropertyOverrides(const TSharedPtr<FJsonObject> matProps)
-{
-	FMaterialInstanceBasePropertyOverrides overrides = FMaterialInstanceBasePropertyOverrides();
-	// Loop through all JSON values (type <FString, TSharedPtr<FJsonValue>>)
-	for (auto const& prop : matProps->Values)
-	{
-		TSharedPtr<FJsonValue> propValue = prop.Value;
-		const FName propName = FName(*prop.Key);
-		FProperty* objectProp = overrides.StaticStruct()->FindPropertyByName(propName);
-		if (objectProp == nullptr) continue;
-		const EJson propType = propValue.Get()->Type;
-		if (propType == EJson::Number)
-		{
-			double value = prop.Value.Get()->AsNumber();
-			if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
-			{
-				value = 14680;
-			}
-			// TODO: Fix importing float properties, cannot set OpacityClipValue due to some assertion
-			if (!UianaHelpers::SetStructProperty<FDoubleProperty, double>(&overrides, objectProp, value))// && !UianaHelpers::SetStructProperty<FFloatProperty, float>(&overrides, objectProp, value))
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set property %s of type number for Override struct!"), *prop.Key);
-			continue;
-		}
-		if (propType == EJson::Boolean)
-		{
-			bool value = prop.Value.Get()->AsBool();
-			if (!UianaHelpers::SetStructProperty<FBoolProperty, bool>(&overrides, objectProp, value))
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set property %s of type bool for Override struct!"), *prop.Key);
-			continue;
-		}
-		if (propType == EJson::String && propValue.Get()->AsString().Contains("::"))
-		{
-			FString temp, splitResult;
-			propValue.Get()->AsString().Split("::", &temp, &splitResult);
-			FJsonValueString valString = FJsonValueString(splitResult);
-			propValue = MakeShareable<FJsonValueString>(&valString);
-		}
-		if (objectProp->GetClass()->GetName().Equals("FLinearColor"))
-		{
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			const TArray<FName> params = {"R", "G", "B"};
-			if (!UianaHelpers::SetStructPropertiesFromJson<FDoubleProperty, double>(&overrides, objectProp, obj, params))
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set property %s of type FLinearColor for Override struct!"), *prop.Key);
-		}
-		else if (objectProp->GetClass()->GetName().Equals("FVector4"))
-		{
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			const TArray<FName> params = {"X", "Y", "Z", "W"};
-			if(!UianaHelpers::SetStructPropertiesFromJson<FDoubleProperty, double>(&overrides, objectProp, obj, params))
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set property %s of type FVector4 for Override struct!"), *prop.Key);
-		}
-		else if (objectProp->GetClass()->GetName().Contains("Color"))
-		{
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			const TArray<FName> params = {"R", "G", "B", "A"};
-			if (!UianaHelpers::SetStructPropertiesFromJson<FDoubleProperty, double>(&overrides, objectProp, obj, params))
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set property %s of type Color for Override struct!"), *prop.Key);
-		}
-		else
-		{
-			if (propType == EJson::String)
-			{
-				const FString dataStr = propValue.Get()->AsString();
-				if (prop.Key.Equals("ShadingModel"))
-				{
-					overrides.ShadingModel = UianaHelpers::ParseShadingModel(dataStr);
-				}
-				else if (prop.Key.Equals("BlendMode"))
-				{
-					overrides.BlendMode = UianaHelpers::ParseBlendMode(dataStr);
-				}
-				else
-				{
-					UE_LOG(LogTemp, Display, TEXT("Uiana: Needed Override is String with value %s and CPP Class %s %s"), *propValue.Get()->AsString(), *objectProp->GetNameCPP(), *objectProp->GetCPPTypeForwardDeclaration());
-				}
-			}
-			else UE_LOG(LogTemp, Display, TEXT("Uiana: Need to set Override %s somehow!"), *prop.Key);
-		}
-	}
-	return overrides;
-}
-
 void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps, UMaterialInstanceConstant* mat)
 {
 	// Loop through all JSON values (type <FString, TSharedPtr<FJsonValue>>)
@@ -324,46 +237,11 @@ void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProp
 			if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
 			{
 				FObjectEditorUtils::SetPropertyValue(mat, propName, 14680);
-				continue;
 			}
-			FObjectEditorUtils::SetPropertyValue(mat, propName, prop.Value.Get()->AsNumber());
-			continue;
-		}
-		if (propType == EJson::String && propValue.Get()->AsString().Contains("::"))
-		{
-			FString temp, splitResult;
-			propValue.Get()->AsString().Split("::", &temp, &splitResult);
-			FJsonValueString valString = FJsonValueString(splitResult);
-			propValue = MakeShareable<FJsonValueString>(&valString);
-		}
-		if (objectProp->GetClass()->GetName().Equals("FLinearColor"))
-		{
-			FLinearColor color;
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			color.R = obj->GetNumberField("R");
-			color.G = obj->GetNumberField("G");
-			color.B = obj->GetNumberField("B");
-			FObjectEditorUtils::SetPropertyValue(mat, propName, color);
-		}
-		else if (objectProp->GetClass()->GetName().Equals("FVector4"))
-		{
-			FVector4 vector;
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			vector.X = obj->GetNumberField("X");
-			vector.Y = obj->GetNumberField("Y");
-			vector.Z = obj->GetNumberField("Z");
-			vector.W = obj->GetNumberField("W");
-			FObjectEditorUtils::SetPropertyValue(mat, propName, vector);
-		}
-		else if (objectProp->GetClass()->GetName().Contains("Color"))
-		{
-			FColor color;
-			const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			color.R = obj->GetNumberField("R");
-			color.G = obj->GetNumberField("G");
-			color.B = obj->GetNumberField("B");
-			color.A = obj->GetNumberField("A");
-			FObjectEditorUtils::SetPropertyValue(mat, propName, color);
+			else
+			{
+				FObjectEditorUtils::SetPropertyValue(mat, propName, prop.Value.Get()->AsNumber());
+			}
 		}
 		else if (propType == EJson::Object)
 		{
@@ -392,15 +270,6 @@ void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProp
 				decalComponent.SetMaterial(0, mat);
 				decalComponent.SetDecalMaterial(decalMat);
 			}
-			else if (prop.Key.Equals("DecalSize"))
-			{
-				FVector vec;
-				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-				vec.X = obj->GetNumberField("X");
-				vec.Y = obj->GetNumberField("Y");
-				vec.Z = obj->GetNumberField("Z");
-				FObjectEditorUtils::SetPropertyValue(mat, propName, vec);
-			}
 			else if (prop.Key.Equals("StaticMesh"))
 			{
 				FString meshName;
@@ -411,105 +280,64 @@ void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProp
 					FObjectEditorUtils::SetPropertyValue(mat, propName, mesh);
 				}
 			}
-			else if (prop.Key.Equals("BoxExtent"))
-			{
-				FVector vec;
-				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-				vec.X = obj->GetNumberField("X");
-				vec.Y = obj->GetNumberField("Y");
-				vec.Z = obj->GetNumberField("Z");
-				FObjectEditorUtils::SetPropertyValue(mat, "BoxExtent", vec);
-			}
 			else if (objectProp->GetClass()->GetName().Equals("StructProperty"))
 			{
 				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
 				if (const FStructProperty* colorValues = CastField<FStructProperty>(objectProp))
 				{
-					if (objectProp->GetCPPType().Equals("FColor"))
+					FString OutputString;
+					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+					FJsonSerializer::Serialize(propValue.Get()->AsObject().ToSharedRef(), Writer);
+					UScriptStruct* Class = nullptr;
+					FString ClassName = objectProp->GetCPPType().TrimChar('F');
+					UE_LOG(LogTemp, Display, TEXT("Uiana: Setting property %s of type %s for JSON %s"), *prop.Key, *ClassName, *OutputString);
+					if (!FPackageName::IsShortPackageName(ClassName))
 					{
-						FColor* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FColor>(mat);
-						structSettingsAddr->R = obj->GetNumberField("R");
-						structSettingsAddr->G = obj->GetNumberField("G");
-						structSettingsAddr->B = obj->GetNumberField("B");
-						structSettingsAddr->A = obj->GetNumberField("A");
+						Class = FindObject<UScriptStruct>(nullptr, *ClassName);
 					}
-					// else if (objectProp->GetCPPType().Equals("FVector"))
-					// {
-					// 	FVector* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FVector>(mat);
-					// 	structSettingsAddr->X = obj->GetNumberField("X");
-					// 	structSettingsAddr->Y = obj->GetNumberField("Y");
-					// 	structSettingsAddr->Z = obj->GetNumberField("Z");
-					// }
-					// else if (objectProp->GetCPPType().Equals("FVector4"))
-					// {
-					// 	FVector4* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FVector4>(mat);
-					// 	structSettingsAddr->X = obj->GetNumberField("X");
-					// 	structSettingsAddr->Y = obj->GetNumberField("Y");
-					// 	structSettingsAddr->Z = obj->GetNumberField("Z");
-					// 	structSettingsAddr->W = obj->GetNumberField("W");
-					// }
-					// else if (objectProp->GetCPPType().Equals("FRotator"))
-					// {
-					// 	FRotator* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FRotator>(mat);
-					// 	structSettingsAddr->Pitch = obj->GetNumberField("Pitch");
-					// 	structSettingsAddr->Yaw = obj->GetNumberField("Yaw");
-					// 	structSettingsAddr->Roll = obj->GetNumberField("Roll");
-					// }
 					else
 					{
-						FString OutputString;
-						TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-						FJsonSerializer::Serialize(propValue.Get()->AsObject().ToSharedRef(), Writer);
-						UScriptStruct* Class = nullptr;
-						FString ClassName = objectProp->GetCPPType().TrimChar('F');
-						UE_LOG(LogTemp, Display, TEXT("Uiana: Setting property %s of type %s for JSON %s"), *prop.Key, *ClassName, *OutputString);
-						if (!FPackageName::IsShortPackageName(ClassName))
-						{
-							Class = FindObject<UScriptStruct>(nullptr, *ClassName);
-						}
-						else
-						{
-							Class = FindFirstObject<UScriptStruct>(*ClassName, EFindFirstObjectOptions::None, ELogVerbosity::Warning, TEXT("FEditorClassUtils::GetClassFromString"));
-						}
-						if(!Class)
-						{
-							Class = LoadObject<UScriptStruct>(nullptr, *ClassName);
-						}
-						if (!Class)
-						{
-							UE_LOG(LogTemp, Display, TEXT("Uiana: Failed to find UScriptStruct for property %s of type %s!"), *prop.Key, *ClassName);
-							continue;
-						}
-						void* structSettingsAddr = objectProp->ContainerPtrToValuePtr<void>(mat);
-						TSharedPtr<FJsonObject> propObj;
-						FJsonObject::Duplicate(propValue.Get()->AsObject(), propObj);
-						// Overrides are not correctly set unless corresponding bOverride flag is set to true
-						for (const TTuple<FString, TSharedPtr<FJsonValue>> structVal : propObj->Values)
-						{
-							for (FString overrideVariation : {"bOverride", "bOverride_"})
-							{
-								FString overridePropName = overrideVariation + structVal.Key;
-								if (FProperty* overrideFlagProp = Class->FindPropertyByName(FName(*overridePropName)))
-								{
-									void* propAddr = overrideFlagProp->ContainerPtrToValuePtr<uint8>(structSettingsAddr);
-									if (FBoolProperty* overrideProp = Cast<FBoolProperty>(overrideFlagProp))
-									{
-										UE_LOG(LogTemp, Display, TEXT("Uiana: Setting override flag for setting %s to true"), *overridePropName);
-										overrideProp->SetPropertyValue(propAddr, true);
-									}
-								}	
-							}
-							if (propObj->HasTypedField<EJson::String>("ShadingModel") && propObj->GetStringField("ShadingModel").Equals("MSM_AresEnvironment"))
-							{
-								// Custom Valorant-related override, this does not exist in Enum list and makes BasePropertyOverrides fail.
-								// TODO: Instead search for String JsonValues and verify the corresponding Enum has the value or not?
-								propObj->SetStringField("ShadingModel", "MSM_DefaultLit");
-							}
-						}
-						FText FailureReason;
-						if (!FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), Class, structSettingsAddr,
-							0, 0, false, &FailureReason)) UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set %s due to reason %s"), *prop.Key, *FailureReason.ToString());
+						Class = FindFirstObject<UScriptStruct>(*ClassName, EFindFirstObjectOptions::None, ELogVerbosity::Warning, TEXT("FEditorClassUtils::GetClassFromString"));
 					}
+					if(!Class)
+					{
+						Class = LoadObject<UScriptStruct>(nullptr, *ClassName);
+					}
+					if (!Class)
+					{
+						UE_LOG(LogTemp, Display, TEXT("Uiana: Failed to find UScriptStruct for property %s of type %s!"), *prop.Key, *ClassName);
+						continue;
+					}
+					void* structSettingsAddr = objectProp->ContainerPtrToValuePtr<void>(mat);
+					FJsonObject* propObj = new FJsonObject();
+					TSharedPtr<FJsonObject> propObjPtr = MakeShareable(propObj);
+					FJsonObject::Duplicate(obj, propObjPtr);
+					// Overrides are not correctly set unless corresponding bOverride flag is set to true
+					for (const TTuple<FString, TSharedPtr<FJsonValue>> structVal : obj->Values)
+					{
+						for (FString overrideVariation : {"bOverride", "bOverride_"})
+						{
+							FString overridePropName = overrideVariation + structVal.Key;
+							if (FProperty* overrideFlagProp = Class->FindPropertyByName(FName(*overridePropName)))
+							{
+								void* propAddr = overrideFlagProp->ContainerPtrToValuePtr<uint8>(structSettingsAddr);
+								if (FBoolProperty* overrideProp = Cast<FBoolProperty>(overrideFlagProp))
+								{
+									UE_LOG(LogTemp, Display, TEXT("Uiana: Setting override flag for setting %s to true"), *overridePropName);
+									overrideProp->SetPropertyValue(propAddr, true);
+								}
+							}	
+						}
+						if (obj->HasTypedField<EJson::String>("ShadingModel") && propObjPtr->GetStringField("ShadingModel").Equals("MSM_AresEnvironment"))
+						{
+							// Custom Valorant-related override, this does not exist in Enum list and makes BasePropertyOverrides fail.
+							// TODO: Instead search for String JsonValues and verify the corresponding Enum has the value or not?
+							propObjPtr->SetStringField("ShadingModel", "MSM_DefaultLit");
+						}
+					}
+					FText FailureReason;
+					if (!FJsonObjectConverter::JsonObjectToUStruct(propObjPtr.ToSharedRef(), Class, structSettingsAddr,
+						0, 0, false, &FailureReason)) UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set %s due to reason %s"), *prop.Key, *FailureReason.ToString());
 				}
 				else
 				{
@@ -517,87 +345,59 @@ void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProp
 				}
 			}
 		}
-		else if (propType == EJson::Array && prop.Key.Equals("OverrideMaterials"))
+		else if (propType == EJson::Array)
 		{
-			TArray<UMaterialInstanceConstant*> overrideMats;
-			UMaterialInstanceConstant* loaded = nullptr;
-			for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> ovrMat : propValue.Get()->AsArray())
+			const TArray<TSharedPtr<FJsonValue>> parameterArray = propValue.Get()->AsArray();
+			if (prop.Key.Equals("OverrideMaterials"))
 			{
-				if (!ovrMat.IsValid() || ovrMat.Get()->IsNull())
+				TArray<UMaterialInstanceConstant*> overrideMats;
+				UMaterialInstanceConstant* loaded = nullptr;
+				for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> ovrMat : parameterArray)
 				{
-					overrideMats.Add(nullptr);
-					continue;
+					if (!ovrMat.IsValid() || ovrMat.Get()->IsNull())
+					{
+						overrideMats.Add(nullptr);
+						continue;
+					}
+					const TSharedPtr<FJsonObject> matData = ovrMat.Get()->AsObject();
+					FString temp, objName;
+					matData.Get()->GetStringField("ObjectName").Split(" ", &temp, &objName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
+					if (matData->HasTypedField<EJson::Object>("ObjectName")) UE_LOG(LogTemp, Error, TEXT("Uiana: Material Override Material ObjectName is not a string!"));
+					if (objName.Contains("MaterialInstanceDynamic")) continue;
+					loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/UianaCPP/Materials/" + objName));
+					if (loaded == nullptr) loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + objName));
+					overrideMats.Add(loaded);
 				}
-				const TSharedPtr<FJsonObject> matData = ovrMat.Get()->AsObject();
-				FString temp, objName;
-				matData.Get()->GetStringField("ObjectName").Split(" ", &temp, &objName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
-				if (matData->HasTypedField<EJson::Object>("ObjectName")) UE_LOG(LogTemp, Error, TEXT("Uiana: Material Override Material ObjectName is not a string!"));
-				if (objName.Contains("MaterialInstanceDynamic")) continue;
-				loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/UianaCPP/Materials/" + objName));
-				if (loaded == nullptr) loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + objName));
-				overrideMats.Add(loaded);
+				FObjectEditorUtils::SetPropertyValue(mat, propName, overrideMats);
 			}
-			FObjectEditorUtils::SetPropertyValue(mat, propName, overrideMats);
+			else if (prop.Key.Equals("TextureStreamingData"))
+			{
+				TArray<FMaterialTextureInfo> textures;
+				for (const TSharedPtr<FJsonValue> texture : parameterArray)
+				{
+					FMaterialTextureInfo textureInfo;
+					const TSharedPtr<FJsonObject> textureObj = texture.Get()->AsObject();
+					FJsonObjectConverter::JsonObjectToUStruct(textureObj.ToSharedRef(), &textureInfo);
+					textures.Add(textureInfo);
+				}
+				mat->SetTextureStreamingData(textures);
+			}
+			else
+			{
+				if (prop.Key.Equals("ScalarParameterValues") || prop.Key.Equals("VectorParameterValues") || prop.Key.Equals("TextureParameterValues")) continue;
+				for (const TSharedPtr<FJsonValue> parameter : parameterArray)
+				{
+					const TSharedPtr<FJsonObject> paramObj = parameter.Get()->AsObject();
+					FString OutputString;
+					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+					FJsonSerializer::Serialize(paramObj.ToSharedRef(), Writer);
+					UE_LOG(LogTemp, Warning, TEXT("Uiana: Array Material Property unaccounted for with value: %s"), *OutputString);	
+				}	
+			}
 		}
 		else
 		{
-			if (propType == EJson::Array)
-			{
-				const TArray<TSharedPtr<FJsonValue>> parameterArray = propValue.Get()->AsArray();
-				if (prop.Key.Equals("TextureStreamingData"))
-				{
-					TArray<FMaterialTextureInfo> textures;
-					for (const TSharedPtr<FJsonValue> texture : parameterArray)
-					{
-						FMaterialTextureInfo textureInfo;
-						const TSharedPtr<FJsonObject> textureObj = texture.Get()->AsObject();
-						FJsonObjectConverter::JsonObjectToUStruct(textureObj.ToSharedRef(), &textureInfo);
-						textures.Add(textureInfo);
-					}
-					mat->SetTextureStreamingData(textures);
-				}
-				else
-				{
-					if (prop.Key.Equals("ScalarParameterValues") || prop.Key.Equals("VectorParameterValues") || prop.Key.Equals("TextureParameterValues")) continue;
-					for (const TSharedPtr<FJsonValue> parameter : parameterArray)
-					{
-						const TSharedPtr<FJsonObject> paramObj = parameter.Get()->AsObject();
-						// const TSharedPtr<FJsonObject> paramInfo = paramObj.Get()->GetObjectField("ParameterInfo");
-						// FMaterialParameterInfo info;
-						// FJsonObjectConverter::JsonObjectToUStruct(paramInfo.ToSharedRef(), &info);
-						// if (prop.Key.Equals("ScalarParameterValues"))
-						// {
-						// 	double paramValue = paramObj.Get()->GetNumberField("ParameterValue");
-						// 	mat->SetScalarParameterValueEditorOnly(info, paramValue);
-						// }
-						// else if (prop.Key.Equals("VectorParameterValues"))
-						// {
-						// 	FLinearColor paramValue;
-						// 	const TSharedPtr<FJsonObject> vectorParams = paramObj.Get()->GetObjectField("ParameterValue");
-						// 	paramValue.R = vectorParams.Get()->GetNumberField("R");
-						// 	paramValue.G = vectorParams.Get()->GetNumberField("G");
-						// 	paramValue.B = vectorParams.Get()->GetNumberField("B");
-						// 	paramValue.A = vectorParams.Get()->GetNumberField("A");
-						// 	mat->SetVectorParameterValueEditorOnly(info, paramValue);
-						// }
-						// else if (prop.Key.Equals("TextureParameterValues"))
-						// {
-						// 	FString temp, textureName;
-						// 	paramObj.Get()->GetObjectField("ParameterValue").Get()->GetStringField("ObjectName").Split(TEXT(" "), &temp, &textureName);
-						// 	UTexture* paramValue = static_cast<UTexture*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Textures/" + textureName));
-						// 	mat->SetTextureParameterValueEditorOnly(info, paramValue);
-						// }
-						// else
-						// {
-						FString OutputString;
-						TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-						FJsonSerializer::Serialize(paramObj.ToSharedRef(), Writer);
-						UE_LOG(LogTemp, Warning, TEXT("Uiana: Array Material Property unaccounted for with value: %s"), *OutputString);	
-						// }
-					}	
-				}
-			}
-			else UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set Material Property %s of unknown type!"), *prop.Key);
+			UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set Material Property %s of unknown type!"), *prop.Key);
 		}
 	}
 }

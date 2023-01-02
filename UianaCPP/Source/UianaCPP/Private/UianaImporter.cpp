@@ -524,17 +524,6 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				UTextureCube* newCube = Cast<UTextureCube, UObject>(UEditorAssetLibrary::LoadAsset(assetPath));
 				UianaHelpers::SetActorProperty<UTextureCube*>(bp->GetClass(), bp, prop.Key, newCube);
 			}
-			// TODO: Verify that this code is not necessary and if not remove it
-			// else if (prop.Key.Equals("DecalSize"))
-			// {
-			// 	if (objectProp->GetClass()->GetName().Equals("StructProperty")) UE_LOG(LogTemp, Error, TEXT("Uiana: Mesh Setting DecalSize already handled by Struct logic!"));
-			// 	FVector vec;
-			// 	const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-			// 	vec.X = obj->GetNumberField("X");
-			// 	vec.Y = obj->GetNumberField("Y");
-			// 	vec.Z = obj->GetNumberField("Z");
-			// 	UianaHelpers::SetActorProperty<FVector>(bp->GetClass(), bp, prop.Key, vec);
-			// }
 			else if (prop.Key.Equals("StaticMesh"))
 			{
 				FString meshName;
@@ -561,66 +550,59 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
 				if (const FStructProperty* colorValues = CastField<FStructProperty>(objectProp))
 				{
-					if (objectProp->GetCPPType().Equals("FColor"))
+					FString OutputString;
+					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+					FJsonSerializer::Serialize(propValue.Get()->AsObject().ToSharedRef(), Writer);
+					UScriptStruct* Class = nullptr;
+					FString ClassName = objectProp->GetCPPType().TrimChar('F');
+					UE_LOG(LogTemp, Display, TEXT("Uiana: Setting Actor property %s of type %s for JSON %s"), *prop.Key, *ClassName, *OutputString);
+					if (!FPackageName::IsShortPackageName(ClassName))
 					{
-						FColor* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FColor>(bp);
-						structSettingsAddr->R = obj->GetNumberField("R");
-						structSettingsAddr->G = obj->GetNumberField("G");
-						structSettingsAddr->B = obj->GetNumberField("B");
-						structSettingsAddr->A = obj->GetNumberField("A");
-					}
-					else if (objectProp->GetCPPType().Equals("FVector"))
-					{
-						FVector* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FVector>(bp);
-						structSettingsAddr->X = obj->GetNumberField("X");
-						structSettingsAddr->Y = obj->GetNumberField("Y");
-						structSettingsAddr->Z = obj->GetNumberField("Z");
-					}
-					else if (objectProp->GetCPPType().Equals("FVector4"))
-					{
-						FVector4* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FVector4>(bp);
-						structSettingsAddr->X = obj->GetNumberField("X");
-						structSettingsAddr->Y = obj->GetNumberField("Y");
-						structSettingsAddr->Z = obj->GetNumberField("Z");
-						structSettingsAddr->W = obj->GetNumberField("W");
-					}
-					else if (objectProp->GetCPPType().Equals("FRotator"))
-					{
-						FRotator* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FRotator>(bp);
-						structSettingsAddr->Pitch = obj->GetNumberField("Pitch");
-						structSettingsAddr->Yaw = obj->GetNumberField("Yaw");
-						structSettingsAddr->Roll = obj->GetNumberField("Roll");
-					}
-					else if (objectProp->GetCPPType().Equals("FLightmassPrimitiveSettings"))
-					{
-						FLightmassPrimitiveSettings* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FLightmassPrimitiveSettings>(bp);
-						for (const TTuple<FString, TSharedPtr<FJsonValue>> lightmassSetting : propValue.Get()->AsObject()->Values)
-						{
-							if (lightmassSetting.Key.Equals("bLightAsBackFace") || lightmassSetting.Key.Equals("bUseTwoSidedLighting"))
-							{
-								continue;
-							}
-							FProperty* lightmassProp = FLightmassPrimitiveSettings::StaticStruct()->FindPropertyByName(FName(*lightmassSetting.Key.TrimChar('b')));
-							bool* lightmassPropBool = lightmassProp->ContainerPtrToValuePtr<bool>(structSettingsAddr);
-							float* lightmassPropFloat = lightmassProp->ContainerPtrToValuePtr<float>(structSettingsAddr);
-							if (lightmassPropBool)
-							{
-								*lightmassPropBool = lightmassSetting.Value->AsBool();
-							}
-							else if (lightmassPropFloat)
-							{
-								*lightmassPropFloat = static_cast<float>(lightmassSetting.Value->AsNumber());
-							}
-							else
-							{
-								UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set LMProp %s for property %s"), *lightmassSetting.Key, *prop.Key);
-							}
-						}
+						Class = FindObject<UScriptStruct>(nullptr, *ClassName);
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Uiana: Missing StructProperty definition for type %s!"), *objectProp->GetCPPType());
+						Class = FindFirstObject<UScriptStruct>(*ClassName, EFindFirstObjectOptions::None, ELogVerbosity::Warning, TEXT("FEditorClassUtils::GetClassFromString"));
 					}
+					if(!Class)
+					{
+						Class = LoadObject<UScriptStruct>(nullptr, *ClassName);
+					}
+					if (!Class)
+					{
+						UE_LOG(LogTemp, Display, TEXT("Uiana: Failed to find UScriptStruct for property %s of type %s!"), *prop.Key, *ClassName);
+						continue;
+					}
+					void* structSettingsAddr = objectProp->ContainerPtrToValuePtr<void>(bp);
+					FJsonObject* propObj = new FJsonObject();
+					TSharedPtr<FJsonObject> propObjPtr = MakeShareable(propObj);
+					FJsonObject::Duplicate(obj, propObjPtr);
+					// Overrides are not correctly set unless corresponding bOverride flag is set to true
+					for (const TTuple<FString, TSharedPtr<FJsonValue>> structVal : obj->Values)
+					{
+						for (FString overrideVariation : {"bOverride", "bOverride_"})
+						{
+							FString overridePropName = overrideVariation + structVal.Key;
+							if (FProperty* overrideFlagProp = Class->FindPropertyByName(FName(*overridePropName)))
+							{
+								void* propAddr = overrideFlagProp->ContainerPtrToValuePtr<uint8>(structSettingsAddr);
+								if (FBoolProperty* overrideProp = Cast<FBoolProperty>(overrideFlagProp))
+								{
+									UE_LOG(LogTemp, Display, TEXT("Uiana: Setting override flag for setting %s to true"), *overridePropName);
+									overrideProp->SetPropertyValue(propAddr, true);
+								}
+							}	
+						}
+						if (obj->HasTypedField<EJson::String>("ShadingModel") && propObjPtr->GetStringField("ShadingModel").Equals("MSM_AresEnvironment"))
+						{
+							// Custom Valorant-related override, this does not exist in Enum list and makes BasePropertyOverrides fail.
+							// TODO: Instead search for String JsonValues and verify the corresponding Enum has the value or not?
+							propObjPtr->SetStringField("ShadingModel", "MSM_DefaultLit");
+						}
+					}
+					FText FailureReason;
+					if (!FJsonObjectConverter::JsonObjectToUStruct(propObjPtr.ToSharedRef(), Class, structSettingsAddr,
+						0, 0, false, &FailureReason)) UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set %s due to reason %s"), *prop.Key, *FailureReason.ToString());
 				}
 				else
 				{
