@@ -513,9 +513,8 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				FString temp, newTextureName;
 				propValue.Get()->AsObject()->GetStringField("ObjectName").Split("_", &temp, &newTextureName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 				FString assetPath = "/UianaCPP/IESProfiles/" + newTextureName + "." + newTextureName;
-				UTexture* newTexture = static_cast<UTexture*>(UEditorAssetLibrary::LoadAsset(assetPath));
+				UTexture* newTexture = Cast<UTexture>(UEditorAssetLibrary::LoadAsset(assetPath));
 				UianaHelpers::SetActorProperty<UTexture*>(bp->GetClass(), bp, prop.Key, newTexture);
-				// FObjectEditorUtils::SetPropertyValue(bp, propName, newTexture);
 			}
 			else if (prop.Key.Equals("Cubemap"))
 			{
@@ -524,19 +523,18 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				// TODO: Convert all static_cast with UObjects to Cast<>()
 				UTextureCube* newCube = Cast<UTextureCube, UObject>(UEditorAssetLibrary::LoadAsset(assetPath));
 				UianaHelpers::SetActorProperty<UTextureCube*>(bp->GetClass(), bp, prop.Key, newCube);
-				// FObjectEditorUtils::SetPropertyValue(bp, propName, newCube);
 			}
-			else if (prop.Key.Equals("DecalSize"))
-			{
-				if (objectProp->GetClass()->GetName().Equals("StructProperty")) UE_LOG(LogTemp, Error, TEXT("Uiana: Mesh Setting DecalSize already handled by Struct logic!"));
-				FVector vec;
-				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-				vec.X = obj->GetNumberField("X");
-				vec.Y = obj->GetNumberField("Y");
-				vec.Z = obj->GetNumberField("Z");
-				UianaHelpers::SetActorProperty<FVector>(bp->GetClass(), bp, prop.Key, vec);
-				// FObjectEditorUtils::SetPropertyValue(bp, propName, vec);
-			}
+			// TODO: Verify that this code is not necessary and if not remove it
+			// else if (prop.Key.Equals("DecalSize"))
+			// {
+			// 	if (objectProp->GetClass()->GetName().Equals("StructProperty")) UE_LOG(LogTemp, Error, TEXT("Uiana: Mesh Setting DecalSize already handled by Struct logic!"));
+			// 	FVector vec;
+			// 	const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
+			// 	vec.X = obj->GetNumberField("X");
+			// 	vec.Y = obj->GetNumberField("Y");
+			// 	vec.Z = obj->GetNumberField("Z");
+			// 	UianaHelpers::SetActorProperty<FVector>(bp->GetClass(), bp, prop.Key, vec);
+			// }
 			else if (prop.Key.Equals("StaticMesh"))
 			{
 				FString meshName;
@@ -546,7 +544,6 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 					UStaticMesh* mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + name));
 					if (mesh == nullptr) continue;
 					UianaHelpers::SetActorProperty<UStaticMesh*>(bp->GetClass(), bp, prop.Key, mesh);
-					// FObjectEditorUtils::SetPropertyValue(bp, propName, mesh);
 				}
 			}
 			else if (prop.Key.Equals("BoxExtent"))
@@ -558,16 +555,7 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 				vec.Y = obj->GetNumberField("Y");
 				vec.Z = obj->GetNumberField("Z");
 				UianaHelpers::SetActorProperty<FVector>(bp->GetClass(), bp, "BoxExtent", vec);
-				// FObjectEditorUtils::SetPropertyValue(bp, "BoxExtent", vec);
 			}
-			// else if (prop.Key.Equals("LightmassSettings"))
-			// {
-			// 	// TODO: Investigate why lightmass settings do not seem to be getting applied although no error!
-			// 	FLightmassMaterialInterfaceSettings lightmassSettings;
-			// 	FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
-			// 	if (!UianaHelpers::SetActorProperty<FLightmassMaterialInterfaceSettings>(bp->GetClass(), bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings for BP!"));
-			// 	// if (!FObjectEditorUtils::SetPropertyValue(bp, "LightmassSettings", lightmassSettings)) UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set lightmass settings!"));
-			// }
 			else if (objectProp->GetClass()->GetName().Equals("StructProperty"))
 			{
 				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
@@ -602,6 +590,32 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 						structSettingsAddr->Pitch = obj->GetNumberField("Pitch");
 						structSettingsAddr->Yaw = obj->GetNumberField("Yaw");
 						structSettingsAddr->Roll = obj->GetNumberField("Roll");
+					}
+					else if (objectProp->GetCPPType().Equals("FLightmassPrimitiveSettings"))
+					{
+						FLightmassPrimitiveSettings* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FLightmassPrimitiveSettings>(bp);
+						for (const TTuple<FString, TSharedPtr<FJsonValue>> lightmassSetting : propValue.Get()->AsObject()->Values)
+						{
+							if (lightmassSetting.Key.Equals("bLightAsBackFace") || lightmassSetting.Key.Equals("bUseTwoSidedLighting"))
+							{
+								continue;
+							}
+							FProperty* lightmassProp = FLightmassPrimitiveSettings::StaticStruct()->FindPropertyByName(FName(*lightmassSetting.Key.TrimChar('b')));
+							bool* lightmassPropBool = lightmassProp->ContainerPtrToValuePtr<bool>(structSettingsAddr);
+							float* lightmassPropFloat = lightmassProp->ContainerPtrToValuePtr<float>(structSettingsAddr);
+							if (lightmassPropBool)
+							{
+								*lightmassPropBool = lightmassSetting.Value->AsBool();
+							}
+							else if (lightmassPropFloat)
+							{
+								*lightmassPropFloat = static_cast<float>(lightmassSetting.Value->AsNumber());
+							}
+							else
+							{
+								UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set LMProp %s for property %s"), *lightmassSetting.Key, *prop.Key);
+							}
+						}
 					}
 					else
 					{
@@ -653,77 +667,17 @@ void UUianaImporter::SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActor
 		}
 		else
 		{
-			if (propType == EJson::Array)
+			FString type = "None";
+			if (propType == EJson::Array) type = "Array";
+			if (propType == EJson::Object) type = "Object";
+			if (propType == EJson::Boolean) type = "Bool";
+			if (propType == EJson::String) type = "String";
+			if (propType == EJson::Number) type = "Number";
+			if (propType == EJson::Null) type = "Null";
+			UE_LOG(LogTemp, Warning, TEXT("Uiana: Unset BP Property %s of type %s with CPP type %s!"), *prop.Key, *type, *objectProp->GetClass()->GetName());
+			if (propType == EJson::String)
 			{
-				const TArray<TSharedPtr<FJsonValue>> parameterArray = propValue.Get()->AsArray();
-				if (prop.Key.Equals("TextureStreamingData"))
-				{
-					TArray<FMaterialTextureInfo> textures;
-					for (const TSharedPtr<FJsonValue> texture : parameterArray)
-					{
-						FMaterialTextureInfo textureInfo;
-						const TSharedPtr<FJsonObject> textureObj = texture.Get()->AsObject();
-						FJsonObjectConverter::JsonObjectToUStruct(textureObj.ToSharedRef(), &textureInfo);
-						textures.Add(textureInfo);
-					}
-					UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set TextureStreamingData for BP!"));
-					// bp->SetTextureStreamingData(textures);
-				}
-				else
-				{
-					if (prop.Key.Equals("ScalarParameterValues") || prop.Key.Equals("VectorParameterValues") || prop.Key.Equals("TextureParameterValues")) continue;
-					for (const TSharedPtr<FJsonValue> parameter : parameterArray)
-					{
-						const TSharedPtr<FJsonObject> paramObj = parameter.Get()->AsObject();
-						// const TSharedPtr<FJsonObject> paramInfo = paramObj.Get()->GetObjectField("ParameterInfo");
-						// FMaterialParameterInfo info;
-						// FJsonObjectConverter::JsonObjectToUStruct(paramInfo.ToSharedRef(), &info);
-						// if (prop.Key.Equals("ScalarParameterValues"))
-						// {
-						// 	double paramValue = paramObj.Get()->GetNumberField("ParameterValue");
-						// 	mat->SetScalarParameterValueEditorOnly(info, paramValue);
-						// }
-						// else if (prop.Key.Equals("VectorParameterValues"))
-						// {
-						// 	FLinearColor paramValue;
-						// 	const TSharedPtr<FJsonObject> vectorParams = paramObj.Get()->GetObjectField("ParameterValue");
-						// 	paramValue.R = vectorParams.Get()->GetNumberField("R");
-						// 	paramValue.G = vectorParams.Get()->GetNumberField("G");
-						// 	paramValue.B = vectorParams.Get()->GetNumberField("B");
-						// 	paramValue.A = vectorParams.Get()->GetNumberField("A");
-						// 	mat->SetVectorParameterValueEditorOnly(info, paramValue);
-						// }
-						// else if (prop.Key.Equals("TextureParameterValues"))
-						// {
-						// 	FString temp, textureName;
-						// 	paramObj.Get()->GetObjectField("ParameterValue").Get()->GetStringField("ObjectName").Split(TEXT(" "), &temp, &textureName);
-						// 	UTexture* paramValue = static_cast<UTexture*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Textures/" + textureName));
-						// 	mat->SetTextureParameterValueEditorOnly(info, paramValue);
-						// }
-						// else
-						// {
-						FString OutputString;
-						TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-						FJsonSerializer::Serialize(paramObj.ToSharedRef(), Writer);
-						if (!prop.Key.Equals("StreamingTextureData") )UE_LOG(LogTemp, Warning, TEXT("Uiana: Array BP Property %s unaccounted for"), *prop.Key);
-						// }
-					}	
-				}
-			}
-			else
-			{
-				FString type = "None";
-				if (propType == EJson::Array) type = "Array";
-				if (propType == EJson::Object) type = "Object";
-				if (propType == EJson::Boolean) type = "Bool";
-				if (propType == EJson::String) type = "String";
-				if (propType == EJson::Number) type = "Number";
-				if (propType == EJson::Null) type = "Null";
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Unset BP Property %s of type %s!"), *prop.Key, *type);
-				if (propType == EJson::String)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Uiana: String BP Property unset - %s: %s"), *prop.Key, *propValue->AsString());
-				}
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: String BP Property unset - %s: %s"), *prop.Key, *propValue->AsString());
 			}
 		}
 	}

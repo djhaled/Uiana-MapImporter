@@ -6,6 +6,7 @@
 #include "AssetToolsModule.h"
 #include "BPFL.h"
 #include "EditorAssetLibrary.h"
+#include "EditorClassUtils.h"
 #include "JsonObjectConverter.h"
 #include "MaterialEditingLibrary.h"
 #include "ObjectEditorUtils.h"
@@ -419,76 +420,100 @@ void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProp
 				vec.Z = obj->GetNumberField("Z");
 				FObjectEditorUtils::SetPropertyValue(mat, "BoxExtent", vec);
 			}
-			else if (prop.Key.Equals("LightmassSettings"))
+			else if (objectProp->GetClass()->GetName().Equals("StructProperty"))
 			{
-				// TODO: Investigate why lightmass settings do not seem to be getting applied although no error!
-				// FLightmassPrimitiveSettings lightmassSettings;
-				// FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), &lightmassSettings);
-				// FString OutputString;
-				// TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-				// FJsonSerializer::Serialize(propValue.Get()->AsObject().ToSharedRef(), Writer);
-				// UE_LOG(LogTemp, Display, TEXT("Uiana: Set LMSettings on Material %s"), *OutputString);
-				FProperty* lightmassSettingsProp = mat->GetClass()->FindPropertyByName("LightmassSettings");
-				if (lightmassSettingsProp)
+				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
+				if (const FStructProperty* colorValues = CastField<FStructProperty>(objectProp))
 				{
-					void* lightmassSettingsAddr = lightmassSettingsProp->ContainerPtrToValuePtr<void>(mat);
-					if (FStructProperty* lightmassSettings = Cast<FStructProperty>(lightmassSettingsProp))
+					if (objectProp->GetCPPType().Equals("FColor"))
 					{
-						UScriptStruct* scriptStruct = lightmassSettings->Struct;
-						for (const TTuple<FString, TSharedPtr<FJsonValue>> lightmassProp : propValue.Get()->AsObject()->Values)
-						{
-							if (lightmassProp.Key.Equals("bLightAsBackFace") || lightmassProp.Key.Equals("bUseTwoSidedLighting"))
-							{
-								continue;
-							}
-							bool removedBoolIdentifier;
-							FName lightmassPropEditorName = FName(*lightmassProp.Key.TrimChar('b', &removedBoolIdentifier));
-							FProperty* lightmassChildProp = scriptStruct->FindPropertyByName(lightmassPropEditorName);
-							if (lightmassChildProp)
-							{
-								UE_LOG(LogTemp, Display, TEXT("Uiana: Setting LMProp %s"), *lightmassProp.Key);
-								if (removedBoolIdentifier)
-								{
-									if (FBoolProperty* childBoolProp = CastField<FBoolProperty>(lightmassChildProp))
-									{
-										childBoolProp->SetPropertyValue(lightmassSettingsAddr, lightmassProp.Value->AsBool());
-									}
-									else
-									{
-										UE_LOG(LogTemp, Error, TEXT("Uiana: LMProp %s was not boolean"), *lightmassProp.Key);
-									}
-								}
-								else
-								{
-									if (FFloatProperty* childFloatProp = CastField<FFloatProperty>(lightmassChildProp))
-									{
-										UE_LOG(LogTemp, Display, TEXT("Uiana: Setting LMProp %s value as %d"), *lightmassProp.Key, lightmassProp.Value->AsNumber())
-										childFloatProp->SetPropertyValue(lightmassSettingsAddr, lightmassProp.Value->AsNumber());
-									}
-									else
-									{
-										UE_LOG(LogTemp, Error, TEXT("Uiana: LMProp %s was not float"), *lightmassProp.Key);
-									}
-								}
-								FPropertyChangedEvent PropertyEvent(lightmassChildProp);
-								mat->PostEditChangeProperty(PropertyEvent);
-							}
-							else
-							{
-								UE_LOG(LogTemp, Error, TEXT("Uiana: LMProp %s not found in LMSettings!"), *lightmassProp.Key);
-							}
-						}
-						FPropertyChangedEvent PropertyEvent(lightmassSettings);
-						mat->PostEditChangeProperty(PropertyEvent);
+						FColor* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FColor>(mat);
+						structSettingsAddr->R = obj->GetNumberField("R");
+						structSettingsAddr->G = obj->GetNumberField("G");
+						structSettingsAddr->B = obj->GetNumberField("B");
+						structSettingsAddr->A = obj->GetNumberField("A");
 					}
+					// else if (objectProp->GetCPPType().Equals("FVector"))
+					// {
+					// 	FVector* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FVector>(mat);
+					// 	structSettingsAddr->X = obj->GetNumberField("X");
+					// 	structSettingsAddr->Y = obj->GetNumberField("Y");
+					// 	structSettingsAddr->Z = obj->GetNumberField("Z");
+					// }
+					// else if (objectProp->GetCPPType().Equals("FVector4"))
+					// {
+					// 	FVector4* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FVector4>(mat);
+					// 	structSettingsAddr->X = obj->GetNumberField("X");
+					// 	structSettingsAddr->Y = obj->GetNumberField("Y");
+					// 	structSettingsAddr->Z = obj->GetNumberField("Z");
+					// 	structSettingsAddr->W = obj->GetNumberField("W");
+					// }
+					// else if (objectProp->GetCPPType().Equals("FRotator"))
+					// {
+					// 	FRotator* structSettingsAddr = objectProp->ContainerPtrToValuePtr<FRotator>(mat);
+					// 	structSettingsAddr->Pitch = obj->GetNumberField("Pitch");
+					// 	structSettingsAddr->Yaw = obj->GetNumberField("Yaw");
+					// 	structSettingsAddr->Roll = obj->GetNumberField("Roll");
+					// }
 					else
 					{
-						UE_LOG(LogTemp, Error, TEXT("Uiana: LMSettings not found!"));
+						FString OutputString;
+						TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+						FJsonSerializer::Serialize(propValue.Get()->AsObject().ToSharedRef(), Writer);
+						UScriptStruct* Class = nullptr;
+						FString ClassName = objectProp->GetCPPType().TrimChar('F');
+						UE_LOG(LogTemp, Display, TEXT("Uiana: Setting property %s of type %s for JSON %s"), *prop.Key, *ClassName, *OutputString);
+						if (!FPackageName::IsShortPackageName(ClassName))
+						{
+							Class = FindObject<UScriptStruct>(nullptr, *ClassName);
+						}
+						else
+						{
+							Class = FindFirstObject<UScriptStruct>(*ClassName, EFindFirstObjectOptions::None, ELogVerbosity::Warning, TEXT("FEditorClassUtils::GetClassFromString"));
+						}
+						if(!Class)
+						{
+							Class = LoadObject<UScriptStruct>(nullptr, *ClassName);
+						}
+						if (!Class)
+						{
+							UE_LOG(LogTemp, Display, TEXT("Uiana: Failed to find UScriptStruct for property %s of type %s!"), *prop.Key, *ClassName);
+							continue;
+						}
+						void* structSettingsAddr = objectProp->ContainerPtrToValuePtr<void>(mat);
+						TSharedPtr<FJsonObject> propObj;
+						FJsonObject::Duplicate(propValue.Get()->AsObject(), propObj);
+						// Overrides are not correctly set unless corresponding bOverride flag is set to true
+						for (const TTuple<FString, TSharedPtr<FJsonValue>> structVal : propObj->Values)
+						{
+							for (FString overrideVariation : {"bOverride", "bOverride_"})
+							{
+								FString overridePropName = overrideVariation + structVal.Key;
+								if (FProperty* overrideFlagProp = Class->FindPropertyByName(FName(*overridePropName)))
+								{
+									void* propAddr = overrideFlagProp->ContainerPtrToValuePtr<uint8>(structSettingsAddr);
+									if (FBoolProperty* overrideProp = Cast<FBoolProperty>(overrideFlagProp))
+									{
+										UE_LOG(LogTemp, Display, TEXT("Uiana: Setting override flag for setting %s to true"), *overridePropName);
+										overrideProp->SetPropertyValue(propAddr, true);
+									}
+								}	
+							}
+							if (propObj->HasTypedField<EJson::String>("ShadingModel") && propObj->GetStringField("ShadingModel").Equals("MSM_AresEnvironment"))
+							{
+								// Custom Valorant-related override, this does not exist in Enum list and makes BasePropertyOverrides fail.
+								// TODO: Instead search for String JsonValues and verify the corresponding Enum has the value or not?
+								propObj->SetStringField("ShadingModel", "MSM_DefaultLit");
+							}
+						}
+						FText FailureReason;
+						if (!FJsonObjectConverter::JsonObjectToUStruct(propValue.Get()->AsObject().ToSharedRef(), Class, structSettingsAddr,
+							0, 0, false, &FailureReason)) UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set %s due to reason %s"), *prop.Key, *FailureReason.ToString());
 					}
 				}
 				else
 				{
-					UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to get material's lightmap settings from editor!"));
+					UE_LOG(LogTemp, Warning, TEXT("Failed to cast %s into StructProperty struct!"), *prop.Key);
 				}
 			}
 		}
