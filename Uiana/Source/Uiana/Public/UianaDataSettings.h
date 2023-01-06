@@ -16,6 +16,7 @@ enum WeaponRole
 	Pearl   UMETA(DisplayName = "Pearl"),
 	CharacterSelect   UMETA(DisplayName = "CharacterSelect"),
 	Menu   UMETA(DisplayName = "Menu"),
+	Lotus   UMETA(DisplayName = "Lotus"),
 };
 UCLASS(config = Engine, defaultconfig,transient)
 

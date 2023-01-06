@@ -115,6 +115,10 @@ FString FUianaModule::GetMapName(int EnumValue)
 	{
 		return FString("menu");
 	}
+	if (EnumValue == 11)
+	{
+		return FString("lotus");
+	}
 	return FString("NoMap");
 }
 
