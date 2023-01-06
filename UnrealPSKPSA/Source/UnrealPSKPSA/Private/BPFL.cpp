@@ -282,39 +282,11 @@ void UBPFL::ImportMeshes(TArray<FString> AllMeshesPath, FString ObjectsPath)
 	{
 		FString MeshGamePath, MeshName;
 		MPath.Split(TEXT("\\"), &MeshGamePath, &MeshName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-		MeshName = MeshName.Replace(TEXT(".pskx"), TEXT(".json"));
-		FPaths Path;
 		ActorIdx++;
 		// JSON Stuff
-		FString UmapJson;
-		int LMRES = 256;
-		std::string BodySetupProps = "CTF_UseDefault";
-		int LMCoord = 0; 
-		float LMDens = 0.0;
-		FString Filename = Path.Combine(ObjectsPath, MeshName);
-		FFileHelper::LoadFileToString(UmapJson, *Filename);
-		auto Umap = nlohmann::json::parse(TCHAR_TO_UTF8(*UmapJson));
-		auto BodySetup = Umap[0];
-		auto StaticMeshPP = Umap[2];
-		if (!BodySetup["Properties"]["CollisionTraceFlag"].is_null())
-		{
-			BodySetupProps = BodySetup["Properties"]["CollisionTraceFlag"].get<std::string>();
-		}
-		auto StaticProps = StaticMeshPP["Properties"];
-		if (!StaticProps["LightMapResolution"].is_null())
-		{
-			LMRES = StaticProps["LightMapResolution"].get<int>();
-		}
-		if (!StaticProps["LightMapCoordinateIndex"].is_null())
-		{
-			LMCoord = StaticProps["LightMapCoordinateIndex"].get<int>();
-		}
-		if (!StaticProps["LightMapDensity"].is_null())
-		{
-			LMDens = StaticProps["LightMapDensity"].get<float>();
-		}
+
 		///// end json stuff
-		MeshName = MeshName.Replace(TEXT(".json"), TEXT(""));
+		MeshName = MeshName.Replace(TEXT(".pskx"), TEXT(""));
 		FString PathForMeshes = FString::Printf(TEXT("/Game/ValorantContent/Meshes/%s"), *MeshName);
 		auto MeshPackage = CreatePackage(*PathForMeshes);
 		auto bCancelled = false;
@@ -323,13 +295,6 @@ void UBPFL::ImportMeshes(TArray<FString> AllMeshesPath, FString ObjectsPath)
 		{
 			continue;
 		}
-		auto Msh = CastChecked<UStaticMesh>(CreatedMesh);
-		////////////
-		//Msh->Modify();
-		//Msh->SetLightMapResolution(LMRES);
-		//Msh->SetLightMapCoordinateIndex(LMCoord);
-		//Msh->SetLightmapUVDensity(LMDens);
-		Msh->GetBodySetup()->CollisionTraceFlag = GetTraceFlag(BodySetupProps.c_str());
 		ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Mesh : %d of %d: %s"), ActorIdx + 1, AllMeshesPath.Num() + 1, *MeshName));
 		ImportTask.EnterProgressFrame();
 		//Msh->Property
