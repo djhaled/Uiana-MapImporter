@@ -9,19 +9,19 @@
 /**
  * Handles extracting assets for Uiana and providing paths to umaps
  */
-class AssetImporter
+class FAssetImporter
 {
 public:
-	AssetImporter();
-	AssetImporter(const UianaSettings* Settings);
+	FAssetImporter();
+	explicit FAssetImporter(const UianaSettings* Settings);
 	TArray<FString> GetExtractedUmaps();
 
 private:
 	const UianaSettings* Settings;
 	bool NeedExport();
 	TArray<FString> ExtractAssets();
-	void GetObjects(TArray<FString> &actorPaths, TArray<FString> &objPaths, TArray<FString> &matPaths, const TArray<TSharedPtr<FJsonValue>> &jsonArr);
-	void CUE4Extract(const FDirectoryPath ExportDir);
-	void CUE4Extract(const FDirectoryPath ExportDir, const FString AssetList);
+	void GetObjects(TArray<FString> &ActorPaths, TArray<FString> &ObjPaths, TArray<FString> &MatPaths, const TArray<TSharedPtr<FJsonValue>> &JsonArr);
+	void Cue4Extract(const FDirectoryPath ExportDir);
+	void Cue4Extract(const FDirectoryPath ExportDir, const FString AssetList);
 	void UModelExtract();
 };

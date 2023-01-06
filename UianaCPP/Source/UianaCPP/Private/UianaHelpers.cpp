@@ -34,144 +34,68 @@ TSharedPtr<FJsonObject> UianaHelpers::ParseJson(FString InputStr)
 	return nullptr;
 }
 
-void UianaHelpers::SaveJson(const TArray<TSharedPtr<FJsonValue>> json, const FString path)
+void UianaHelpers::SaveJson(const TArray<TSharedPtr<FJsonValue>> JsonObj, const FString Path)
 {
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(json, Writer);
+	FJsonSerializer::Serialize(JsonObj, Writer);
 	IFileManager& FileManager = IFileManager::Get();
-	if (FPaths::ValidatePath(path) && FPaths::FileExists(path))
+	if (FPaths::ValidatePath(Path) && FPaths::FileExists(Path))
 	{
-		FileManager.Delete(*path);
+		FileManager.Delete(*Path);
 	}
-	FFileHelper::SaveStringToFile(OutputString, *path, FFileHelper::EEncodingOptions::AutoDetect, &FileManager);
+	FFileHelper::SaveStringToFile(OutputString, *Path, FFileHelper::EEncodingOptions::AutoDetect, &FileManager);
 }
 
-void UianaHelpers::AddAllAssetPath(TArray<FString> &allAssets, const TArray<FString> assetsToAdd)
+void UianaHelpers::AddAllAssetPath(TArray<FString> &AllAssets, const TArray<FString> AssetsToAdd)
 {
-	for (int i = 0; i < assetsToAdd.Num(); i++)
+	for (int i = 0; i < AssetsToAdd.Num(); i++)
 	{
 		FString firstDir, secondDir, temp, remainingDirs;
-		assetsToAdd[i].Split("\\", &firstDir, &temp);
+		AssetsToAdd[i].Split("\\", &firstDir, &temp);
 		temp.Split("\\", &secondDir, &remainingDirs);
-		allAssets.AddUnique(FPaths::Combine(firstDir.Equals("ShooterGame") ? "Game" : firstDir, secondDir.Equals("Content") ? "" : secondDir, remainingDirs));
+		AllAssets.AddUnique(FPaths::Combine(firstDir.Equals("ShooterGame") ? "Game" : firstDir, secondDir.Equals("Content") ? "" : secondDir, remainingDirs));
 	}
 }
 
-void UianaHelpers::AddPrefixPath(const FDirectoryPath path, TArray<FString> &suffixes)
+void UianaHelpers::AddPrefixPath(const FDirectoryPath Path, TArray<FString> &Suffixes)
 {
-	for (int i = 0; i < suffixes.Num(); i++)
+	for (int i = 0; i < Suffixes.Num(); i++)
 	{
-		suffixes[i] = FPaths::Combine(path.Path, suffixes[i]);
+		Suffixes[i] = FPaths::Combine(Path.Path, Suffixes[i]);
 	}
 }
 
-template <class PropType, class CppType>
-bool UianaHelpers::SetStructProperty(void* data, const FProperty* objectProp, CppType value)
+TEnumAsByte<ECollisionTraceFlag> UianaHelpers::ParseCollisionTrace(const FString Flag)
 {
-	if (const PropType* childProp = CastField<PropType>(objectProp))
-	{
-		childProp->SetPropertyValue(data, value);
-		return true;
-	}
-	return false;
-}
-
-template<class PropType, class CppType>
-bool UianaHelpers::SetStructPropertiesFromJson(void* data, const FProperty* objectProp, const TSharedPtr<FJsonObject> jsonObj, const TArray<FName> jsonProps)
-{
-	bool success = false;
-	if (const FStructProperty* childProp = CastField<FStructProperty>(objectProp))
-	{
-		success = true;
-		UScriptStruct* scriptStruct = childProp->Struct;
-		for (const FName propName : jsonProps)
-		{
-			double val = jsonObj->GetNumberField(propName.ToString());
-			FProperty* childVectorPropR = scriptStruct->FindPropertyByName(propName);
-			success = success && UianaHelpers::SetStructProperty<PropType, CppType>(data, childVectorPropR, val);
-		}
-	}
-	return success;
-}
-
-TEnumAsByte<EMaterialShadingModel> UianaHelpers::ParseShadingModel(const FString model)
-{
-	if (model.Equals("MSM_Unlit")) return EMaterialShadingModel::MSM_Unlit;
-	else if (model.Equals("MSM_DefaultLit")) return EMaterialShadingModel::MSM_DefaultLit;
-	else if (model.Equals("MSM_Subsurface")) return EMaterialShadingModel::MSM_Subsurface;
-	else if (model.Equals("MSM_PreintegratedSkin")) return EMaterialShadingModel::MSM_PreintegratedSkin;
-	else if (model.Equals("MSM_ClearCoat")) return EMaterialShadingModel::MSM_ClearCoat;
-	else if (model.Equals("MSM_SubsurfaceProfile")) return EMaterialShadingModel::MSM_SubsurfaceProfile;
-	else if (model.Equals("MSM_TwoSidedFoliage")) return EMaterialShadingModel::MSM_TwoSidedFoliage;
-	else if (model.Equals("MSM_Hair")) return EMaterialShadingModel::MSM_Hair;
-	else if (model.Equals("MSM_Cloth")) return EMaterialShadingModel::MSM_Cloth;
-	else if (model.Equals("MSM_Eye")) return EMaterialShadingModel::MSM_Eye;
-	else if (model.Equals("MSM_SingleLayerWater")) return EMaterialShadingModel::MSM_SingleLayerWater;
-	else if (model.Equals("MSM_ThinTranslucent")) return EMaterialShadingModel::MSM_ThinTranslucent;
-	else if (model.Equals("MSM_Strata")) return EMaterialShadingModel::MSM_Strata;
-	else if (model.Equals("MSM_MAX")) return EMaterialShadingModel::MSM_MAX;
-	return EMaterialShadingModel::MSM_DefaultLit;
-}
-
-TEnumAsByte<EBlendMode> UianaHelpers::ParseBlendMode(const FString mode)
-{
-	if (mode.Equals("BLEND_Opaque")) return EBlendMode::BLEND_Opaque;
-	else if (mode.Equals("BLEND_Masked")) return EBlendMode::BLEND_Masked;
-	else if (mode.Equals("BLEND_Translucent")) return EBlendMode::BLEND_Translucent;
-	else if (mode.Equals("BLEND_Additive")) return EBlendMode::BLEND_Additive;
-	else if (mode.Equals("BLEND_Modulate")) return EBlendMode::BLEND_Modulate;
-	else if (mode.Equals("BLEND_AlphaComposite")) return EBlendMode::BLEND_AlphaComposite;
-	else if (mode.Equals("BLEND_AlphaHoldout")) return EBlendMode::BLEND_AlphaHoldout;
-	else if (mode.Equals("BLEND_MAX")) return EBlendMode::BLEND_MAX;
-	return EBlendMode::BLEND_Opaque;
-}
-
-TEnumAsByte<ECollisionTraceFlag> UianaHelpers::ParseCollisionTrace(const FString flag)
-{
-	if (flag.Equals("CTF_UseDefault")) return ECollisionTraceFlag::CTF_UseDefault;
-	else if (flag.Equals("CTF_UseSimpleAndComplex")) return ECollisionTraceFlag::CTF_UseSimpleAndComplex;
-	else if (flag.Equals("CTF_UseSimpleAsComplex")) return ECollisionTraceFlag::CTF_UseSimpleAsComplex;
-	else if (flag.Equals("CTF_UseComplexAsSimple")) return ECollisionTraceFlag::CTF_UseComplexAsSimple;
-	else if (flag.Equals("CTF_MAX")) return ECollisionTraceFlag::CTF_MAX;
+	if (Flag.Equals("CTF_UseDefault")) return ECollisionTraceFlag::CTF_UseDefault;
+	else if (Flag.Equals("CTF_UseSimpleAndComplex")) return ECollisionTraceFlag::CTF_UseSimpleAndComplex;
+	else if (Flag.Equals("CTF_UseSimpleAsComplex")) return ECollisionTraceFlag::CTF_UseSimpleAsComplex;
+	else if (Flag.Equals("CTF_UseComplexAsSimple")) return ECollisionTraceFlag::CTF_UseComplexAsSimple;
+	else if (Flag.Equals("CTF_MAX")) return ECollisionTraceFlag::CTF_MAX;
 	return ECollisionTraceFlag::CTF_UseDefault;
 }
 
-UianaHelpers::ObjectType UianaHelpers::ParseObjectType(const FString objType)
+UianaHelpers::EObjectType UianaHelpers::ParseObjectType(const FString ObjType)
 {
-	if (MeshRelatedObjects.Contains(objType)) return Mesh;
-	else if (LightRelatedObjects.Contains(objType)) return Light;
-	else if (DecalRelatedObjects.Contains(objType)) return Decal;
-	else if (BlueprintRelatedObjects.Contains(objType)) return Blueprint;
+	if (MeshRelatedObjects.Contains(ObjType)) return Mesh;
+	else if (LightRelatedObjects.Contains(ObjType)) return Light;
+	else if (DecalRelatedObjects.Contains(ObjType)) return Decal;
+	else if (BlueprintRelatedObjects.Contains(ObjType)) return Blueprint;
 	return Unknown;
 }
 
-EComponentMobility::Type UianaHelpers::ParseMobility(const FString mobility)
-{
-	if (mobility.Equals("EComponentMobility::Static")) return EComponentMobility::Static;
-	else if (mobility.Equals("EComponentMobility::Stationary")) return EComponentMobility::Stationary;
-	return EComponentMobility::Movable;
-}
-
-TEnumAsByte<EDetailMode> UianaHelpers::ParseDetailMode(const FString mode)
-{
-	if (mode.Equals("DM_Low")) return EDetailMode::DM_Low;
-	else if (mode.Equals("DM_Medium")) return EDetailMode::DM_Medium;
-	else if (mode.Equals("DM_High")) return EDetailMode::DM_High;
-	return EDetailMode::DM_MAX;
-}
-
-FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> comp)
+FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> Comp)
 {
 	// Get transform
 	bool directTransform = false;
-	TSharedPtr<FJsonObject> transformData = comp;
+	TSharedPtr<FJsonObject> transformData = Comp;
 	FVector location = FVector::ZeroVector;
 	FRotator rotation = FRotator::ZeroRotator;
 	FVector scale = FVector::OneVector;
-	if (comp->HasField("TransformData"))
+	if (Comp->HasField("TransformData"))
 	{
-		transformData = comp->GetObjectField("TransformData");
+		transformData = Comp->GetObjectField("TransformData");
 		directTransform = true;
 	}
 	if (JsonObjContainsFields(transformData, {"RelativeLocation", "OffsetLocation", "Translation"}))
@@ -212,46 +136,46 @@ FTransform UianaHelpers::GetTransformComponent(const TSharedPtr<FJsonObject> com
 	return FTransform(rotation, location, scale);
 }
 
-FTransform UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject> comp)
+FTransform UianaHelpers::GetSceneTransformComponent(const TSharedPtr<FJsonObject> Comp)
 {
 	FVector location = FVector::ZeroVector;
 	FRotator rotation = FRotator::ZeroRotator;
 	FVector scale = FVector::OneVector;
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(comp.ToSharedRef(), Writer);
-	if (comp->HasField("SceneAttachRelativeLocation"))
+	FJsonSerializer::Serialize(Comp.ToSharedRef(), Writer);
+	if (Comp->HasField("SceneAttachRelativeLocation"))
 	{
-		location.X = comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("X");
-		location.Y = comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("Y");
-		location.Z = comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("Z");
+		location.X = Comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("X");
+		location.Y = Comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("Y");
+		location.Z = Comp->GetObjectField("SceneAttachRelativeLocation")->GetNumberField("Z");
 	}
-	if (comp->HasField("SceneAttachRelativeRotation"))
+	if (Comp->HasField("SceneAttachRelativeRotation"))
 	{
-		rotation.Roll = comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Roll");
-		rotation.Pitch = comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Pitch");
-		rotation.Yaw = comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Yaw");
+		rotation.Roll = Comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Roll");
+		rotation.Pitch = Comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Pitch");
+		rotation.Yaw = Comp->GetObjectField("SceneAttachRelativeRotation")->GetNumberField("Yaw");
 	}
-	if (comp->HasField("SceneAttachRelativeScale3D"))
+	if (Comp->HasField("SceneAttachRelativeScale3D"))
 	{
-		scale.X = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("X");
-		scale.Y = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Y");
-		scale.Z = comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Z");
+		scale.X = Comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("X");
+		scale.Y = Comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Y");
+		scale.Z = Comp->GetObjectField("SceneAttachRelativeScale3D")->GetNumberField("Z");
 	}
 	return FTransform(rotation, location, scale);
 }
 
-bool UianaHelpers::HasTransformComponent(const TSharedPtr<FJsonObject> comp)
+bool UianaHelpers::HasTransformComponent(const TSharedPtr<FJsonObject> Comp)
 {
 	const TSet<FString> transformCompNames = {"RelativeLocation", "SceneAttachRelativeLocation", "SceneAttachRelativeRotation", "SceneAttachRelativeScale3D", "RelativeRotation", "RelativeScale3D"};
-	return JsonObjContainsFields(comp, transformCompNames); // TODO: Reduce this small function
+	return JsonObjContainsFields(Comp, transformCompNames); // TODO: Reduce this small function
 }
 
-bool UianaHelpers::JsonObjContainsFields(const TSharedPtr<FJsonObject> obj, const TSet<FString> fields)
+bool UianaHelpers::JsonObjContainsFields(const TSharedPtr<FJsonObject> Obj, const TSet<FString> Fields)
 {
-	for (auto field : fields)
+	for (auto field : Fields)
 	{
-		if (obj->HasField(field)) return true;
+		if (Obj->HasField(field)) return true;
 	}
 	return false;
 }
@@ -262,44 +186,18 @@ bool operator == (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> arrayItem, FString
 }
 
 template <class PropType>
-bool UianaHelpers::SetActorProperty(UClass* actorClass, UObject* component, const FString propName, PropType propVal)
+bool UianaHelpers::SetActorProperty(UClass* ActorClass, UObject* Component, const FString PropName, PropType PropVal)
 {
-	FProperty* relativeLocationProp = PropertyAccessUtil::FindPropertyByName(FName(*propName), actorClass);
-	PropType* locationAddr = relativeLocationProp->ContainerPtrToValuePtr<PropType>(component);
+	FProperty* relativeLocationProp = PropertyAccessUtil::FindPropertyByName(FName(*PropName), ActorClass);
+	PropType* locationAddr = relativeLocationProp->ContainerPtrToValuePtr<PropType>(Component);
 	if (locationAddr == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set property %s"), *propName);
+		UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set property %s"), *PropName);
 		return false;
 	}
-	component->PreEditChange(relativeLocationProp);
-	*locationAddr = propVal;
+	Component->PreEditChange(relativeLocationProp);
+	*locationAddr = PropVal;
 	FPropertyChangedEvent locationChangedEvent(relativeLocationProp);
-	component->PostEditChangeProperty(locationChangedEvent);
-	return true;
-}
-
-template <class ObjType, class ValueType>
-bool UianaHelpers::SetGivenObjectProperty(ObjType* obj, FProperty* prop, ValueType propVal)
-{
-	ValueType* SourceAddr = prop->ContainerPtrToValuePtr<ValueType>(obj);
-	if ( SourceAddr == NULL )
-	{
-		return false;
-	}
-	if ( !obj->HasAnyFlags(RF_ClassDefaultObject) )
-	{
-		FEditPropertyChain PropertyChain;
-		PropertyChain.AddHead(prop);
-		obj->PreEditChange(PropertyChain);
-	}
-
-	// Set the value on the destination object.
-	*SourceAddr = propVal;
-
-	if ( !obj->HasAnyFlags(RF_ClassDefaultObject) )
-	{
-		FPropertyChangedEvent PropertyEvent(prop);
-		obj->PostEditChangeProperty(PropertyEvent);
-	}
+	Component->PostEditChangeProperty(locationChangedEvent);
 	return true;
 }

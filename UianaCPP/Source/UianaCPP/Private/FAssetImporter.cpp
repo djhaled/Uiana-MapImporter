@@ -1,22 +1,22 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AssetImporter.h"
+#include "FAssetImporter.h"
 
 #include "UianaImporter.h"
 #include "HAL/FileManagerGeneric.h"
 
-AssetImporter::AssetImporter()
+FAssetImporter::FAssetImporter()
 {
 	Settings = nullptr;
 }
 
-AssetImporter::AssetImporter(const UianaSettings* UianaSettings)
+FAssetImporter::FAssetImporter(const UianaSettings* UianaSettings)
 {
 	Settings = UianaSettings;
 }
 
-TArray<FString> AssetImporter::GetExtractedUmaps()
+TArray<FString> FAssetImporter::GetExtractedUmaps()
 {
 	TArray<FString> umapPaths;
 	FFileManagerGeneric::Get().FindFiles(umapPaths, *(Settings->UMapsPath.Path), TEXT(".json"));
@@ -32,7 +32,7 @@ TArray<FString> AssetImporter::GetExtractedUmaps()
 	return umapPaths;
 }
 
-bool AssetImporter::NeedExport()
+bool FAssetImporter::NeedExport()
 {
 	FString exportCheckPath = FPaths::Combine(Settings->FolderPath.Path, "exported.yo");
 	bool needsExport = true;
@@ -47,11 +47,11 @@ bool AssetImporter::NeedExport()
 	return needsExport || Settings->DevForceReexport;
 }
 
-TArray<FString> AssetImporter::ExtractAssets()
+TArray<FString> FAssetImporter::ExtractAssets()
 {
 	TArray<FString> umapPaths = {};
 	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracting assets!"));
-	CUE4Extract(Settings->UMapsPath);
+	Cue4Extract(Settings->UMapsPath);
 	UModelExtract();
 	FFileManagerGeneric::Get().FindFiles(umapPaths, *(Settings->UMapsPath.Path), TEXT(".json"));
 	UianaHelpers::AddPrefixPath(Settings->UMapsPath, umapPaths);
@@ -106,7 +106,7 @@ TArray<FString> AssetImporter::ExtractAssets()
 	UE_LOG(LogTemp, Display, TEXT("Uiana: Importing BP Actors!"));
 	const FString actorPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_actors.txt");
 	FFileHelper::SaveStringArrayToFile(actorPaths, *actorPathsFilepath);
-	CUE4Extract(Settings->ActorsPath, actorPathsFilepath);
+	Cue4Extract(Settings->ActorsPath, actorPathsFilepath);
 	actorPaths.Empty();
 	FFileManagerGeneric::Get().FindFiles(actorPaths, *(Settings->ActorsPath.Path), TEXT(".json"));
 	for (FString actorPath : actorPaths)
@@ -129,8 +129,8 @@ TArray<FString> AssetImporter::ExtractAssets()
 	UE_LOG(LogTemp, Display, TEXT("Uiana: Saving asset file with %d assets on path: %s"), objPaths.Num(), *objPathsFilepath);
 	FFileHelper::SaveStringArrayToFile(objPaths, *objPathsFilepath);
 	FFileHelper::SaveStringArrayToFile(matOvrPaths, *matPathsFilepath);
-	CUE4Extract(Settings->ObjectsPath, objPathsFilepath);
-	CUE4Extract(Settings->MaterialsOvrPath, matPathsFilepath);
+	Cue4Extract(Settings->ObjectsPath, objPathsFilepath);
+	Cue4Extract(Settings->MaterialsOvrPath, matPathsFilepath);
 	
 	// Get models now
 	UE_LOG(LogTemp, Display, TEXT("Uiana: Getting models!"));
@@ -181,7 +181,7 @@ TArray<FString> AssetImporter::ExtractAssets()
 	const FString allListFilepath = FPaths::Combine(Settings->FolderPath.Path, "all_assets.txt");
 	FFileHelper::SaveStringArrayToFile(matPaths, *matListFilepath);
 	FFileHelper::SaveStringArrayToFile(allPaths, *allListFilepath);
-	CUE4Extract(Settings->MaterialsPath, matListFilepath);
+	Cue4Extract(Settings->MaterialsPath, matListFilepath);
 	// Write exported.yo to indicate have exported
 	FUianaExport exportInfo;
 	exportInfo.version = Settings->ValorantVersion;
@@ -193,10 +193,10 @@ TArray<FString> AssetImporter::ExtractAssets()
 	return umapPaths;
 }
 
-void AssetImporter::GetObjects(TArray<FString> &actorPaths, TArray<FString> &objPaths, TArray<FString> &matPaths, const TArray<TSharedPtr<FJsonValue>> &jsonArr)
+void FAssetImporter::GetObjects(TArray<FString> &ActorPaths, TArray<FString> &ObjPaths, TArray<FString> &MatPaths, const TArray<TSharedPtr<FJsonValue>> &JsonArr)
 {
 	bool skippedBlueprint = false;
-	for (TSharedPtr<FJsonValue> component : jsonArr)
+	for (TSharedPtr<FJsonValue> component : JsonArr)
 	{
 		const TSharedPtr<FJsonObject> obj = component.Get()->AsObject();
 		if (obj->GetStringField("Type").EndsWith("_C") && obj->HasField("Template"))
@@ -206,7 +206,7 @@ void AssetImporter::GetObjects(TArray<FString> &actorPaths, TArray<FString> &obj
 				skippedBlueprint = true;
 				continue;
 			}
-			actorPaths.AddUnique(obj->GetStringField("Template"));
+			ActorPaths.AddUnique(obj->GetStringField("Template"));
 		}
 		if (obj->HasField("Properties"))
 		{
@@ -217,7 +217,7 @@ void AssetImporter::GetObjects(TArray<FString> &actorPaths, TArray<FString> &obj
 				if (!staticMesh->HasField("ObjectPath")) UE_LOG(LogTemp, Error, TEXT("Uiana: No object path for static mesh %s!"), *obj->GetStringField("Outer"));
 				if (!staticMesh->HasField("ObjectPath")) continue;
 				const FString path = staticMesh->GetStringField("ObjectPath");
-				objPaths.AddUnique( FPaths::Combine(FPaths::GetPath(path), FPaths::GetBaseFilename(path)).Replace(TEXT("/"), TEXT("\\")));
+				ObjPaths.AddUnique( FPaths::Combine(FPaths::GetPath(path), FPaths::GetBaseFilename(path)).Replace(TEXT("/"), TEXT("\\")));
 				if (props->HasField("OverrideMaterials"))
 				{
 					for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> mat : props->GetArrayField("OverrideMaterials"))
@@ -226,7 +226,7 @@ void AssetImporter::GetObjects(TArray<FString> &actorPaths, TArray<FString> &obj
 						if (!mat->AsObject()->HasField("ObjectPath")) UE_LOG(LogTemp, Error, TEXT("Uiana: No object path for override materials!"));
 						if (!mat->AsObject()->HasField("ObjectPath")) continue;
 						const FString matPath = mat->AsObject()->GetStringField("ObjectPath");
-						matPaths.AddUnique(FPaths::Combine(FPaths::GetPath(matPath), FPaths::GetBaseFilename(matPath)).Replace(TEXT("/"), TEXT("\\")));
+						MatPaths.AddUnique(FPaths::Combine(FPaths::GetPath(matPath), FPaths::GetBaseFilename(matPath)).Replace(TEXT("/"), TEXT("\\")));
 					}
 				}
 			}
@@ -234,13 +234,13 @@ void AssetImporter::GetObjects(TArray<FString> &actorPaths, TArray<FString> &obj
 			{
 				if (!props->GetObjectField("DecalMaterial")->HasField("ObjectPath")) continue;
 				const FString path = props->GetObjectField("DecalMaterial")->GetStringField("ObjectPath");
-				matPaths.AddUnique(FPaths::Combine(FPaths::GetPath(path), FPaths::GetBaseFilename(path)).Replace(TEXT("/"), TEXT("\\")));
+				MatPaths.AddUnique(FPaths::Combine(FPaths::GetPath(path), FPaths::GetBaseFilename(path)).Replace(TEXT("/"), TEXT("\\")));
 			}
 		}
 	}
 }
 
-void AssetImporter::CUE4Extract(const FDirectoryPath ExportDir, const FString AssetList)
+void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir, const FString AssetList)
 {
 	TArray<FStringFormatArg> args = {
 		Settings->PaksPath.Path,
@@ -260,7 +260,7 @@ void AssetImporter::CUE4Extract(const FDirectoryPath ExportDir, const FString As
 	}
 }
 
-void AssetImporter::CUE4Extract(const FDirectoryPath ExportDir)
+void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir)
 {
 	TArray<FStringFormatArg> args = {
 		Settings->PaksPath.Path,
@@ -279,7 +279,7 @@ void AssetImporter::CUE4Extract(const FDirectoryPath ExportDir)
 	}
 }
 
-void AssetImporter::UModelExtract()
+void FAssetImporter::UModelExtract()
 {
 	const FString allAssetPath = FPaths::Combine(Settings->FolderPath.Path, "all_assets.txt");
 	TArray<FStringFormatArg> args = {

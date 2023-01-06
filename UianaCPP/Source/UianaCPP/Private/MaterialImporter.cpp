@@ -1,35 +1,13 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MaterialImporter.h"
 
-#include "AssetToolsModule.h"
-#include "BPFL.h"
-#include "EditorAssetLibrary.h"
-#include "EditorClassUtils.h"
-#include "JsonObjectConverter.h"
-#include "MaterialEditingLibrary.h"
-#include "ObjectEditorUtils.h"
-#include "UianaHelpers.h"
-#include "Components/DecalComponent.h"
-#include "Factories/MaterialInstanceConstantFactoryNew.h"
-#include "HAL/FileManagerGeneric.h"
-#include "Kismet2/EnumEditorUtils.h"
-#include "Materials/MaterialInstanceBasePropertyOverrides.h"
-#include "Misc/FileHelper.h"
-#include "Serialization/JsonReader.h"
-#include "Serialization/JsonSerializer.h"
-#include "UObject/PropertyAccessUtil.h"
-#include "UObject/UnrealTypePrivate.h"
-
-MaterialImporter::MaterialImporter()
+MaterialImporter::MaterialImporter() : TBaseImporter<UMaterialInstanceConstant>()
 {
-	Settings = nullptr;
 }
 
-MaterialImporter::MaterialImporter(const UianaSettings* UianaSettings)
+MaterialImporter::MaterialImporter(const UianaSettings* UianaSettings) : TBaseImporter<UMaterialInstanceConstant>(UianaSettings)
 {
-	Settings = UianaSettings;
+	
 }
 
 void MaterialImporter::ImportMaterials()
@@ -51,9 +29,14 @@ void MaterialImporter::ImportMaterials()
 	CreateMaterials(matOvrPaths);
 }
 
-void MaterialImporter::GetTexturePaths(const TArray<FString> matPaths, TArray<FString> &texturePaths)
+/**
+ * Gets paths of all textures associated with list of materials
+ * @param MatPaths Path of all materials to get corresponding texture paths from
+ * @param TexturePaths FString Array of unique texture paths (using / separator) output
+ */
+void MaterialImporter::GetTexturePaths(const TArray<FString> MatPaths, TArray<FString> &TexturePaths)
 {
-	for (const FString matPath : matPaths)
+	for (const FString matPath : MatPaths)
 	{
 		FString jsonStr;
 		FFileHelper::LoadFileToString(jsonStr, *matPath);
@@ -80,16 +63,20 @@ void MaterialImporter::GetTexturePaths(const TArray<FString> matPaths, TArray<FS
 						objectPathName.Replace(
 						TEXT("ShooterGame"), TEXT("Game")).Replace(
 							TEXT("/Content"), TEXT("")));
-					texturePaths.AddUnique(texturePath);
+					TexturePaths.AddUnique(texturePath);
 				}
 			}
 		}
 	}
 }
 
-void MaterialImporter::CreateMaterials(const TArray<FString> matPaths)
+/**
+ * Creates all Materials provided in a list of paths.
+ * @param MatPaths List of material paths to create materials from.
+ */
+void MaterialImporter::CreateMaterials(const TArray<FString> MatPaths)
 {
-	for(FString matPath : matPaths)
+	for(FString matPath : MatPaths)
 	{
 		// TODO: Simplify CreateMaterial() and GetTexturePaths() since they share same stuff
 		// TODO: Make this a function already dangnabbit
@@ -137,11 +124,15 @@ void MaterialImporter::CreateMaterials(const TArray<FString> matPaths)
 	}
 }
 
-void MaterialImporter::SetMaterial(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat)
+/**
+ * Sets all material settings and updates it.
+ * @param MatData JSON data which includes properties of the material
+ * @param Mat Material to set settings on
+ */
+void MaterialImporter::SetMaterial(const TSharedPtr<FJsonObject> MatData, UMaterialInstanceConstant* Mat)
 {
-	SetTextures(matData, mat);
-	SetMaterialSettings(matData->GetObjectField("Properties"), mat);
-	const TSharedPtr<FJsonObject> matProps = matData.Get()->GetObjectField("Properties");
+	SetSettingsFromJsonProperties(MatData->GetObjectField("Properties"), Mat);
+	const TSharedPtr<FJsonObject> matProps = MatData.Get()->GetObjectField("Properties");
 	if (matProps.Get()->HasField("StaticParameters"))
 	{
 		if (matProps.Get()->GetObjectField("StaticParameters")->HasField("StaticSwitchParameters"))
@@ -150,7 +141,7 @@ void MaterialImporter::SetMaterial(const TSharedPtr<FJsonObject> matData, UMater
 			{
 				const TSharedPtr<FJsonObject> paramObj = param.Get()->AsObject();
 				const TSharedPtr<FJsonObject> paramInfo = paramObj.Get()->GetObjectField("ParameterInfo");
-				UMaterialEditingLibrary::SetMaterialInstanceStaticSwitchParameterValue(mat, FName(*paramInfo.Get()->GetStringField("Name").ToLower()), paramObj.Get()->GetBoolField("Value"));
+				UMaterialEditingLibrary::SetMaterialInstanceStaticSwitchParameterValue(Mat, FName(*paramInfo.Get()->GetStringField("Name").ToLower()), paramObj.Get()->GetBoolField("Value"));
 			}
 		}
 		if (matProps.Get()->GetObjectField("StaticParameters")->HasField("StaticComponentMaskParameters"))
@@ -160,267 +151,92 @@ void MaterialImporter::SetMaterial(const TSharedPtr<FJsonObject> matData, UMater
 				const TArray<FString> maskList = {"R", "G", "B"};
 				for (FString mask : maskList)
 				{
-					UMaterialEditingLibrary::SetMaterialInstanceStaticSwitchParameterValue(mat, FName(*mask), param.Get()->AsObject().Get()->GetBoolField(mask));
+					UMaterialEditingLibrary::SetMaterialInstanceStaticSwitchParameterValue(Mat, FName(*mask), param.Get()->AsObject().Get()->GetBoolField(mask));
 				}
 			}
 		}
 	}
-	if (matProps.Get()->HasField("ScalarParameterValues"))
+	UMaterialEditingLibrary::UpdateMaterialInstance(Mat);
+}
+
+bool MaterialImporter::OverrideArrayProp(const FString JsonPropName, const TSharedPtr<FJsonValue> JsonPropValue,
+                                                                    const FProperty* ObjectProp, UMaterialInstanceConstant* BaseObj)
+{
+	if (JsonPropName.Equals("TextureStreamingData")) // | Materials
 	{
-		for (TSharedPtr<FJsonValue> param : matProps.Get()->GetArrayField("ScalarParameterValues"))
+		TArray<FMaterialTextureInfo> textures;
+		for (const TSharedPtr<FJsonValue> texture : JsonPropValue.Get()->AsArray())
+		{
+			FMaterialTextureInfo textureInfo;
+			const TSharedPtr<FJsonObject> textureObj = texture.Get()->AsObject();
+			FJsonObjectConverter::JsonObjectToUStruct(textureObj.ToSharedRef(), &textureInfo);
+			textures.Add(textureInfo);
+		}
+		BaseObj->SetTextureStreamingData(textures);
+	}
+	else if (JsonPropName.Equals("ScalarParameterValues"))
+	{
+		for (TSharedPtr<FJsonValue> param : JsonPropValue.Get()->AsArray())
 		{
 			const TSharedPtr<FJsonObject> paramObj = param.Get()->AsObject();
 			const TSharedPtr<FJsonObject> paramInfo = paramObj.Get()->GetObjectField("ParameterInfo");
-			UMaterialEditingLibrary::SetMaterialInstanceScalarParameterValue(mat, FName(*paramInfo.Get()->GetStringField("Name").ToLower()), param.Get()->AsObject()->GetNumberField("ParameterValue"));
+			UMaterialEditingLibrary::SetMaterialInstanceScalarParameterValue(BaseObj, FName(*paramInfo.Get()->GetStringField("Name").ToLower()), param.Get()->AsObject()->GetNumberField("ParameterValue"));
 		}
 	}
-	if (matProps.Get()->HasField("VectorParameterValues"))
+	else if (JsonPropName.Equals("VectorParameterValues"))
 	{
-		for (TSharedPtr<FJsonValue> param : matProps.Get()->GetArrayField("VectorParameterValues"))
+		for (TSharedPtr<FJsonValue> param : JsonPropValue.Get()->AsArray())
 		{
 			FLinearColor vec;
 			const TSharedPtr<FJsonObject> paramVal = param.Get()->AsObject()->GetObjectField("ParameterValue");
 			vec.R = paramVal.Get()->GetNumberField("R");
 			vec.G = paramVal.Get()->GetNumberField("G");
 			vec.B = paramVal.Get()->GetNumberField("B");
-			UMaterialEditingLibrary::SetMaterialInstanceVectorParameterValue(mat, FName(*param.Get()->AsObject()->GetObjectField("ParameterInfo")->GetStringField("Name").ToLower()), vec);
+			UMaterialEditingLibrary::SetMaterialInstanceVectorParameterValue(BaseObj, FName(*param.Get()->AsObject()->GetObjectField("ParameterInfo")->GetStringField("Name").ToLower()), vec);
 		}
 	}
-	UMaterialEditingLibrary::UpdateMaterialInstance(mat);
-	// TODO: Homogenize the Scalar/Vector/TextureParameterValues sections
-}
-
-void MaterialImporter::SetTextures(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat)
-{
-	if (!matData->GetObjectField("Properties")->HasField("TextureParameterValues"))
+	else if (JsonPropName.Equals("TextureParameterValues"))
 	{
-		return;
+		for (const TSharedPtr<FJsonValue> param : JsonPropValue.Get()->AsArray())
+		{
+			if (!param.Get()->AsObject()->HasField("ParameterValue"))
+			{
+				continue;
+			}
+			FString textureGamePath = FPaths::ChangeExtension(param.Get()->AsObject()->GetObjectField("ParameterValue")->GetStringField("ObjectPath"), Settings->TextureFormat);
+			FString localPath = FPaths::Combine(Settings->ExportAssetsPath.Path, textureGamePath.Replace(
+							TEXT("ShooterGame"), TEXT("Game")).Replace(
+								TEXT("/Content"), TEXT("")));
+			const TSharedPtr<FJsonObject> paramInfo = param.Get()->AsObject()->GetObjectField("ParameterInfo");
+			FString paramName = param.Get()->AsObject()->GetObjectField("ParameterInfo")->GetStringField("Name").ToLower();
+			if (FPaths::DirectoryExists(FPaths::GetPath(localPath)))
+			{
+				const FString texturePath = FPaths::Combine("/Game/ValorantContent/Textures/", FPaths::GetBaseFilename(localPath));
+				UTexture* loadedTexture = static_cast<UTexture*>(
+						UEditorAssetLibrary::LoadAsset(texturePath));
+				if (loadedTexture == nullptr) continue;
+				UMaterialEditingLibrary::SetMaterialInstanceTextureParameterValue(BaseObj, *paramName, loadedTexture);
+			}
+			else UE_LOG(LogTemp, Warning, TEXT("Uiana: Missing texture at expected directory %s"), *FPaths::GetPath(localPath));
+		}
 	}
-	const TArray<TSharedPtr<FJsonValue>> matTexParams = matData->GetObjectField("Properties")->GetArrayField("TextureParameterValues");
-	for (const TSharedPtr<FJsonValue> param : matTexParams)
+	else if (JsonPropName.Equals("StreamingTextureData"))
 	{
-		// TODO: Cleanup 1-line continues to be less big
-		if (!param.Get()->AsObject()->HasField("ParameterValue"))
-		{
-			continue;
-		}
-		FString textureGamePath = FPaths::ChangeExtension(param.Get()->AsObject()->GetObjectField("ParameterValue")->GetStringField("ObjectPath"), Settings->TextureFormat);
-		FString localPath = FPaths::Combine(Settings->ExportAssetsPath.Path, textureGamePath.Replace(
-						TEXT("ShooterGame"), TEXT("Game")).Replace(
-							TEXT("/Content"), TEXT("")));
-		const TSharedPtr<FJsonObject> paramInfo = param.Get()->AsObject()->GetObjectField("ParameterInfo");
-		FString paramName = param.Get()->AsObject()->GetObjectField("ParameterInfo")->GetStringField("Name").ToLower();
-		if (FPaths::DirectoryExists(FPaths::GetPath(localPath)))
-		{
-			const FString texturePath = FPaths::Combine("/Game/ValorantContent/Textures/", FPaths::GetBaseFilename(localPath));
-			UTexture* loadedTexture = static_cast<UTexture*>(
-					UEditorAssetLibrary::LoadAsset(texturePath));
-			if (loadedTexture == nullptr) continue;
-			UMaterialEditingLibrary::SetMaterialInstanceTextureParameterValue(mat, *paramName, loadedTexture);
-		}
-		else UE_LOG(LogTemp, Warning, TEXT("Uiana: Missing texture at expected directory %s"), *FPaths::GetPath(localPath));
+		TArray<FMaterialTextureInfo> StreamingData;
+		FJsonObjectConverter::JsonArrayToUStruct(JsonPropValue.Get()->AsArray(), &StreamingData);
+		BaseObj->SetTextureStreamingData(StreamingData);
 	}
-}
-
-void MaterialImporter::SetMaterialSettings(const TSharedPtr<FJsonObject> matProps, UMaterialInstanceConstant* mat)
-{
-	// Loop through all JSON values (type <FString, TSharedPtr<FJsonValue>>)
-	for (auto const& prop : matProps->Values)
+	else
 	{
-		TSharedPtr<FJsonValue> propValue = prop.Value;
-		const FName propName = FName(*prop.Key);
-		const FProperty* objectProp = PropertyAccessUtil::FindPropertyByName(propName, mat->GetClass());
-		if (objectProp == nullptr) continue;
-		const EJson propType = propValue.Get()->Type;
-		if (propType == EJson::Number || propType == EJson::Boolean)
+		for (const TSharedPtr<FJsonValue> parameter : JsonPropValue.Get()->AsArray())
 		{
-			if (prop.Key.Equals("InfluenceRadius") && propValue.Get()->AsNumber() == 0)
-			{
-				FObjectEditorUtils::SetPropertyValue(mat, propName, 14680);
-			}
-			else
-			{
-				FObjectEditorUtils::SetPropertyValue(mat, propName, prop.Value.Get()->AsNumber());
-			}
+			const TSharedPtr<FJsonObject> paramObj = parameter.Get()->AsObject();
+			FString OutputString;
+			TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+			FJsonSerializer::Serialize(paramObj.ToSharedRef(), Writer);
+			UE_LOG(LogTemp, Warning, TEXT("Uiana: Array Material Property unaccounted for with value: %s"), *OutputString);	
 		}
-		else if (propType == EJson::Object)
-		{
-			if (prop.Key.Equals("IESTexture"))
-			{
-				FString temp, newTextureName;
-				propValue.Get()->AsObject()->GetStringField("ObjectName").Split("_", &temp, &newTextureName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-				FString assetPath = "/UianaCPP/IESProfiles/" + newTextureName + "." + newTextureName;
-				UTexture* newTexture = static_cast<UTexture*>(UEditorAssetLibrary::LoadAsset(assetPath));
-				FObjectEditorUtils::SetPropertyValue(mat, propName, newTexture);
-			}
-			else if (prop.Key.Equals("Cubemap"))
-			{
-				FString newCubemapName = propValue.Get()->AsObject()->GetStringField("ObjectName").Replace(TEXT("TextureCube "), TEXT(""));
-				FString assetPath = "/UianaCPP/CubeMaps/" + newCubemapName + "." + newCubemapName;
-				// TODO: Convert all static_cast with UObjects to Cast<>()
-				UTextureCube* newCube = Cast<UTextureCube, UObject>(UEditorAssetLibrary::LoadAsset(assetPath));
-				FObjectEditorUtils::SetPropertyValue(mat, propName, newCube);
-			}
-			else if (prop.Key.Equals("DecalMaterial"))
-			{
-				// TODO: Implement remaining object imports. Line 303 in main.py
-				FString decalPath = FPaths::GetPath(propValue.Get()->AsObject()->GetStringField("ObjectPath"));
-				UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + decalPath + "." + decalPath));
-				UDecalComponent decalComponent;
-				decalComponent.SetMaterial(0, mat);
-				decalComponent.SetDecalMaterial(decalMat);
-			}
-			else if (prop.Key.Equals("StaticMesh"))
-			{
-				FString meshName;
-				if (propValue->AsObject()->TryGetStringField("ObjectName", meshName))
-				{
-					FString name = meshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
-					UStaticMesh* mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + name));
-					FObjectEditorUtils::SetPropertyValue(mat, propName, mesh);
-				}
-			}
-			else if (objectProp->GetClass()->GetName().Equals("StructProperty"))
-			{
-				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-				if (const FStructProperty* colorValues = CastField<FStructProperty>(objectProp))
-				{
-					FString OutputString;
-					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-					FJsonSerializer::Serialize(propValue.Get()->AsObject().ToSharedRef(), Writer);
-					UScriptStruct* Class = nullptr;
-					FString ClassName = objectProp->GetCPPType().TrimChar('F');
-					UE_LOG(LogTemp, Display, TEXT("Uiana: Setting property %s of type %s for JSON %s"), *prop.Key, *ClassName, *OutputString);
-					if (!FPackageName::IsShortPackageName(ClassName))
-					{
-						Class = FindObject<UScriptStruct>(nullptr, *ClassName);
-					}
-					else
-					{
-						Class = FindFirstObject<UScriptStruct>(*ClassName, EFindFirstObjectOptions::None, ELogVerbosity::Warning, TEXT("FEditorClassUtils::GetClassFromString"));
-					}
-					if(!Class)
-					{
-						Class = LoadObject<UScriptStruct>(nullptr, *ClassName);
-					}
-					if (!Class)
-					{
-						UE_LOG(LogTemp, Display, TEXT("Uiana: Failed to find UScriptStruct for property %s of type %s!"), *prop.Key, *ClassName);
-						continue;
-					}
-					void* structSettingsAddr = objectProp->ContainerPtrToValuePtr<void>(mat);
-					FJsonObject* propObj = new FJsonObject();
-					TSharedPtr<FJsonObject> propObjPtr = MakeShareable(propObj);
-					FJsonObject::Duplicate(obj, propObjPtr);
-					// Overrides are not correctly set unless corresponding bOverride flag is set to true
-					for (const TTuple<FString, TSharedPtr<FJsonValue>> structVal : obj->Values)
-					{
-						for (FString overrideVariation : {"bOverride", "bOverride_"})
-						{
-							FString overridePropName = overrideVariation + structVal.Key;
-							if (FProperty* overrideFlagProp = Class->FindPropertyByName(FName(*overridePropName)))
-							{
-								void* propAddr = overrideFlagProp->ContainerPtrToValuePtr<uint8>(structSettingsAddr);
-								if (FBoolProperty* overrideProp = Cast<FBoolProperty>(overrideFlagProp))
-								{
-									UE_LOG(LogTemp, Display, TEXT("Uiana: Setting override flag for setting %s to true"), *overridePropName);
-									overrideProp->SetPropertyValue(propAddr, true);
-								}
-							}	
-						}
-						if (obj->HasTypedField<EJson::String>("ShadingModel") && propObjPtr->GetStringField("ShadingModel").Equals("MSM_AresEnvironment"))
-						{
-							// Custom Valorant-related override, this does not exist in Enum list and makes BasePropertyOverrides fail.
-							// TODO: Instead search for String JsonValues and verify the corresponding Enum has the value or not?
-							propObjPtr->SetStringField("ShadingModel", "MSM_DefaultLit");
-						}
-					}
-					FText FailureReason;
-					if (!FJsonObjectConverter::JsonObjectToUStruct(propObjPtr.ToSharedRef(), Class, structSettingsAddr,
-						0, 0, false, &FailureReason)) UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set %s due to reason %s"), *prop.Key, *FailureReason.ToString());
-				}
-				else
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Failed to cast %s into StructProperty struct!"), *prop.Key);
-				}
-			}
-		}
-		else if (propType == EJson::Array)
-		{
-			const TArray<TSharedPtr<FJsonValue>> parameterArray = propValue.Get()->AsArray();
-			if (prop.Key.Equals("OverrideMaterials"))
-			{
-				TArray<UMaterialInstanceConstant*> overrideMats;
-				UMaterialInstanceConstant* loaded = nullptr;
-				for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> ovrMat : parameterArray)
-				{
-					if (!ovrMat.IsValid() || ovrMat.Get()->IsNull())
-					{
-						overrideMats.Add(nullptr);
-						continue;
-					}
-					const TSharedPtr<FJsonObject> matData = ovrMat.Get()->AsObject();
-					FString temp, objName;
-					matData.Get()->GetStringField("ObjectName").Split(" ", &temp, &objName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
-					if (matData->HasTypedField<EJson::Object>("ObjectName")) UE_LOG(LogTemp, Error, TEXT("Uiana: Material Override Material ObjectName is not a string!"));
-					if (objName.Contains("MaterialInstanceDynamic")) continue;
-					loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/UianaCPP/Materials/" + objName));
-					if (loaded == nullptr) loaded = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + objName));
-					overrideMats.Add(loaded);
-				}
-				FObjectEditorUtils::SetPropertyValue(mat, propName, overrideMats);
-			}
-			else if (prop.Key.Equals("TextureStreamingData"))
-			{
-				TArray<FMaterialTextureInfo> textures;
-				for (const TSharedPtr<FJsonValue> texture : parameterArray)
-				{
-					FMaterialTextureInfo textureInfo;
-					const TSharedPtr<FJsonObject> textureObj = texture.Get()->AsObject();
-					FJsonObjectConverter::JsonObjectToUStruct(textureObj.ToSharedRef(), &textureInfo);
-					textures.Add(textureInfo);
-				}
-				mat->SetTextureStreamingData(textures);
-			}
-			else
-			{
-				if (prop.Key.Equals("ScalarParameterValues") || prop.Key.Equals("VectorParameterValues") || prop.Key.Equals("TextureParameterValues")) continue;
-				for (const TSharedPtr<FJsonValue> parameter : parameterArray)
-				{
-					const TSharedPtr<FJsonObject> paramObj = parameter.Get()->AsObject();
-					FString OutputString;
-					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-					FJsonSerializer::Serialize(paramObj.ToSharedRef(), Writer);
-					UE_LOG(LogTemp, Warning, TEXT("Uiana: Array Material Property unaccounted for with value: %s"), *OutputString);	
-				}	
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Uiana: Need to set Material Property %s of unknown type!"), *prop.Key);
-		}
+		return false;
 	}
-}
-
-TArray<UMaterialInterface*> MaterialImporter::CreateOverrideMaterials(const TSharedPtr<FJsonObject> obj)
-{
-	TArray<UMaterialInterface*> mats = {};
-	for (const TSharedPtr<FJsonValue> mat : obj->GetObjectField("Properties")->GetArrayField("OverrideMaterials"))
-	{
-		if (!mat.IsValid() || mat->IsNull())
-		{
-			mats.Add(nullptr);
-			continue;
-		}
-		FString objName, temp;
-		mat->AsObject()->GetStringField("ObjectName").Split(TEXT(" "), &temp, &objName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-		if (objName.Equals("Stone_M2_Steps_MI1")) objName = "Stone_M2_Steps_MI";
-		if (objName.Contains("MaterialInstanceDynamic"))
-		{
-			mats.Add(nullptr);
-			continue;
-		}
-		mats.Add(Cast<UMaterialInterface>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/Game/ValorantContent/Materials/", objName))));
-	}
-	return mats;
+	return true;
 }

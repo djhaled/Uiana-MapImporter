@@ -1,33 +1,18 @@
 ﻿#pragma once
 #include "UianaCPPDataSettings.h"
-#include <BPFL.h>
 
-#include "AssetImporter.h"
-#include "Misc/Paths.h"
+#include "FAssetImporter.h"
 #include "JsonUtilities.h"
-#include "EditorAssetLibrary.h" 
-#include "UianaHelpers.h"
-#include "Materials/MaterialInstanceConstant.h"
-#include "AssetToolsModule.h"
-#include "BlueprintImporter.h"
+#include "MeshBlueprintImporter.h"
 #include "EditorDirectories.h"
-#include "EditorLevelLibrary.h"
-#include "LevelEditorSubsystem.h"
-#include "Factories/MaterialInstanceConstantFactoryNew.h"
 #include "HAL/FileManagerGeneric.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "MaterialEditingLibrary.h"
 #include "MaterialImporter.h"
-#include "Materials/MaterialInstance.h"
-#include "Subsystems/EditorActorSubsystem.h"
-#include "ObjectEditorUtils.h"
+#include "FDecalLightImporter.h"
 #include "UianaSettings.h"
 #include "VectorTypes.h"
-#include "Components/DecalComponent.h"
 #include "Engine/AssetManager.h"
 #include "Tools/UAssetEditor.h"
-#include "Materials/MaterialInstanceBasePropertyOverrides.h"
-#include "Engine/TextureCube.h"
 #include "UianaImporter.generated.h"
 
 USTRUCT()
@@ -37,10 +22,10 @@ struct FUianaExport
 	UPROPERTY()
 	FString version;
 
-	friend FArchive& operator <<(FArchive& Ar, FUianaExport& toSerialize)
+	friend FArchive& operator <<(FArchive& Ar, const FUianaExport& ToSerialize)
 	{
 		FString JsonString;
-		FJsonObjectConverter::UStructToJsonObjectString(toSerialize.StaticStruct(), &toSerialize, JsonString);
+		FJsonObjectConverter::UStructToJsonObjectString(ToSerialize.StaticStruct(), &ToSerialize, JsonString);
 		Ar << JsonString;
 		return Ar;
 	}
@@ -57,18 +42,14 @@ public:
 private:
 	static TArray<FString> UMaps;
 	static UianaSettings Settings;
-	static AssetImporter AssetImporterComp;
+	static FAssetImporter AssetImporterComp;
 	static MaterialImporter MaterialImporterComp;
-	static BlueprintImporter BlueprintImporterComp;
+	static MeshBlueprintImporter MeshBlueprintImporterComp;
+	static FDecalLightImporter DecalLightImporterComp;
 	
-	static FString CreateNewLevel(const FString levelName);
+	static FString CreateNewLevel(const FString LevelName);
 	
-	static void ImportUmap(const TArray<TSharedPtr<FJsonValue>> umapData, const FString umapName);
-	static void ImportMesh(const TSharedPtr<FJsonObject> obj, const FString umapName, const TMap<FString, AActor*> bpMapping);
-	static void ImportDecal(const TSharedPtr<FJsonObject> obj);
-	static void ImportLight(const TSharedPtr<FJsonObject> obj);
+	static void ImportUmap(const TArray<TSharedPtr<FJsonValue>> UmapData, const FString UmapName);
 	
-	static void SetBPSettings(const TSharedPtr<FJsonObject> bpProps, UActorComponent* bp);
-
-	static bool IsBlacklisted(const FString itemName);
+	static bool IsBlacklisted(const FString ItemName);
 };

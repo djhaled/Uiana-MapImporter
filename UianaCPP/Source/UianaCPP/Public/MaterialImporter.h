@@ -3,26 +3,39 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TBaseImporter.h"
 #include "UianaSettings.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "AssetToolsModule.h"
+#include "BPFL.h"
+#include "EditorAssetLibrary.h"
+#include "JsonObjectConverter.h"
+#include "MaterialEditingLibrary.h"
+#include "ObjectEditorUtils.h"
+#include "UianaHelpers.h"
+#include "Components/DecalComponent.h"
+#include "Factories/MaterialInstanceConstantFactoryNew.h"
+#include "HAL/FileManagerGeneric.h"
+#include "Kismet2/EnumEditorUtils.h"
+#include "Misc/FileHelper.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
+#include "UObject/PropertyAccessUtil.h"
 
 /**
- * 
+ * Handles importing Textures and Materials into UE with correct settings. Does not handle override materials.
  */
-class MaterialImporter
+class MaterialImporter : public TBaseImporter<UMaterialInstanceConstant>
 {
 public:
 	MaterialImporter();
 	MaterialImporter(const UianaSettings* UianaSettings);
 	void ImportMaterials();
-
-	static TArray<UMaterialInterface*> CreateOverrideMaterials(const TSharedPtr<FJsonObject> obj);
+	
+	virtual bool OverrideArrayProp(const FString JsonPropName, const TSharedPtr<FJsonValue> JsonPropValue, const FProperty* ObjectProp, UMaterialInstanceConstant* BaseObj) override;
 private:
-	const UianaSettings* Settings;
-	void GetTexturePaths(const TArray<FString> matPaths, TArray<FString> &texturePaths);
-	void CreateMaterials(const TArray<FString> matPaths);
-	void SetMaterial(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat);
-	void SetTextures(const TSharedPtr<FJsonObject> matData, UMaterialInstanceConstant* mat);
-	void SetMaterialSettings(const TSharedPtr<FJsonObject> matProps, UMaterialInstanceConstant* mat);
-	FMaterialInstanceBasePropertyOverrides SetBasePropertyOverrides(const TSharedPtr<FJsonObject> matProps);
+	void GetTexturePaths(const TArray<FString> MatPaths, TArray<FString> &TexturePaths);
+	void CreateMaterials(const TArray<FString> MatPaths);
+	void SetMaterial(const TSharedPtr<FJsonObject> MatData, UMaterialInstanceConstant* Mat);
+	void SetTextures(const TSharedPtr<FJsonObject> MatData, UMaterialInstanceConstant* Mat);
 };
