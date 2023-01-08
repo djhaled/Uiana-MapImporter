@@ -16,53 +16,53 @@ template<class ObjType>
 void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJsonObject> JsonProps, ObjType* BaseObj)
 {
 	// Loop through all JSON values (type <FString, TSharedPtr<FJsonValue>>)
-	for (auto const& prop : JsonProps.Get()->Values)
+	for (auto const& JsonProp : JsonProps.Get()->Values)
 	{
-		TSharedPtr<FJsonValue> propValue = prop.Value;
-		const FName propName = FName(*prop.Key);
-		FProperty* objectProp = PropertyAccessUtil::FindPropertyByName(propName, BaseObj->GetClass());
-		if (objectProp == nullptr) continue;
-		const EJson propType = propValue.Get()->Type;
-		if (propType == EJson::Number)
+		TSharedPtr<FJsonValue> PropValue = JsonProp.Value;
+		const FName PropName = FName(*JsonProp.Key);
+		FProperty* ObjectProp = PropertyAccessUtil::FindPropertyByName(PropName, BaseObj->GetClass());
+		if (ObjectProp == nullptr) continue;
+		const EJson PropType = PropValue.Get()->Type;
+		if (PropType == EJson::Number)
 		{
-			if (OverrideNumericProp(prop.Key, propValue, objectProp, BaseObj)) continue;
-			if (const FFloatProperty* floatProp = CastField<FFloatProperty>(objectProp))
+			if (OverrideNumericProp(JsonProp.Key, PropValue, ObjectProp, BaseObj)) continue;
+			if (const FFloatProperty* FloatProp = CastField<FFloatProperty>(ObjectProp))
 			{
-				floatProp->SetPropertyValue_InContainer(BaseObj, prop.Value.Get()->AsNumber());
+				FloatProp->SetPropertyValue_InContainer(BaseObj, JsonProp.Value.Get()->AsNumber());
 			}
-			else if (const FIntProperty* intProp = CastField<FIntProperty>(objectProp))
+			else if (const FIntProperty* IntProp = CastField<FIntProperty>(ObjectProp))
 			{
-				intProp->SetPropertyValue_InContainer(BaseObj, prop.Value.Get()->AsNumber());
+				IntProp->SetPropertyValue_InContainer(BaseObj, JsonProp.Value.Get()->AsNumber());
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into numeric prop!"), *prop.Key);	
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into numeric prop!"), *JsonProp.Key);	
 			}
 		}
-		else if (propType == EJson::Boolean)
+		else if (PropType == EJson::Boolean)
 		{
-			if (const FBoolProperty* boolProp = CastField<FBoolProperty>(objectProp))
+			if (const FBoolProperty* BoolProp = CastField<FBoolProperty>(ObjectProp))
 			{
-				boolProp->SetPropertyValue_InContainer(BaseObj, prop.Value.Get()->AsBool());
+				BoolProp->SetPropertyValue_InContainer(BaseObj, JsonProp.Value.Get()->AsBool());
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into bool prop!"), *prop.Key);
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to cast %s into bool prop!"), *JsonProp.Key);
 			}
 		}
-		else if (propType == EJson::Object)
+		else if (PropType == EJson::Object)
 		{
-			if (OverrideObjectProp(prop.Key, propValue, objectProp, BaseObj)) continue;
-			if (objectProp->GetClass()->GetName().Equals("StructProperty"))
+			if (OverrideObjectProp(JsonProp.Key, PropValue, ObjectProp, BaseObj)) continue;
+			if (ObjectProp->GetClass()->GetName().Equals("StructProperty"))
 			{
-				const TSharedPtr<FJsonObject> obj = propValue.Get()->AsObject();
-				if (const FStructProperty* colorValues = CastField<FStructProperty>(objectProp))
+				const TSharedPtr<FJsonObject> Obj = PropValue.Get()->AsObject();
+				if (const FStructProperty* ColorValues = CastField<FStructProperty>(ObjectProp))
 				{
 					FString OutputString;
 					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-					FJsonSerializer::Serialize(propValue.Get()->AsObject().ToSharedRef(), Writer);
+					FJsonSerializer::Serialize(PropValue.Get()->AsObject().ToSharedRef(), Writer);
 					UScriptStruct* Class = nullptr;
-					FString ClassName = objectProp->GetCPPType().TrimChar('F');
+					FString ClassName = ObjectProp->GetCPPType().TrimChar('F');
 					/*
 					 * CPPTypes handled:
 					 * BodyInstance					Meshes, Blueprints
@@ -87,7 +87,7 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 					 * ModulatedShadowColor			Lights
 					 * DecalSize					Decals
 					 **/
-					UE_LOG(LogTemp, Display, TEXT("Uiana: Setting Actor property %s of type %s for JSON %s"), *prop.Key, *ClassName, *OutputString);
+					UE_LOG(LogTemp, Display, TEXT("Uiana: Setting Actor property %s of type %s for JSON %s"), *JsonProp.Key, *ClassName, *OutputString);
 					if (!FPackageName::IsShortPackageName(ClassName))
 					{
 						Class = FindObject<UScriptStruct>(nullptr, *ClassName);
@@ -102,107 +102,106 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 					}
 					if (!Class)
 					{
-						UE_LOG(LogTemp, Display, TEXT("Uiana: Failed to find UScriptStruct for property %s of type %s!"), *prop.Key, *ClassName);
+						UE_LOG(LogTemp, Display, TEXT("Uiana: Failed to find UScriptStruct for property %s of type %s!"), *JsonProp.Key, *ClassName);
 						continue;
 					}
-					void* structSettingsAddr = objectProp->ContainerPtrToValuePtr<void>(BaseObj);
-					FJsonObject* propObj = new FJsonObject();
-					TSharedPtr<FJsonObject> propObjPtr = MakeShareable(propObj);
-					FJsonObject::Duplicate(obj, propObjPtr);
+					void* StructSettingsAddr = ObjectProp->ContainerPtrToValuePtr<void>(BaseObj);
+					FJsonObject* PropObj = new FJsonObject();
+					TSharedPtr<FJsonObject> PropObjPtr = MakeShareable(PropObj);
+					FJsonObject::Duplicate(Obj, PropObjPtr);
 					// Overrides are not correctly set unless corresponding bOverride flag is set to true
-					for (const TTuple<FString, TSharedPtr<FJsonValue>> structVal : obj->Values)
+					for (const TTuple<FString, TSharedPtr<FJsonValue>> StructVal : Obj->Values)
 					{
-						for (FString overrideVariation : {"bOverride", "bOverride_"})
+						for (FString OverrideVariation : {"bOverride", "bOverride_"})
 						{
-							FString overridePropName = overrideVariation + structVal.Key;
-							if (FProperty* overrideFlagProp = Class->FindPropertyByName(FName(*overridePropName)))
+							FString OverridePropName = OverrideVariation + StructVal.Key;
+							if (FProperty* overrideFlagProp = Class->FindPropertyByName(FName(*OverridePropName)))
 							{
-								void* propAddr = overrideFlagProp->ContainerPtrToValuePtr<uint8>(structSettingsAddr);
-								if (FBoolProperty* overrideProp = CastField<FBoolProperty>(overrideFlagProp))
+								void* PropAddr = overrideFlagProp->ContainerPtrToValuePtr<uint8>(StructSettingsAddr);
+								if (FBoolProperty* OverrideProp = CastField<FBoolProperty>(overrideFlagProp))
 								{
-									UE_LOG(LogTemp, Display, TEXT("Uiana: Setting override flag for setting %s to true"), *overridePropName);
-									overrideProp->SetPropertyValue(propAddr, true);
+									UE_LOG(LogTemp, Display, TEXT("Uiana: Setting override flag for setting %s to true"), *OverridePropName);
+									OverrideProp->SetPropertyValue(PropAddr, true);
 								}
 							}	
 						}
-						if (obj->HasTypedField<EJson::String>("ShadingModel") && propObjPtr->GetStringField("ShadingModel").Equals("MSM_AresEnvironment"))
+						if (Obj->HasTypedField<EJson::String>("ShadingModel") && PropObjPtr->GetStringField("ShadingModel").Equals("MSM_AresEnvironment"))
 						{
 							// Custom Valorant-related override, this does not exist in Enum list and makes BasePropertyOverrides fail.
 							// TODO: Instead search for String JsonValues and verify the corresponding Enum has the value or not?
-							propObjPtr->SetStringField("ShadingModel", "MSM_DefaultLit");
+							PropObjPtr->SetStringField("ShadingModel", "MSM_DefaultLit");
 						}
 					}
 					FText FailureReason;
-					if (!FJsonObjectConverter::JsonObjectToUStruct(propObjPtr.ToSharedRef(), Class, structSettingsAddr,
-						0, 0, false, &FailureReason)) UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set %s due to reason %s"), *prop.Key, *FailureReason.ToString());
+					if (!FJsonObjectConverter::JsonObjectToUStruct(PropObjPtr.ToSharedRef(), Class, StructSettingsAddr,
+						0, 0, false, &FailureReason)) UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set %s due to reason %s"), *JsonProp.Key, *FailureReason.ToString());
 				}
 				else
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Failed to cast %s into StructProperty struct!"), *prop.Key);
+					UE_LOG(LogTemp, Warning, TEXT("Failed to cast %s into StructProperty struct!"), *JsonProp.Key);
 				}
 			}
 		}
-		else if (propType == EJson::Array)
+		else if (PropType == EJson::Array)
 		{
-			if (OverrideArrayProp(prop.Key, propValue, objectProp, BaseObj)) continue;
+			if (OverrideArrayProp(JsonProp.Key, PropValue, ObjectProp, BaseObj)) continue;
 			// TODO: Add automated creation of array entities!
 		}
-		else if (propType == EJson::String)
+		else if (PropType == EJson::String)
 		{
-			if (const FEnumProperty* enumProp = CastField<FEnumProperty>(objectProp))
+			if (const FEnumProperty* EnumProp = CastField<FEnumProperty>(ObjectProp))
 			{
-				if (const UEnum* Enum = enumProp->GetEnum())
+				if (const UEnum* Enum = EnumProp->GetEnum())
 				{
-					FString strValue = propValue->AsString();
-					int64 enumValue = Enum->GetValueByName(FName(*strValue), EGetByNameFlags::CheckAuthoredName);
-					if (enumValue == INDEX_NONE)
+					FString StrValue = PropValue->AsString();
+					int64 EnumValue = Enum->GetValueByName(FName(*StrValue), EGetByNameFlags::CheckAuthoredName);
+					if (EnumValue == INDEX_NONE)
 					{
-						UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set EnumProperty %s to value %s"), *prop.Key, *propValue->AsString());
+						UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set EnumProperty %s to value %s"), *JsonProp.Key, *PropValue->AsString());
 						continue;
 					}
-					void* structSettingsAddr = objectProp->ContainerPtrToValuePtr<void>(BaseObj);
-					void* propAddr = enumProp->ContainerPtrToValuePtr<uint8>(structSettingsAddr);
-					enumProp->GetUnderlyingProperty()->SetIntPropertyValue(propAddr, enumValue);
+					void* StructSettingsAddr = ObjectProp->ContainerPtrToValuePtr<void>(BaseObj);
+					void* PropAddr = EnumProp->ContainerPtrToValuePtr<uint8>(StructSettingsAddr);
+					EnumProp->GetUnderlyingProperty()->SetIntPropertyValue(PropAddr, EnumValue);
 				}
 			}
-			else if (const FNumericProperty* numericProp = CastField<FNumericProperty>(objectProp))
+			else if (const FNumericProperty* NumericProp = CastField<FNumericProperty>(ObjectProp))
 			{
-				if (numericProp->IsEnum())
+				if (NumericProp->IsEnum())
 				{
-					if (const UEnum* Enum = numericProp->GetIntPropertyEnum())
+					if (const UEnum* Enum = NumericProp->GetIntPropertyEnum())
 					{
-						FString strValue = propValue->AsString();
-						int64 enumValue = Enum->GetValueByName(FName(*strValue), EGetByNameFlags::CheckAuthoredName);
-						if (enumValue == INDEX_NONE)
+						FString StrValue = PropValue->AsString();
+						int64 EnumValue = Enum->GetValueByName(FName(*StrValue), EGetByNameFlags::CheckAuthoredName);
+						if (EnumValue == INDEX_NONE)
 						{
-							UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set Numeric EnumProperty %s to value %s"), *prop.Key, *propValue->AsString());
+							UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set Numeric EnumProperty %s to value %s"), *JsonProp.Key, *PropValue->AsString());
 							continue;
 						}
-						void* structSettingsAddr = objectProp->ContainerPtrToValuePtr<void>(BaseObj);
-						void* propAddr = numericProp->ContainerPtrToValuePtr<uint8>(structSettingsAddr);
-						numericProp->SetIntPropertyValue(propAddr, enumValue);
+						void* StructSettingsAddr = ObjectProp->ContainerPtrToValuePtr<void>(BaseObj);
+						void* PropAddr = NumericProp->ContainerPtrToValuePtr<uint8>(StructSettingsAddr);
+						NumericProp->SetIntPropertyValue(PropAddr, EnumValue);
 					}
 				}
 			}
-			else if (const FStrProperty* stringProp = CastField<FStrProperty>(objectProp))
+			else if (const FStrProperty* StringProp = CastField<FStrProperty>(ObjectProp))
 			{
-				stringProp->SetPropertyValue_InContainer(BaseObj, propValue->AsString());
+				StringProp->SetPropertyValue_InContainer(BaseObj, PropValue->AsString());
 			}
 		}
 		else
 		{
-			if (prop.Key.Equals("StreamingTextureData")) continue;
-			FString type = "None";
-			if (propType == EJson::Array) type = "Array";
-			if (propType == EJson::Object) type = "Object";
-			if (propType == EJson::Boolean) type = "Bool";
-			if (propType == EJson::String) type = "String";
-			if (propType == EJson::Number) type = "Number";
-			if (propType == EJson::Null) type = "Null";
-			UE_LOG(LogTemp, Warning, TEXT("Uiana: Unset BP Property %s of type %s with CPP type %s!"), *prop.Key, *type, *objectProp->GetClass()->GetName());
-			if (propType == EJson::String)
+			FString Type = "None";
+			if (PropType == EJson::Array) Type = "Array";
+			if (PropType == EJson::Object) Type = "Object";
+			if (PropType == EJson::Boolean) Type = "Bool";
+			if (PropType == EJson::String) Type = "String";
+			if (PropType == EJson::Number) Type = "Number";
+			if (PropType == EJson::Null) Type = "Null";
+			UE_LOG(LogTemp, Warning, TEXT("Uiana: Unset BP Property %s of type %s with CPP type %s!"), *JsonProp.Key, *Type, *ObjectProp->GetClass()->GetName());
+			if (PropType == EJson::String)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Uiana: String BP Property unset - %s: %s"), *prop.Key, *propValue->AsString());
+				UE_LOG(LogTemp, Warning, TEXT("Uiana: String BP Property unset - %s: %s"), *JsonProp.Key, *PropValue->AsString());
 			}
 			/**
 			 * Unhandled Properties:

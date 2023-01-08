@@ -34,8 +34,7 @@ public:
 	
 	virtual bool OverrideArrayProp(const FString JsonPropName, const TSharedPtr<FJsonValue> JsonPropValue, const FProperty* ObjectProp, UMaterialInstanceConstant* BaseObj) override;
 private:
-	void GetTexturePaths(const TArray<FString> MatPaths, TArray<FString> &TexturePaths);
+	void GetTexturePaths(const TArray<FString> MatPaths, TArray<FString> &TexturePaths) const;
 	void CreateMaterials(const TArray<FString> MatPaths);
 	void SetMaterial(const TSharedPtr<FJsonObject> MatData, UMaterialInstanceConstant* Mat);
-	void SetTextures(const TSharedPtr<FJsonObject> MatData, UMaterialInstanceConstant* Mat);
 };

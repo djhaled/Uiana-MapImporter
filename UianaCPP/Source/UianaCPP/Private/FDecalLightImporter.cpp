@@ -18,6 +18,7 @@ void FDecalLightImporter::ImportDecal(const TSharedPtr<FJsonObject> Obj)
 	UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + decalName + "." + decalName));
 	decalActor->SetDecalMaterial(decalMat);
 	SetSettingsFromJsonProperties(Obj->GetObjectField("Properties"), Cast<UActorComponent>(decalActor->GetDecal()));
+	decalActor->PostEditMove(true);
 }
 
 void FDecalLightImporter::ImportLight(const TSharedPtr<FJsonObject> Obj)
@@ -46,6 +47,7 @@ void FDecalLightImporter::ImportLight(const TSharedPtr<FJsonObject> Obj)
 			SetSettingsFromJsonProperties(Obj->GetObjectField("Properties")->GetObjectField("Settings"), lightComponent);
 		}
 		SetSettingsFromJsonProperties(Obj->GetObjectField("Properties"), lightComponent);
+		light->PostEditMove(true);
 		return;
 	}
 	const FProperty* settingsProp = PropertyAccessUtil::FindPropertyByName("Settings", lightComponent->GetClass());
@@ -56,6 +58,7 @@ void FDecalLightImporter::ImportLight(const TSharedPtr<FJsonObject> Obj)
 		SetSettingsFromJsonProperties(Obj->GetObjectField("Properties")->GetObjectField("Settings"), lightComponent);
 	}
 	SetSettingsFromJsonProperties(Obj->GetObjectField("Properties"), lightComponent);
+	light->PostEditMove(true);
 }
 
 bool FDecalLightImporter::OverrideNumericProp(const FString JsonPropName, const TSharedPtr<FJsonValue> JsonPropValue,

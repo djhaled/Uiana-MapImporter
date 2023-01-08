@@ -37,7 +37,7 @@ class UIANACPP_API UUianaImporter : public UObject
 	GENERATED_BODY()
 public:
 	UUianaImporter();
-	static void Initialize(FString MapName, UUianaCPPDataSettings* Settings);
+	static void Initialize(const FString MapName, UUianaCPPDataSettings* InputSettings);
 	static void ImportMap();
 private:
 	static TArray<FString> UMaps;

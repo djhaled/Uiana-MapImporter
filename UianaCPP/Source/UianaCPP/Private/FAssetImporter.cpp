@@ -18,231 +18,231 @@ FAssetImporter::FAssetImporter(const UianaSettings* UianaSettings)
 
 TArray<FString> FAssetImporter::GetExtractedUmaps()
 {
-	TArray<FString> umapPaths;
-	FFileManagerGeneric::Get().FindFiles(umapPaths, *(Settings->UMapsPath.Path), TEXT(".json"));
-	UianaHelpers::AddPrefixPath(Settings->UMapsPath, umapPaths);
+	TArray<FString> UmapPaths;
+	FFileManagerGeneric::Get().FindFiles(UmapPaths, *(Settings->UMapsPath.Path), TEXT(".json"));
+	UianaHelpers::AddPrefixPath(Settings->UMapsPath, UmapPaths);
 	if (NeedExport())
 	{
-		umapPaths = ExtractAssets();
+		UmapPaths = ExtractAssets();
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: No need to extract PAK assets, skipping."));
 	}
-	return umapPaths;
+	return UmapPaths;
 }
 
 bool FAssetImporter::NeedExport()
 {
-	FString exportCheckPath = FPaths::Combine(Settings->FolderPath.Path, "exported.yo");
-	bool needsExport = true;
-	if(FPaths::FileExists(exportCheckPath))
+	FString ExportCheckPath = FPaths::Combine(Settings->FolderPath.Path, "exported.yo");
+	bool bNeedsExport = true;
+	if(FPaths::FileExists(ExportCheckPath))
 	{
-		FString jsonStr;
-		FFileHelper::LoadFileToString(jsonStr, *exportCheckPath);
-		FUianaExport exportData;
-		FJsonObjectConverter::JsonObjectStringToUStruct(jsonStr, &exportData);
-		needsExport = !exportData.version.Equals(Settings->ValorantVersion);
+		FString JsonString;
+		FFileHelper::LoadFileToString(JsonString, *ExportCheckPath);
+		FUianaExport ExportData;
+		FJsonObjectConverter::JsonObjectStringToUStruct(JsonString, &ExportData);
+		bNeedsExport = !ExportData.version.Equals(Settings->ValorantVersion);
 	}
-	return needsExport || Settings->DevForceReexport;
+	return bNeedsExport || Settings->DevForceReexport;
 }
 
 TArray<FString> FAssetImporter::ExtractAssets()
 {
-	TArray<FString> umapPaths = {};
+	TArray<FString> UmapPaths = {};
 	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracting assets!"));
 	Cue4Extract(Settings->UMapsPath);
 	UModelExtract();
-	FFileManagerGeneric::Get().FindFiles(umapPaths, *(Settings->UMapsPath.Path), TEXT(".json"));
-	UianaHelpers::AddPrefixPath(Settings->UMapsPath, umapPaths);
-	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracted %d umaps"), umapPaths.Num());
-	TArray<FString> actorPaths, objPaths, matOvrPaths;
-	for (FString umapPath : umapPaths)
+	FFileManagerGeneric::Get().FindFiles(UmapPaths, *(Settings->UMapsPath.Path), TEXT(".json"));
+	UianaHelpers::AddPrefixPath(Settings->UMapsPath, UmapPaths);
+	UE_LOG(LogTemp, Warning, TEXT("Uiana: Extracted %d umaps"), UmapPaths.Num());
+	TArray<FString> ActorPaths, ObjPaths, MatOvrPaths;
+	for (FString UmapPath : UmapPaths)
 	{
-		FString umapStr;
+		FString UmapStr;
 		// FString umapPath = FPaths::Combine(UMapsPath.Path, umapName);
-		FFileHelper::LoadFileToString(umapStr, *umapPath);
-		TArray<TSharedPtr<FJsonValue>> umapRaw, umapFiltered;
-		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(umapStr);
-		if (!FJsonSerializer::Deserialize(JsonReader, umapRaw) || !umapRaw[0].IsValid())
+		FFileHelper::LoadFileToString(UmapStr, *UmapPath);
+		TArray<TSharedPtr<FJsonValue>> UmapRaw, UmapFiltered;
+		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(UmapStr);
+		if (!FJsonSerializer::Deserialize(JsonReader, UmapRaw) || !UmapRaw[0].IsValid())
 		{
-			UE_LOG(LogScript, Warning, TEXT("UIANA: Failed to deserialize umap %s"), *umapPath);
+			UE_LOG(LogScript, Warning, TEXT("UIANA: Failed to deserialize umap %s"), *UmapPath);
 			continue;
 		}
 		
 		// Filter umap
-		const TArray<FString> decalTypes = {"decalcomponent"};
-		const TArray<FString> meshTypes = {"staticmesh", "staticmeshcomponent", "instancedstaticmeshcomponent",
+		const TArray<FString> DecalTypes = {"decalcomponent"};
+		const TArray<FString> MeshTypes = {"staticmesh", "staticmeshcomponent", "instancedstaticmeshcomponent",
 			"hierarchicalinstancedstaticmeshcomponent"};
-		const TArray<FString> genTypes = {"pointlightcomponent", "postprocessvolume", "culldistancevolume",
+		const TArray<FString> GenTypes = {"pointlightcomponent", "postprocessvolume", "culldistancevolume",
 			"scenecomponent", "lightmasscharacterindirectdetailvolume", "brushcomponent", "precomputedvisibilityvolume",
 			"rectlightcomponent", "spotlightcomponent", "skylightcomponent", "scenecapturecomponentcube",
 			"lightmassimportancevolume", "billboardcomponent", "directionallightcomponent",
 			"exponentialheightfogcomponent", "lightmassportalcomponent", "spherereflectioncapturecomponent"};
-		for (TSharedPtr<FJsonValue> component : umapRaw)
+		for (TSharedPtr<FJsonValue> Component : UmapRaw)
 		{
-			const TSharedPtr<FJsonObject> obj = component.Get()->AsObject();
-			const FString typeLower = obj->GetStringField("Type").ToLower();
-			if (meshTypes.Contains(typeLower) && obj->HasField("Properties"))
+			const TSharedPtr<FJsonObject> ComponentObj = Component.Get()->AsObject();
+			const FString TypeLower = ComponentObj->GetStringField("Type").ToLower();
+			if (MeshTypes.Contains(TypeLower) && ComponentObj->HasField("Properties"))
 			{
-				umapFiltered.Add(component);				
+				UmapFiltered.Add(Component);				
 			}
-			else if (genTypes.Contains(typeLower) || decalTypes.Contains(typeLower))
+			else if (GenTypes.Contains(TypeLower) || DecalTypes.Contains(TypeLower))
 			{
-				umapFiltered.Add(component);
+				UmapFiltered.Add(Component);
 			}
-			else if (typeLower.EndsWith("_c"))
+			else if (TypeLower.EndsWith("_c"))
 			{
-				umapFiltered.Add(component);
+				UmapFiltered.Add(Component);
 			}
 		}
 		
 		// Save cleaned-up JSON
-		UianaHelpers::SaveJson(umapFiltered, umapPath);
+		UianaHelpers::SaveJson(UmapFiltered, UmapPath);
 
-		GetObjects(actorPaths, objPaths, matOvrPaths, umapFiltered);
+		GetObjects(ActorPaths, ObjPaths, MatOvrPaths, UmapFiltered);
 	}
 	// Process blueprint actors
 	UE_LOG(LogTemp, Display, TEXT("Uiana: Importing BP Actors!"));
-	const FString actorPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_actors.txt");
-	FFileHelper::SaveStringArrayToFile(actorPaths, *actorPathsFilepath);
-	Cue4Extract(Settings->ActorsPath, actorPathsFilepath);
-	actorPaths.Empty();
-	FFileManagerGeneric::Get().FindFiles(actorPaths, *(Settings->ActorsPath.Path), TEXT(".json"));
-	for (FString actorPath : actorPaths)
+	const FString ActorPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_actors.txt");
+	FFileHelper::SaveStringArrayToFile(ActorPaths, *ActorPathsFilepath);
+	Cue4Extract(Settings->ActorsPath, ActorPathsFilepath);
+	ActorPaths.Empty();
+	FFileManagerGeneric::Get().FindFiles(ActorPaths, *(Settings->ActorsPath.Path), TEXT(".json"));
+	for (FString ActorPath : ActorPaths)
 	{
-		FString actorStr;
-		FFileHelper::LoadFileToString(actorStr, *(Settings->ActorsPath.Path + "/" + actorPath));
-		TArray<TSharedPtr<FJsonValue>> actorObjs;
-		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(actorStr);
-		if (!FJsonSerializer::Deserialize(JsonReader, actorObjs) || !actorObjs[0].IsValid())
+		FString ActorStr;
+		FFileHelper::LoadFileToString(ActorStr, *(Settings->ActorsPath.Path + "/" + ActorPath));
+		TArray<TSharedPtr<FJsonValue>> ActorObjs;
+		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(ActorStr);
+		if (!FJsonSerializer::Deserialize(JsonReader, ActorObjs) || !ActorObjs[0].IsValid())
 		{
-			UE_LOG(LogScript, Warning, TEXT("UIANA: Failed to deserialize actor %s"), *actorPath);
+			UE_LOG(LogScript, Warning, TEXT("UIANA: Failed to deserialize actor %s"), *ActorPath);
 			continue;
 		}
-		TArray<FString> temp;
-		GetObjects(temp, objPaths, matOvrPaths, actorObjs);
+		TArray<FString> Temp;
+		GetObjects(Temp, ObjPaths, MatOvrPaths, ActorObjs);
 	}
 	// Save asset lists
-	const FString objPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_objects.txt");
-	const FString matPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_materials_ovr.txt");
-	UE_LOG(LogTemp, Display, TEXT("Uiana: Saving asset file with %d assets on path: %s"), objPaths.Num(), *objPathsFilepath);
-	FFileHelper::SaveStringArrayToFile(objPaths, *objPathsFilepath);
-	FFileHelper::SaveStringArrayToFile(matOvrPaths, *matPathsFilepath);
-	Cue4Extract(Settings->ObjectsPath, objPathsFilepath);
-	Cue4Extract(Settings->MaterialsOvrPath, matPathsFilepath);
+	const FString ObjPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_objects.txt");
+	const FString MatPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_materials_ovr.txt");
+	UE_LOG(LogTemp, Display, TEXT("Uiana: Saving asset file with %d assets on path: %s"), ObjPaths.Num(), *ObjPathsFilepath);
+	FFileHelper::SaveStringArrayToFile(ObjPaths, *ObjPathsFilepath);
+	FFileHelper::SaveStringArrayToFile(MatOvrPaths, *MatPathsFilepath);
+	Cue4Extract(Settings->ObjectsPath, ObjPathsFilepath);
+	Cue4Extract(Settings->MaterialsOvrPath, MatPathsFilepath);
 	
 	// Get models now
 	UE_LOG(LogTemp, Display, TEXT("Uiana: Getting models!"));
-	TArray<FString> modelNames;
-	TArray<FString> matPaths = {};
-	FFileManagerGeneric::Get().FindFiles(modelNames, *(Settings->ObjectsPath.Path), TEXT(".json"));
-	for (FString modelName : modelNames)
+	TArray<FString> ModelNames;
+	TArray<FString> MatPaths = {};
+	FFileManagerGeneric::Get().FindFiles(ModelNames, *(Settings->ObjectsPath.Path), TEXT(".json"));
+	for (FString ModelName : ModelNames)
 	{
-		const FString modelPath = FPaths::Combine(Settings->ObjectsPath.Path, modelName);
-		FString jsonStr;
-		FFileHelper::LoadFileToString(jsonStr, *modelPath);
-		TArray<TSharedPtr<FJsonValue>> modelObjs;
-		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(jsonStr);
-		if (!FJsonSerializer::Deserialize(JsonReader, modelObjs) || !modelObjs[0].IsValid())
+		const FString ModelPath = FPaths::Combine(Settings->ObjectsPath.Path, ModelName);
+		FString JsonString;
+		FFileHelper::LoadFileToString(JsonString, *ModelPath);
+		TArray<TSharedPtr<FJsonValue>> ModelObjs;
+		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+		if (!FJsonSerializer::Deserialize(JsonReader, ModelObjs) || !ModelObjs[0].IsValid())
 		{
-			UE_LOG(LogScript, Warning, TEXT("UIANA: Failed to deserialize model %s"), *modelPath);
+			UE_LOG(LogScript, Warning, TEXT("UIANA: Failed to deserialize model %s"), *ModelPath);
 			continue;
 		}
 		
 		// Save cleaned-up JSON
-		UianaHelpers::SaveJson(modelObjs, modelPath);
+		UianaHelpers::SaveJson(ModelObjs, ModelPath);
 		
 		// Get Object Materials
-		for (TSharedPtr<FJsonValue> modelObject : modelObjs)
+		for (TSharedPtr<FJsonValue> ModelObject : ModelObjs)
 		{
-			if (modelObject.Get()->AsObject()->GetStringField("Type").Equals("StaticMesh"))
+			if (ModelObject.Get()->AsObject()->GetStringField("Type").Equals("StaticMesh"))
 			{
-				const TArray<TSharedPtr<FJsonValue>> modelMats = modelObject.Get()->AsObject()->GetObjectField("Properties")->GetArrayField("StaticMaterials");
-				for(const TSharedPtr<FJsonValue> mat : modelMats)
+				const TArray<TSharedPtr<FJsonValue>> ModelMats = ModelObject.Get()->AsObject()->GetObjectField("Properties")->GetArrayField("StaticMaterials");
+				for(const TSharedPtr<FJsonValue> Mat : ModelMats)
 				{
-					const TSharedPtr<FJsonObject> obj = mat.Get()->AsObject();
-					if (obj->HasTypedField<EJson::Object>("MaterialInterface"))
+					const TSharedPtr<FJsonObject> Obj = Mat.Get()->AsObject();
+					if (Obj->HasTypedField<EJson::Object>("MaterialInterface"))
 					{
-						const FString path = obj->GetObjectField("MaterialInterface")->GetStringField("ObjectPath");
-						matPaths.AddUnique(FPaths::Combine(FPaths::GetPath(path), FPaths::GetBaseFilename(path)).Replace(TEXT("/"), TEXT("\\")));
+						const FString path = Obj->GetObjectField("MaterialInterface")->GetStringField("ObjectPath");
+						MatPaths.AddUnique(FPaths::Combine(FPaths::GetPath(path), FPaths::GetBaseFilename(path)).Replace(TEXT("/"), TEXT("\\")));
 					}
 				}
 			}
 		}
 	}
 	// Save material list + all assets list
-	TArray<FString> allPaths = {};
-	UianaHelpers::AddAllAssetPath(allPaths, objPaths);
-	UianaHelpers::AddAllAssetPath(allPaths, matPaths);
-	UianaHelpers::AddAllAssetPath(allPaths, matOvrPaths);
+	TArray<FString> AllPaths = {};
+	UianaHelpers::AddAllAssetPath(AllPaths, ObjPaths);
+	UianaHelpers::AddAllAssetPath(AllPaths, MatPaths);
+	UianaHelpers::AddAllAssetPath(AllPaths, MatOvrPaths);
 	
-	const FString matListFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_materials.txt");
-	const FString allListFilepath = FPaths::Combine(Settings->FolderPath.Path, "all_assets.txt");
-	FFileHelper::SaveStringArrayToFile(matPaths, *matListFilepath);
-	FFileHelper::SaveStringArrayToFile(allPaths, *allListFilepath);
-	Cue4Extract(Settings->MaterialsPath, matListFilepath);
+	const FString MatListFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_materials.txt");
+	const FString AllListFilepath = FPaths::Combine(Settings->FolderPath.Path, "all_assets.txt");
+	FFileHelper::SaveStringArrayToFile(MatPaths, *MatListFilepath);
+	FFileHelper::SaveStringArrayToFile(AllPaths, *AllListFilepath);
+	Cue4Extract(Settings->MaterialsPath, MatListFilepath);
 	// Write exported.yo to indicate have exported
-	FUianaExport exportInfo;
-	exportInfo.version = Settings->ValorantVersion;
-	FString exportStr;
-	FJsonObjectConverter::UStructToJsonObjectString<FUianaExport>(exportInfo, exportStr);
-	FFileHelper::SaveStringToFile(exportStr, *FPaths::Combine(Settings->FolderPath.Path, "exported.yo"));
-	FFileHelper::SaveStringToFile(exportStr, *FPaths::Combine(Settings->ExportAssetsPath.Path, "exported.yo"));
+	FUianaExport ExportInfo;
+	ExportInfo.version = Settings->ValorantVersion;
+	FString ExportStr;
+	FJsonObjectConverter::UStructToJsonObjectString<FUianaExport>(ExportInfo, ExportStr);
+	FFileHelper::SaveStringToFile(ExportStr, *FPaths::Combine(Settings->FolderPath.Path, "exported.yo"));
+	FFileHelper::SaveStringToFile(ExportStr, *FPaths::Combine(Settings->ExportAssetsPath.Path, "exported.yo"));
 
-	return umapPaths;
+	return UmapPaths;
 }
 
-void FAssetImporter::GetObjects(TArray<FString> &ActorPaths, TArray<FString> &ObjPaths, TArray<FString> &MatPaths, const TArray<TSharedPtr<FJsonValue>> &JsonArr)
+void FAssetImporter::GetObjects(TArray<FString> &ActorPaths, TArray<FString> &ObjPaths, TArray<FString> &MatPaths, const TArray<TSharedPtr<FJsonValue>> &JsonArr) const
 {
-	bool skippedBlueprint = false;
-	for (TSharedPtr<FJsonValue> component : JsonArr)
+	bool bSkippedBlueprint = false;
+	for (TSharedPtr<FJsonValue> Component : JsonArr)
 	{
-		const TSharedPtr<FJsonObject> obj = component.Get()->AsObject();
-		if (obj->GetStringField("Type").EndsWith("_C") && obj->HasField("Template"))
+		const TSharedPtr<FJsonObject> Obj = Component.Get()->AsObject();
+		if (Obj->GetStringField("Type").EndsWith("_C") && Obj->HasField("Template"))
 		{
-			if (!skippedBlueprint)
+			if (!bSkippedBlueprint)
 			{
-				skippedBlueprint = true;
+				bSkippedBlueprint = true;
 				continue;
 			}
-			ActorPaths.AddUnique(obj->GetStringField("Template"));
+			ActorPaths.AddUnique(Obj->GetStringField("Template"));
 		}
-		if (obj->HasField("Properties"))
+		if (Obj->HasField("Properties"))
 		{
-			const TSharedPtr<FJsonObject> props = obj->GetObjectField("Properties");
-			if (props->HasTypedField<EJson::Object>("StaticMesh"))
+			const TSharedPtr<FJsonObject> Props = Obj->GetObjectField("Properties");
+			if (Props->HasTypedField<EJson::Object>("StaticMesh"))
 			{
-				const TSharedPtr<FJsonObject> staticMesh = props->GetObjectField("StaticMesh");
-				if (!staticMesh->HasField("ObjectPath")) UE_LOG(LogTemp, Error, TEXT("Uiana: No object path for static mesh %s!"), *obj->GetStringField("Outer"));
-				if (!staticMesh->HasField("ObjectPath")) continue;
-				const FString path = staticMesh->GetStringField("ObjectPath");
-				ObjPaths.AddUnique( FPaths::Combine(FPaths::GetPath(path), FPaths::GetBaseFilename(path)).Replace(TEXT("/"), TEXT("\\")));
-				if (props->HasField("OverrideMaterials"))
+				const TSharedPtr<FJsonObject> StaticMesh = Props->GetObjectField("StaticMesh");
+				if (!StaticMesh->HasField("ObjectPath")) UE_LOG(LogTemp, Error, TEXT("Uiana: No object path for static mesh %s!"), *Obj->GetStringField("Outer"));
+				if (!StaticMesh->HasField("ObjectPath")) continue;
+				const FString Path = StaticMesh->GetStringField("ObjectPath");
+				ObjPaths.AddUnique( FPaths::Combine(FPaths::GetPath(Path), FPaths::GetBaseFilename(Path)).Replace(TEXT("/"), TEXT("\\")));
+				if (Props->HasField("OverrideMaterials"))
 				{
-					for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> mat : props->GetArrayField("OverrideMaterials"))
+					for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> OverrideMat : Props->GetArrayField("OverrideMaterials"))
 					{
-						if (mat->IsNull()) continue;
-						if (!mat->AsObject()->HasField("ObjectPath")) UE_LOG(LogTemp, Error, TEXT("Uiana: No object path for override materials!"));
-						if (!mat->AsObject()->HasField("ObjectPath")) continue;
-						const FString matPath = mat->AsObject()->GetStringField("ObjectPath");
-						MatPaths.AddUnique(FPaths::Combine(FPaths::GetPath(matPath), FPaths::GetBaseFilename(matPath)).Replace(TEXT("/"), TEXT("\\")));
+						if (OverrideMat->IsNull()) continue;
+						if (!OverrideMat->AsObject()->HasField("ObjectPath")) UE_LOG(LogTemp, Error, TEXT("Uiana: No object path for override materials!"));
+						if (!OverrideMat->AsObject()->HasField("ObjectPath")) continue;
+						const FString OverrideMatPath = OverrideMat->AsObject()->GetStringField("ObjectPath");
+						MatPaths.AddUnique(FPaths::Combine(FPaths::GetPath(OverrideMatPath), FPaths::GetBaseFilename(OverrideMatPath)).Replace(TEXT("/"), TEXT("\\")));
 					}
 				}
 			}
-			else if (props->HasField("DecalMaterial"))
+			else if (Props->HasField("DecalMaterial"))
 			{
-				if (!props->GetObjectField("DecalMaterial")->HasField("ObjectPath")) continue;
-				const FString path = props->GetObjectField("DecalMaterial")->GetStringField("ObjectPath");
-				MatPaths.AddUnique(FPaths::Combine(FPaths::GetPath(path), FPaths::GetBaseFilename(path)).Replace(TEXT("/"), TEXT("\\")));
+				if (!Props->GetObjectField("DecalMaterial")->HasField("ObjectPath")) continue;
+				const FString DecalMatPath = Props->GetObjectField("DecalMaterial")->GetStringField("ObjectPath");
+				MatPaths.AddUnique(FPaths::Combine(FPaths::GetPath(DecalMatPath), FPaths::GetBaseFilename(DecalMatPath)).Replace(TEXT("/"), TEXT("\\")));
 			}
 		}
 	}
 }
 
-void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir, const FString AssetList)
+void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir, const FString AssetList) const
 {
-	TArray<FStringFormatArg> args = {
+	TArray<FStringFormatArg> Args = {
 		Settings->PaksPath.Path,
 		Settings->AesKey,
 		ExportDir.Path,
@@ -250,17 +250,17 @@ void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir, const FString A
 		AssetList,
 		Settings->UMapJsonPath.Path
 	};
-	FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key {1} --export-directory \"{2}\" --map-name {3} --file-list {4} --game-umaps \"{5}\""), args);
+	const FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key {1} --export-directory \"{2}\" --map-name {3} --file-list {4} --game-umaps \"{5}\""), Args);
 	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand);
-	FProcHandle handle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
-	if (handle.IsValid())
+	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
+	if (ProcHandle.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Ran CU4 successfully!"));
-		FPlatformProcess::WaitForProc(handle);
+		FPlatformProcess::WaitForProc(ProcHandle);
 	}
 }
 
-void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir)
+void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir) const
 {
 	TArray<FStringFormatArg> args = {
 		Settings->PaksPath.Path,
@@ -269,32 +269,32 @@ void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir)
 		Settings->Name,
 		Settings->UMapJsonPath.Path
 	};
-	FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key {1} --export-directory \"{2}\" --map-name {3} --game-umaps \"{4}\""), args);
+	const FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key {1} --export-directory \"{2}\" --map-name {3} --game-umaps \"{4}\""), args);
 	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand);
-	FProcHandle handle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
-	if (handle.IsValid())
+	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
+	if (ProcHandle.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Ran CU4 successfully!"));
-		FPlatformProcess::WaitForProc(handle);
+		FPlatformProcess::WaitForProc(ProcHandle);
 	}
 }
 
-void FAssetImporter::UModelExtract()
+void FAssetImporter::UModelExtract() const
 {
-	const FString allAssetPath = FPaths::Combine(Settings->FolderPath.Path, "all_assets.txt");
-	TArray<FStringFormatArg> args = {
+	const FString AllAssetPath = FPaths::Combine(Settings->FolderPath.Path, "all_assets.txt");
+	TArray<FStringFormatArg> Args = {
 		Settings->PaksPath.Path,
 		Settings->AesKey,
-		allAssetPath,
+		AllAssetPath,
 		Settings->TextureFormat.Replace(TEXT("."), TEXT("")),
 		Settings->ExportAssetsPath.Path
 	};
-	const FString ConsoleCommand = FString::Format(TEXT("-path=\"{0}\" -game=valorant -aes={1} -files=\"{2}\" -export -{3} -out=\"{4}\" *"), args);
+	const FString ConsoleCommand = FString::Format(TEXT("-path=\"{0}\" -game=valorant -aes={1} -files=\"{2}\" -export -{3} -out=\"{4}\" *"), Args);
 	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, "umodel.exe"), *ConsoleCommand);
-	FProcHandle handle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "umodel.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
-	if (handle.IsValid())
+	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "umodel.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
+	if (ProcHandle.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Ran UModel successfully!"));
-		FPlatformProcess::WaitForProc(handle);
+		FPlatformProcess::WaitForProc(ProcHandle);
 	}
 }

@@ -20,8 +20,8 @@ private:
 	const UianaSettings* Settings;
 	bool NeedExport();
 	TArray<FString> ExtractAssets();
-	void GetObjects(TArray<FString> &ActorPaths, TArray<FString> &ObjPaths, TArray<FString> &MatPaths, const TArray<TSharedPtr<FJsonValue>> &JsonArr);
-	void Cue4Extract(const FDirectoryPath ExportDir);
-	void Cue4Extract(const FDirectoryPath ExportDir, const FString AssetList);
-	void UModelExtract();
+	void GetObjects(TArray<FString> &ActorPaths, TArray<FString> &ObjPaths, TArray<FString> &MatPaths, const TArray<TSharedPtr<FJsonValue>> &JsonArr) const;
+	void Cue4Extract(const FDirectoryPath ExportDir) const;
+	void Cue4Extract(const FDirectoryPath ExportDir, const FString AssetList) const;
+	void UModelExtract() const;
 };

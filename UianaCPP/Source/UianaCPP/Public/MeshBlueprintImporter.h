@@ -38,6 +38,6 @@ protected:
 	virtual bool OverrideArrayProp(const FString JsonPropName, const TSharedPtr<FJsonValue> JsonPropValue, const FProperty* ObjectProp, UActorComponent* BaseObj) override;
 private:
 	TArray<USCS_Node*> GetLocalBPChildren(TArray<TSharedPtr<FJsonValue>> ChildNodes, TArray<TSharedPtr<FJsonValue>> BPData, UBlueprint* BPActor);
-	void FixActorBP(const TSharedPtr<FJsonObject> BPData, const TMap<FString, AActor*> BPMapping, bool bImportMaterials);
-	TArray<UMaterialInterface*> CreateOverrideMaterials(const TSharedPtr<FJsonObject> Obj);
+	void FixActorBP(const TSharedPtr<FJsonObject> BPData, const TMap<FString, AActor*> BPMapping, const bool bImportMaterials) const;
+	TArray<UMaterialInterface*> CreateOverrideMaterials(const TSharedPtr<FJsonObject> Obj) const;
 };
