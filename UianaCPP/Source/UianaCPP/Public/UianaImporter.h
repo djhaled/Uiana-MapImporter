@@ -12,7 +12,7 @@
 #include "UianaSettings.h"
 #include "VectorTypes.h"
 #include "Engine/AssetManager.h"
-#include "Tools/UAssetEditor.h"
+
 #include "UianaImporter.generated.h"
 
 USTRUCT()
@@ -25,7 +25,7 @@ struct FUianaExport
 	friend FArchive& operator <<(FArchive& Ar, const FUianaExport& ToSerialize)
 	{
 		FString JsonString;
-		FJsonObjectConverter::UStructToJsonObjectString(ToSerialize.StaticStruct(), &ToSerialize, JsonString);
+		FJsonObjectConverter::UStructToJsonObjectString(ToSerialize.StaticStruct(), &ToSerialize, JsonString, 0, 0);
 		Ar << JsonString;
 		return Ar;
 	}

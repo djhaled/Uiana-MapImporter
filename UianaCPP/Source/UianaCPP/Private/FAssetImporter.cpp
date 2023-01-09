@@ -41,7 +41,7 @@ bool FAssetImporter::NeedExport()
 		FString JsonString;
 		FFileHelper::LoadFileToString(JsonString, *ExportCheckPath);
 		FUianaExport ExportData;
-		FJsonObjectConverter::JsonObjectStringToUStruct(JsonString, &ExportData);
+		FJsonObjectConverter::JsonObjectStringToUStruct(JsonString, &ExportData, 0, 0);
 		bNeedsExport = !ExportData.version.Equals(Settings->ValorantVersion);
 	}
 	return bNeedsExport || Settings->DevForceReexport;
@@ -220,7 +220,7 @@ void FAssetImporter::GetObjects(TArray<FString> &ActorPaths, TArray<FString> &Ob
 				ObjPaths.AddUnique( FPaths::Combine(FPaths::GetPath(Path), FPaths::GetBaseFilename(Path)).Replace(TEXT("/"), TEXT("\\")));
 				if (Props->HasField("OverrideMaterials"))
 				{
-					for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> OverrideMat : Props->GetArrayField("OverrideMaterials"))
+					for (const TSharedPtr<FJsonValue> OverrideMat : Props->GetArrayField("OverrideMaterials"))
 					{
 						if (OverrideMat->IsNull()) continue;
 						if (!OverrideMat->AsObject()->HasField("ObjectPath")) UE_LOG(LogTemp, Error, TEXT("Uiana: No object path for override materials!"));

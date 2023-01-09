@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Dom/JsonValue.h"
 
 class UianaHelpers
 {
@@ -12,13 +13,7 @@ public:
 		Unknown
 	};
 
-	const static inline TSet<FString> LightRelatedObjects = {"PointLightComponent", "PostProcessVolume", "PrecomputedVisibilityVolume", "CullDistanceVolume",
-			  "RectLightComponent", "LightmassCharacterIndirectDetailVolume", "SpotLightComponent", "SkyLightComponent",
-			  "LightmassImportanceVolume", "SceneCaptureComponentCube", "SphereReflectionCaptureComponent",
-			  "DirectionalLightComponent", "ExponentialHeightFogComponent", "LightmassPortalComponent"};
-	const static inline TSet<FString> MeshRelatedObjects = {"StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent"};
-	const static inline TSet<FString> DecalRelatedObjects = {"DecalComponent"};
-	const static inline TSet<FString> BlueprintRelatedObjects = {"SceneComponent"};
+	const static TSet<FString> LightRelatedObjects, MeshRelatedObjects, DecalRelatedObjects, BlueprintRelatedObjects;
 	
 	static void CreateFolder(FDirectoryPath &FolderPath, FString Root, FString Extension);
 	static TSharedPtr<FJsonObject> ParseJson(FString InputStr);
@@ -36,4 +31,7 @@ public:
 	static FTransform GetTransformComponent(const TSharedPtr<FJsonObject> Comp);
 	static FTransform GetSceneTransformComponent(const TSharedPtr<FJsonObject> Comp);
 	static bool JsonObjContainsFields(const TSharedPtr<FJsonObject> Obj, const TSet<FString> Fields);
+	static void DuplicateJsonObj(const TSharedPtr<FJsonObject>& Source, TSharedPtr<FJsonObject> &Dest);
+	static void DuplicateJsonArray(const TArray<TSharedPtr<FJsonValue>>& Source, TArray<TSharedPtr<FJsonValue>>& Dest);
+	static TSharedPtr<FJsonValue> DuplicateJsonValue(const TSharedPtr<FJsonValue>& Src);
 };

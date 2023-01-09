@@ -4,9 +4,11 @@
 #include "EditorAssetLibrary.h"
 #include "EditorLevelLibrary.h"
 #include "EditorLevelUtils.h"
-#include "LevelEditorSubsystem.h"
 #include "Engine/LevelStreamingAlwaysLoaded.h"
+#if ENGINE_MAJOR_VERSION == 5
 #include "Subsystems/EditorActorSubsystem.h"
+#include "LevelEditorSubsystem.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "UUianaImporter"
 
@@ -53,8 +55,13 @@ void UUianaImporter::ImportMap()
 		LevelPaths.Add(CreateNewLevel(Settings.Name));
 	}
 	// Clear level
+#if ENGINE_MAJOR_VERSION == 5
 	UEditorActorSubsystem* ActorSubsystem = GEditor->GetEditorSubsystem<UEditorActorSubsystem>();
 	ActorSubsystem->DestroyActors(ActorSubsystem->GetAllLevelActors());
+#else
+	TArray<AActor*> CurrentActors = UEditorLevelLibrary::GetAllLevelActors();
+	for (AActor* CurrentActor : CurrentActors) UEditorLevelLibrary::DestroyActor(CurrentActor);
+#endif
 	if (Settings.ImportMaterials)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Importing Textures!"));
@@ -128,11 +135,11 @@ void UUianaImporter::ImportMap()
 			UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorld is not valid world, trying GetEditorWorldContext()!"));
 			World = GEditor->GetEditorWorldContext().World();
 		}
-		if (World == nullptr)
-		{
-			UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorldContext is not valid world, trying GetEditorSubsystem()!"));
-			World = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->GetWorld();
-		}
+		// if (World == nullptr)
+		// {
+		// 	UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorldContext is not valid world, trying GetEditorSubsystem()!"));
+		// 	World = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->GetWorld();
+		// }
 		if (World == nullptr)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorSubsystem is not valid world, trying all GetEditorWorldContext worlds()!"));
@@ -221,9 +228,15 @@ void UUianaImporter::ImportMap()
 					if (ComponentObj->GetStringField("Type").Equals("BodySetup") && ComponentProps.IsValid() && ComponentProps->HasField("CollisionTraceFlag"))
 					{
 						// TODO: Verify this works vs setting the editor property!
+#if ENGINE_MAJOR_VERSION == 5
 						UBodySetup* BodySetup = Mesh->GetBodySetup();
 						BodySetup->CollisionTraceFlag = UianaHelpers::ParseCollisionTrace(ComponentProps->GetStringField("CollisionTraceFlag"));
 						Mesh->SetBodySetup(BodySetup);
+#else
+						UBodySetup* BodySetup = Mesh->BodySetup;
+						BodySetup->CollisionTraceFlag = UianaHelpers::ParseCollisionTrace(ComponentProps->GetStringField("CollisionTraceFlag"));
+						Mesh->BodySetup = BodySetup;
+#endif
 					}
 				}
 			}
@@ -241,8 +254,12 @@ FString UUianaImporter::CreateNewLevel(const FString LevelName)
 	const FString LevelPath = FString::Format(TEXT("/Game/ValorantContent/Maps/{0}/{1}"), Args);
 	UE_LOG(LogTemp, Warning, TEXT("Uiana: Creating new level at path: %s"), *LevelPath);
 	UEditorAssetLibrary::LoadAsset(LevelPath);
+#if ENGINE_MAJOR_VERSION == 5
 	ULevelEditorSubsystem* EditorSubsystem = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>();
 	EditorSubsystem->NewLevel(LevelPath);
+#else
+	UEditorLevelLibrary::NewLevel(LevelPath);
+#endif
 	return LevelPath;
 }
 

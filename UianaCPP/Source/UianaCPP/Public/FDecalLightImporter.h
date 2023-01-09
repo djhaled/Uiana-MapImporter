@@ -8,7 +8,9 @@
 #include "Engine/DecalActor.h"
 #include "Engine/TextureCube.h"
 #include "Materials/MaterialInstanceConstant.h"
+#if ENGINE_MAJOR_VERSION == 5
 #include "Subsystems/EditorActorSubsystem.h"
+#endif
 
 class FDecalLightImporter final : TBaseImporter<UActorComponent>
 {

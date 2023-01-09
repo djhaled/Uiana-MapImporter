@@ -92,7 +92,7 @@ void MeshBlueprintImporter::CreateBlueprints(const TArray<FString> BPPaths)
 		IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 		BPActor = static_cast<UBlueprint*>(AssetTools.CreateAsset(bpName, "/Game/ValorantContent/Blueprints/", UBlueprint::StaticClass(), BPFactory));
 		
-		if (NewJsons.IsEmpty())
+		if (NewJsons.Num() == 0)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Uiana: No nodes in BP %s, skipping"), *bpName);
 			continue;
@@ -236,7 +236,8 @@ void MeshBlueprintImporter::ImportMesh(const TSharedPtr<FJsonObject> Obj, const 
 		TArray<FColor> VtxArray = {};
 		for (const TSharedPtr<FJsonValue> LOD : LODData)
 		{
-			if (const TSharedPtr<FJsonObject> LODObj = LOD->AsObject(); LODObj->HasField("OverrideVertexColors"))
+			const TSharedPtr<FJsonObject> LODObj = LOD->AsObject();
+			if (LODObj->HasField("OverrideVertexColors"))
 			{
 				const TArray<TSharedPtr<FJsonValue>> VertexData = LODObj->GetObjectField("OverrideVertexColors")->GetArrayField("Data");
 				for (const TSharedPtr<FJsonValue> Color : VertexData)
@@ -258,7 +259,7 @@ void MeshBlueprintImporter::ImportMesh(const TSharedPtr<FJsonObject> Obj, const 
 					.Replace(TEXT("ShooterGame"), TEXT("Game"), ESearchCase::CaseSensitive)
 					.Replace(TEXT("/Content"), TEXT(""), ESearchCase::CaseSensitive) + ".pskx";
 		}
-		if (!VtxArray.IsEmpty())
+		if (!VtxArray.Num() == 0)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Uiana: Painting %d SM Vertices for mesh %s with modelPath %s"), VtxArray.Num(), *MeshActor->GetActorLabel(), *ModelPath);
 			UBPFL::PaintSMVertices(MeshObject, VtxArray, ModelPath);
@@ -266,7 +267,8 @@ void MeshBlueprintImporter::ImportMesh(const TSharedPtr<FJsonObject> Obj, const 
 	}
 	if (Settings->ImportMaterials && Obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
 	{
-		if (TArray<UMaterialInterface*> OverrideMats = CreateOverrideMaterials(Obj); !OverrideMats.IsEmpty())
+		TArray<UMaterialInterface*> OverrideMats = CreateOverrideMaterials(Obj);
+		if (OverrideMats.Num() != 0)
 		{
 			UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), MeshObject, "OverrideMaterials", OverrideMats);	
 		}
@@ -283,7 +285,8 @@ void MeshBlueprintImporter::FixActorBP(const TSharedPtr<FJsonObject> BPData, con
 	const TSharedPtr<FJsonObject> BPProps = BPData->GetObjectField("Properties");
 	if (BPProps->HasField("StaticMesh"))
 	{
-		if (FString MeshName; BPProps->TryGetStringField("ObjectName", MeshName))
+		FString MeshName;
+		if (BPProps->TryGetStringField("ObjectName", MeshName))
 		{
 			const FString Name = MeshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
 			UStaticMesh* Mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + Name));
@@ -293,7 +296,7 @@ void MeshBlueprintImporter::FixActorBP(const TSharedPtr<FJsonObject> BPData, con
 	if (bImportMaterials && BPProps->HasField("OverrideMaterials"))
 	{
 		const TArray<UMaterialInterface*> OverrideMats = CreateOverrideMaterials(BPData);
-		if (!OverrideMats.IsEmpty() && !BPData->GetStringField("Name").Contains("Barrier"))
+		if (OverrideMats.Num() != 0 && !BPData->GetStringField("Name").Contains("Barrier"))
 		{
 			UBPFL::SetOverrideMaterial(BPActor, bpComponentName, OverrideMats);
 		}
@@ -359,7 +362,7 @@ bool MeshBlueprintImporter::OverrideArrayProp(const FString JsonPropName, const 
 	{
 		// | Meshes, Blueprints
 		TArray<UMaterialInstanceConstant*> OverrideMats = {};
-		for (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> OverrideMatJson : JsonPropValue.Get()->AsArray())
+		for (TSharedPtr<FJsonValue> OverrideMatJson : JsonPropValue.Get()->AsArray())
 		{
 			if (!OverrideMatJson.IsValid() || OverrideMatJson.Get()->IsNull())
 			{

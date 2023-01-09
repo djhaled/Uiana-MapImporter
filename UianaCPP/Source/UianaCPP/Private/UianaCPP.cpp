@@ -126,7 +126,20 @@ FString FUianaCPPModule::GetMapName(int EnumValue)
 
 void FUianaCPPModule::PluginButtonClicked()
 {
+#if ENGINE_MAJOR_VERSION == 5
 	FGlobalTabmanager::Get()->TryInvokeTab(UianaCPPTabName);
+#else
+	TSharedPtr<SDockTab> NewTab = FGlobalTabmanager::Get()->InvokeTab(UianaCPPTabName);
+	if (!NewTab.IsValid()) return;
+	TSharedPtr<SWindow> ParentWindowPtr = NewTab->GetParentWindow();
+	if ((NewTab->GetTabRole() == ETabRole::MajorTab || NewTab->GetTabRole() == ETabRole::NomadTab) && ParentWindowPtr.IsValid() && ParentWindowPtr != FGlobalTabmanager::Get()->GetRootWindow())
+	{
+		ParentWindowPtr->SetTitle(NewTab->GetTabLabel());
+	}
+#if PLATFORM_MAC
+	FPlatformApplicationMisc::bChachedMacMenuStateNeedsUpdate = true;
+#endif
+#endif
 }
 
 FReply FUianaCPPModule::ExecuteFunction()
@@ -212,7 +225,11 @@ TSharedRef<class SDockTab> FUianaCPPModule::OnSpawnPluginTab(const FSpawnTabArgs
 		.VAlign(VAlign_Fill)
 		[
 			SNew(SBorder)
+#if ENGINE_MAJOR_VERSION == 5
 			.BorderImage(FAppStyle::Get().GetBrush("ToolPanel.DarkGroupBorder"))
+#else
+			.BorderImage(FEditorStyle::Get().GetBrush("ToolPanel.DarkGroupBorder"))
+#endif
 		[
 			SNew(SVerticalBox)
 
@@ -241,13 +258,21 @@ TSharedRef<class SDockTab> FUianaCPPModule::OnSpawnPluginTab(const FSpawnTabArgs
 		.Padding(2.f, 5.f)
 		[
 			SNew(SButton)
+#if ENGINE_MAJOR_VERSION == 5
 			.ButtonStyle(FAppStyle::Get(), "FlatButton.Success")
+#else
+			.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
+#endif
 		.ForegroundColor(FSlateColor::UseForeground())
 		.OnClicked(FOnClicked::CreateRaw(this, &FUianaCPPModule::ExecuteFunction))
 		[
 			SNew(STextBlock)
 			.Justification(ETextJustify::Center)
+#if ENGINE_MAJOR_VERSION == 5
 		.TextStyle(FAppStyle::Get(), "NormalText.Important")
+#else
+		.TextStyle(FEditorStyle::Get(), "NormalText.Important")
+#endif
 		.Text(NSLOCTEXT("LevelSnapshots", "NotificationFormatText_CreationForm_CreateSnapshotButton", "Generate Map"))
 		]
 		]

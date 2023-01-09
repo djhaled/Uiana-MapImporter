@@ -1,5 +1,9 @@
 ﻿#pragma once
 #include "PSKReader.h"
+#if ENGINE_MAJOR_VERSION == 4
+#define FVector3f FVector
+#define FQuat4f FQuat
+#endif
 
 struct VAnimInfoBinary
 {
@@ -19,8 +23,8 @@ struct VAnimInfoBinary
 
 struct VQuatAnimKey
 {
-	FVector3f Position;
 	FQuat4f Orientation;
+	FVector3f Position;
 	float Time;
 };
 

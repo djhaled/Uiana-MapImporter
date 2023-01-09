@@ -6,7 +6,11 @@
 #include "Styling/SlateStyleRegistry.h"
 #include "Slate/SlateGameResources.h"
 #include "Interfaces/IPluginManager.h"
+#if ENGINE_MAJOR_VERSION == 5
 #include "Styling/SlateStyleMacros.h"
+#else
+#define IMAGE_BRUSH( RelativePath, ... ) FSlateImageBrush( RootToContentDir( RelativePath, TEXT(".png") ), __VA_ARGS__ )
+#endif
 
 #define RootToContentDir Style->RootToContentDir
 

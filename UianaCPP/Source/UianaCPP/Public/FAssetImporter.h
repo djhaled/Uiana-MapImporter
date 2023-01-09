@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UianaHelpers.h"
 #include "UianaSettings.h"
+#include "Dom/JsonValue.h"
 
 /**
  * Handles extracting assets for Uiana and providing paths to umaps

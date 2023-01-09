@@ -1,5 +1,6 @@
 ﻿#include "UianaHelpers.h"
 
+#include "EditorSubsystemModule.h"
 #include "JsonObjectConverter.h"
 #include "ObjectEditorUtils.h"
 #include "Animation/Rig.h"
@@ -8,6 +9,14 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "UObject/PropertyAccessUtil.h"
+
+const TSet<FString> UianaHelpers::LightRelatedObjects = {"PointLightComponent", "PostProcessVolume", "PrecomputedVisibilityVolume", "CullDistanceVolume",
+			  "RectLightComponent", "LightmassCharacterIndirectDetailVolume", "SpotLightComponent", "SkyLightComponent",
+			  "LightmassImportanceVolume", "SceneCaptureComponentCube", "SphereReflectionCaptureComponent",
+			  "DirectionalLightComponent", "ExponentialHeightFogComponent", "LightmassPortalComponent"};
+const TSet<FString> UianaHelpers::MeshRelatedObjects = {"StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent"};
+const TSet<FString> UianaHelpers::DecalRelatedObjects = {"DecalComponent"};
+const TSet<FString> UianaHelpers::BlueprintRelatedObjects = {"SceneComponent"};
 
 void UianaHelpers::CreateFolder(FDirectoryPath& FolderPath, FString Root, FString Extension)
 {
@@ -180,7 +189,7 @@ bool UianaHelpers::JsonObjContainsFields(const TSharedPtr<FJsonObject> Obj, cons
 	return false;
 }
 
-bool operator == (TSharedPtr<FJsonValue, ESPMode::ThreadSafe> arrayItem, FString item)
+bool operator == (TSharedPtr<FJsonValue> arrayItem, FString item)
 {
 	return arrayItem->AsObject()->GetStringField("Name").Equals(item);
 }
@@ -200,4 +209,78 @@ bool UianaHelpers::SetActorProperty(UClass* ActorClass, UObject* Component, cons
 	FPropertyChangedEvent locationChangedEvent(relativeLocationProp);
 	Component->PostEditChangeProperty(locationChangedEvent);
 	return true;
+}
+
+// Necessary for UE4 compatilibity
+void UianaHelpers::DuplicateJsonObj(const TSharedPtr<FJsonObject>& Source, TSharedPtr<FJsonObject>& Dest)
+{
+	if (Source && Dest)
+	{
+		for (const TPair<FString, TSharedPtr<FJsonValue>>& Pair : Source->Values)
+		{
+			Dest->SetField(Pair.Key, DuplicateJsonValue(Pair.Value));
+		}
+	}
+}
+
+void UianaHelpers::DuplicateJsonArray(const TArray<TSharedPtr<FJsonValue>>& Source, TArray<TSharedPtr<FJsonValue>>& Dest)
+{
+	for (const TSharedPtr<FJsonValue>& Value : Source)
+	{
+		Dest.Add(DuplicateJsonValue(Value));
+	} 
+}
+
+TSharedPtr<FJsonValue> UianaHelpers::DuplicateJsonValue(const TSharedPtr<FJsonValue>& Src)
+{
+	switch (Src->Type)
+	{
+	case EJson::Boolean:
+		{
+			bool BoolValue;
+			if (Src->TryGetBool(BoolValue))
+			{
+				return MakeShared<FJsonValueBoolean>(BoolValue);
+			}
+		}
+	case EJson::Number:
+		{
+			double NumberValue;
+			if (Src->TryGetNumber(NumberValue))
+			{
+				return MakeShared<FJsonValueNumber>(NumberValue);
+			}
+		}
+	case EJson::String:
+		{
+			FString StringValue;
+			if (Src->TryGetString(StringValue))
+			{
+				return MakeShared<FJsonValueString>(StringValue);
+			}
+		}
+	case EJson::Object:
+		{
+			const TSharedPtr<FJsonObject>* ObjectValue;
+			if (Src->TryGetObject(ObjectValue))
+			{
+				TSharedPtr<FJsonObject> NewObject = MakeShared<FJsonObject>();
+				DuplicateJsonObj(*ObjectValue, NewObject);
+				return MakeShared<FJsonValueObject>(NewObject);
+			}
+		}
+	case EJson::Array:
+		{
+			const TArray<TSharedPtr<FJsonValue>>* ArrayValue;
+			if (Src->TryGetArray(ArrayValue))
+			{
+				TArray<TSharedPtr<FJsonValue>> NewArray;
+				DuplicateJsonArray(*ArrayValue, NewArray);
+
+				return MakeShared<FJsonValueArray>(NewArray);
+			}
+		}
+	}
+
+	return TSharedPtr<FJsonValue>();
 }

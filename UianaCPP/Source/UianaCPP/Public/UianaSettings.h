@@ -11,35 +11,9 @@
 class UianaSettings
 {
 public:
-	inline const static FString AesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6";
-	inline const static FString TextureFormat = ".png";
-	inline constexpr static bool DevForceReexport = false;
-	inline const static FString Shaders[] = {"VALORANT_Base", "VALORANT_Decal", "VALORANT_Emissive",
-		"VALORANT_Emissive_Scroll", "VALORANT_Hologram", "VALORANT_Glass", "VALORANT_Blend", "VALORANT_Decal",
-		"VALORANT_MRA_Splitter", "VALORANT_Normal_Fix", "VALORANT_Screen"};
-	inline static TSet<FString> BlacklistedObjs = {
-		"navmesh",
-		"_breakable",
-		"_collision",
-		"windstreaks_plane",
-		"sm_port_snowflakes_boundmesh",
-		"M_Pitt_Caustics_Box",
-		"box_for_volumes",
-		"BombsiteMarker_0_BombsiteA_Glow",
-		"BombsiteMarker_0_BombsiteB_Glow",
-		"_col",
-		"M_Pitt_Lamps_Glow",
-		"SM_Pitt_Water_Lid",
-		"Bombsite_0_ASiteSide",
-		"Bombsite_0_BSiteSide"
-		"For_Volumes",
-		"Foxtrot_ASite_Plane_DU",
-		"Foxtrot_ASite_Side_DU",
-		"BombsiteMarker_0_BombsiteA_Glow",
-		"BombsiteMarker_0_BombsiteB_Glow",
-		"DirtSkirt",
-		"Tech_0_RebelSupplyCargoTarpLargeCollision"
-	};
+	const static FString AesKey, TextureFormat;
+	constexpr static bool DevForceReexport = false;
+	const static TSet<FString> Shaders, BlacklistedObjs;
 	FString Name;
 	FString ValorantVersion;
 	FDirectoryPath ExportFolder;

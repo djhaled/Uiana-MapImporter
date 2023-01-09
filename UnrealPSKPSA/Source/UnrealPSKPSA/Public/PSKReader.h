@@ -3,8 +3,14 @@
 #include <fstream>
 
 #include "RawMesh.h"
+#include "VectorTypes.h"
 
 #define CHUNK(ChunkName) (strncmp(Chunk.ChunkID, ChunkName, strlen(ChunkName)) == 0)
+#if ENGINE_MAJOR_VERSION == 4
+#define FVector3f FVector
+#define FQuat4f FQuat
+#define FVector2f FVector2D
+#endif
 
 struct VChunkHeader
 {

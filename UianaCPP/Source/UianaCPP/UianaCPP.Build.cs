@@ -42,7 +42,6 @@ public class UianaCPP : ModuleRules
 			{
 				"Projects",
 				"InputCore",
-				"EditorFramework",
 				"UnrealEd",
 				"ToolMenus",
 				"CoreUObject",
@@ -51,13 +50,30 @@ public class UianaCPP : ModuleRules
 				"Slate",
 				"RenderCore",
 				"EditorStyle",
-				"PythonScriptPlugin",
 				"SlateCore",
 				"UnrealPSKPSA"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
-		
+		BuildVersion Version;
+		if (BuildVersion.TryRead(BuildVersion.GetDefaultFileName(), out Version))
+		{
+			if (Version.MajorVersion == 5)
+			{
+				// do ue 5 stuff
+				PrivateDependencyModuleNames.Add("EditorFramework");
+			}
+			else
+			{
+				PrivateDependencyModuleNames.AddRange(
+					new string[]
+					{
+						"EditorStyle",
+						"EditorSubsystem"
+					});
+				// do ue 4 stuff
+			}
+		}
 		
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]

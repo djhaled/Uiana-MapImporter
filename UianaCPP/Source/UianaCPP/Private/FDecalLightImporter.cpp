@@ -25,8 +25,18 @@ void FDecalLightImporter::ImportLight(const TSharedPtr<FJsonObject> Obj)
 {
 	const FString lightType = Obj->GetStringField("Type").Replace(TEXT("Component"), TEXT(""), ESearchCase::CaseSensitive);
 	UClass* lightClass = FEditorClassUtils::GetClassFromString(lightType);
+#if ENGINE_MAJOR_VERSION == 5
 	UEditorActorSubsystem* EditorActorSubsystem = GEditor->GetEditorSubsystem<UEditorActorSubsystem>();
 	AActor* light = EditorActorSubsystem->SpawnActorFromClass(lightClass, FVector::ZeroVector);
+#else
+	// Have to do it manually in UE4
+	if (!lightClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Uiana: SpawnActorFromClass - Class %s not valid!"), *lightType);
+		return;
+	}
+	AActor* light = GEditor->GetWorld()->SpawnActor(lightClass);
+#endif
 	light->SetFolderPath(FName("Lights/" + lightType));
 	light->SetActorLabel(Obj->GetStringField("Name"));
 	UActorComponent* lightComponent = light->GetRootComponent();

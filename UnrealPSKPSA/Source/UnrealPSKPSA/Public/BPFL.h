@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "VectorTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "BPFL.generated.h"
-
+#if ENGINE_MAJOR_VERSION == 4
+#define FVector3f FVector
+#define FQuat4f FQuat
+#endif
 /**
  * 
  */

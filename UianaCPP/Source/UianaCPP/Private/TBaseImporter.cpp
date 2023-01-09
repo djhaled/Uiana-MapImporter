@@ -1,5 +1,8 @@
 ﻿#include "TBaseImporter.h"
 
+#include "EditorClassUtils.h"
+#include "UianaHelpers.h"
+
 template<class ObjType>
 TBaseImporter<ObjType>::TBaseImporter()
 {
@@ -62,7 +65,8 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 					TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 					FJsonSerializer::Serialize(PropValue.Get()->AsObject().ToSharedRef(), Writer);
 					UScriptStruct* Class = nullptr;
-					FString ClassName = ObjectProp->GetCPPType().TrimChar('F');
+					FString ClassName = ObjectProp->GetCPPType();
+					ClassName.RemoveFromStart("F", ESearchCase::CaseSensitive);
 					/*
 					 * CPPTypes handled:
 					 * BodyInstance					Meshes, Blueprints
@@ -94,8 +98,10 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 					}
 					else
 					{
+						
 						Class = FindFirstObject<UScriptStruct>(*ClassName, EFindFirstObjectOptions::None, ELogVerbosity::Warning, TEXT("FEditorClassUtils::GetClassFromString"));
 					}
+					// TODO: Fix why cannot find UScriptStruct!
 					if(!Class)
 					{
 						Class = LoadObject<UScriptStruct>(nullptr, *ClassName);
@@ -108,7 +114,7 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 					void* StructSettingsAddr = ObjectProp->ContainerPtrToValuePtr<void>(BaseObj);
 					FJsonObject* PropObj = new FJsonObject();
 					TSharedPtr<FJsonObject> PropObjPtr = MakeShareable(PropObj);
-					FJsonObject::Duplicate(Obj, PropObjPtr);
+					UianaHelpers::DuplicateJsonObj(Obj, PropObjPtr);
 					// Overrides are not correctly set unless corresponding bOverride flag is set to true
 					for (const TTuple<FString, TSharedPtr<FJsonValue>> StructVal : Obj->Values)
 					{
@@ -132,9 +138,13 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 							PropObjPtr->SetStringField("ShadingModel", "MSM_DefaultLit");
 						}
 					}
+#if ENGINE_MAJOR_VERSION == 5
 					FText FailureReason;
 					if (!FJsonObjectConverter::JsonObjectToUStruct(PropObjPtr.ToSharedRef(), Class, StructSettingsAddr,
 						0, 0, false, &FailureReason)) UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to set %s due to reason %s"), *JsonProp.Key, *FailureReason.ToString());
+#else
+					FJsonObjectConverter::JsonObjectToUStruct(PropObjPtr.ToSharedRef(), Class, StructSettingsAddr, 0, 0);
+#endif
 				}
 				else
 				{

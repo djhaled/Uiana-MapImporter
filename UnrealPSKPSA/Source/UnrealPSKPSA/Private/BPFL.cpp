@@ -2,6 +2,7 @@
 
 
 #include "BPFL.h"
+
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Actor.h"
@@ -12,7 +13,6 @@
 #include "json.hpp"
 #include "KismetProceduralMeshLibrary.h"
 #include "AutomatedAssetImportData.h"
-#include "AssetRegistry/AssetRegistryModule.h"
 #include "Engine/World.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Misc/FileHelper.h"
@@ -22,7 +22,11 @@
 #include "PSKReader.h"
 #include "Engine/RendererSettings.h"
 #include "PSKXFactory.h"
-
+#if ENGINE_MAJOR_VERSION == 5
+#include "AssetRegistry/AssetRegistryModule.h"
+#else
+#include "AssetRegistryModule.h"
+#endif
 
 
 
@@ -66,7 +70,11 @@ UActorComponent* UBPFL::CreateBPComp(UObject* Object, UClass* ClassToUse, FName 
 		Node->AddChildNode(AttchNode);
 	}
 	FKismetEditorUtilities::CompileBlueprint(Blueprint);
+#if ENGINE_MAJOR_VERSION == 5
 	return Component.Get();
+#else
+	return Component;
+#endif
 }
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
 {
@@ -82,7 +90,11 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 		//Make sure that we have at least 1 LOD
 		SMComp->SetLODDataCount(1, SMComp->LODData.Num());
 		FStaticMeshComponentLODInfo* LODInfo = &SMComp->LODData[0]; //We're going to modify the 1st LOD only
+#if ENGINE_MAJOR_VERSION == 5
 		FStaticMeshLODResources& LodResources = SM->GetRenderData()->LODResources[0];
+#else
+		FStaticMeshLODResources& LodResources = SM->RenderData->LODResources[0];
+#endif
 		auto numverts = LodResources.GetNumVertices();
 		//Empty the painted vertices and assign a new color vertex buffer which will contain the new colors for each vertex
 		LODInfo->PaintedVertices.Empty();
@@ -118,7 +130,7 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 		{
 			UE_LOG(LogTemp, Warning, TEXT("This one has wrong FinalColors %s"), *SM->GetName());
 		}
-		if (FinalColors.IsEmpty())
+		if (FinalColors.Num() == 0)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("This one has no FinalColors %s"), *SM->GetName());
 			return;
@@ -182,9 +194,15 @@ TArray<FColor> UBPFL::FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArr
 TArray<FVector3f> UBPFL::ReturnCurrentVerts(UStaticMesh* Mesh)
 {
 	TArray<FVector3f> ReturnArray;
+#if ENGINE_MAJOR_VERSION == 5
 	if (Mesh->GetRenderData()->LODResources.Num() > 0)
 	{
 		FPositionVertexBuffer* VertexBuffer = &Mesh->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
+#else
+	if (Mesh->RenderData->LODResources.Num() > 0)
+	{
+		FPositionVertexBuffer* VertexBuffer = &Mesh->RenderData->LODResources[0].VertexBuffers.PositionVertexBuffer;
+#endif
 		if (VertexBuffer)
 		{
 			const int32 VertexCount = VertexBuffer->GetNumVertices();
@@ -203,8 +221,10 @@ void UBPFL::ChangeProjectSettings()
 {
 	URendererSettings* Settings = GetMutableDefault<URendererSettings>();
 	Settings->DefaultLightUnits = ELightUnits::Unitless;
+#if ENGINE_MAJOR_VERSION == 5
 	Settings->DynamicGlobalIllumination = EDynamicGlobalIlluminationMethod::None;
 	Settings->Reflections == EReflectionMethod::None;
+#endif
 	Settings->SaveConfig();
 }
 UActorComponent* UBPFL::GetComponent(AActor* Actor)
@@ -320,7 +340,11 @@ void UBPFL::ImportMeshes(TSet<FString> AllMeshesPath, FString ObjectsPath)
 		///// end json stuff
 		// MeshName = MeshName.Replace(TEXT(".json"), TEXT(""));
 		FString PathForMeshes = FString::Printf(TEXT("/Game/ValorantContent/Meshes/%s"), *MeshName);
+#if ENGINE_MAJOR_VERSION == 5
 		auto MeshPackage = CreatePackage(*PathForMeshes);
+#else
+		auto MeshPackage = CreatePackage(nullptr, *PathForMeshes);
+#endif
 		auto bCancelled = false;
 		auto CreatedMesh = PSKFactory->FactoryCreateFile(UStaticMesh::StaticClass(), MeshPackage, FName(*MeshName), RF_Public | RF_Standalone, MPath, NULL, GWarn, bCancelled);
 		if (CreatedMesh == nullptr)
@@ -333,7 +357,11 @@ void UBPFL::ImportMeshes(TSet<FString> AllMeshesPath, FString ObjectsPath)
 		//Msh->SetLightMapResolution(LMRES);
 		//Msh->SetLightMapCoordinateIndex(LMCoord);
 		//Msh->SetLightmapUVDensity(LMDens);
+#if ENGINE_MAJOR_VERSION == 5
 		Msh->GetBodySetup()->CollisionTraceFlag = GetTraceFlag(BodySetupProps.c_str());
+#else
+		Msh->BodySetup->CollisionTraceFlag = GetTraceFlag(BodySetupProps.c_str());
+#endif
 		ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Mesh : %d of %d: %s"), ActorIdx + 1, AllMeshesPath.Num() + 1, *MeshName));
 		ImportTask.EnterProgressFrame();
 		//Msh->Property

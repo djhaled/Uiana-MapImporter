@@ -5,7 +5,6 @@
 #include "ActorXUtils.h"
 #include "PSKReader.h"
 #include "RawMesh.h"
-#include "AssetRegistry/AssetRegistryModule.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Editor/UnrealEd/Classes/Factories/MaterialInstanceConstantFactoryNew.h"
 #include "EditorAssetLibrary.h"
@@ -13,6 +12,11 @@
 #include "IAssetTools.h"
 #include "Misc/FileHelper.h"
 #include "Materials/MaterialInstanceConstant.h"
+#if ENGINE_MAJOR_VERSION == 5
+#include "AssetRegistry/AssetRegistryModule.h"
+#else
+#include "AssetRegistryModule.h"
+#endif
 
 UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FName Name, const EObjectFlags Flags) const
 {
@@ -88,6 +92,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 		UMaterialInstanceConstantFactoryNew* Factory = NewObject<UMaterialInstanceConstantFactoryNew>();
 		auto singpath = FPaths::Combine(NewPathMat, MaterialNamey);
 		UObject* CheckAsset = UEditorAssetLibrary::LoadAsset(singpath);
+		
 		if (CheckAsset == nullptr)
 		{
 			CheckAsset = AssetTools.CreateAsset(MaterialNamey, NewPathMat, UMaterialInstanceConstant::StaticClass(), Factory);
@@ -99,7 +104,11 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 			MaterialInstance->MarkPackageDirty();
 			FStaticMaterial StaticMaterial;
 			StaticMaterial.MaterialInterface = MaterialInstance;
+#if ENGINE_MAJOR_VERSION == 5
 			StaticMesh->GetStaticMaterials().Add(StaticMaterial);
+#else
+			StaticMesh->StaticMaterials.Add(StaticMaterial);
+#endif
 			StaticMesh->GetSectionInfoMap().Set(0, i, FMeshSectionInfo(i));
 			continue;
 		}
@@ -107,7 +116,11 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 		MaterialInstance->MarkPackageDirty();
 		FStaticMaterial StaticMaterial;
 		StaticMaterial.MaterialInterface = MaterialInstance;
+#if ENGINE_MAJOR_VERSION == 5
 		StaticMesh->GetStaticMaterials().Add(StaticMaterial);
+#else
+		StaticMesh->StaticMaterials.Add(StaticMaterial);
+#endif
 		StaticMesh->GetSectionInfoMap().Set(0, i, FMeshSectionInfo(i));
 	}
 	

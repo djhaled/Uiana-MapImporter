@@ -121,6 +121,7 @@ void MaterialImporter::CreateMaterials(const TArray<FString> MatPaths)
 		MatInstance->SetParentEditorOnly(ParentInstance);
 		SetMaterial(Mat, MatInstance);
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Created material %s at %s"), *MatPath, *LocalMatPath);
+		// TODO: Fix applying textures to materials, bad path for some reason
 	}
 }
 
@@ -141,7 +142,21 @@ void MaterialImporter::SetMaterial(const TSharedPtr<FJsonObject> MatData, UMater
 			{
 				const TSharedPtr<FJsonObject> ParamObj = StaticParameter.Get()->AsObject();
 				const TSharedPtr<FJsonObject> ParamInfo = ParamObj.Get()->GetObjectField("ParameterInfo");
+#if ENGINE_MAJOR_VERSION == 5
 				UMaterialEditingLibrary::SetMaterialInstanceStaticSwitchParameterValue(Mat, FName(*ParamInfo.Get()->GetStringField("Name").ToLower()), ParamObj.Get()->GetBoolField("Value"));
+#else
+				FStaticParameterSet StaticParameters = Mat->GetStaticParameters();
+				for (auto& SwitchParameter : StaticParameters.StaticSwitchParameters)
+				{
+					if (SwitchParameter.ParameterInfo.Name == FName(*ParamInfo.Get()->GetStringField("Name").ToLower()))
+					{
+						SwitchParameter.Value = ParamObj->GetBoolField("Value");
+						SwitchParameter.bOverride = true;
+						break;;
+					}
+				}
+				Mat->UpdateStaticPermutation(StaticParameters);
+#endif
 			}
 		}
 		if (MatProps.Get()->GetObjectField("StaticParameters")->HasField("StaticComponentMaskParameters"))
@@ -150,7 +165,21 @@ void MaterialImporter::SetMaterial(const TSharedPtr<FJsonObject> MatData, UMater
 			{
 				for (FString Mask : {"R", "G", "B"})
 				{
+#if ENGINE_MAJOR_VERSION == 5
 					UMaterialEditingLibrary::SetMaterialInstanceStaticSwitchParameterValue(Mat, FName(*Mask), StaticParameter.Get()->AsObject().Get()->GetBoolField(Mask));
+#else
+					FStaticParameterSet StaticParameters = Mat->GetStaticParameters();
+					for (auto& SwitchParameter : StaticParameters.StaticSwitchParameters)
+					{
+						if (SwitchParameter.ParameterInfo.Name == FName(*Mask))
+						{
+							SwitchParameter.Value = StaticParameter.Get()->AsObject().Get()->GetBoolField(Mask);
+							SwitchParameter.bOverride = true;
+							break;;
+						}
+					}
+					Mat->UpdateStaticPermutation(StaticParameters);
+#endif
 				}
 			}
 		}
@@ -227,7 +256,7 @@ bool MaterialImporter::OverrideArrayProp(const FString JsonPropName, const TShar
 			FString OutputString;
 			TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 			FJsonSerializer::Serialize(ParamObj.ToSharedRef(), Writer);
-			UE_LOG(LogTemp, Warning, TEXT("Uiana: Array Material Property unaccounted for with value: %s"), *OutputString);	
+			UE_LOG(LogTemp, Warning, TEXT("Uiana: Array Material Property %s unaccounted for with value: %s"), *JsonPropName, *OutputString);	
 		}
 		return false;
 	}

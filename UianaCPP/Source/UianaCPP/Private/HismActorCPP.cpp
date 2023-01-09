@@ -8,6 +8,9 @@
 #include "Components/BillboardComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Rendering/ColorVertexBuffer.h"
+#if ENGINE_MAJOR_VERSION == 4
+#include "Engine/CollisionProfile.h"
+#endif
 
 // Sets default values
 AHismActorCPP::AHismActorCPP()

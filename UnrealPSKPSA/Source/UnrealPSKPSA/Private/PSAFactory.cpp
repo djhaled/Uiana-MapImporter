@@ -5,10 +5,16 @@
 
 #include "EditorAssetLibrary.h"
 #include "PSAReader.h"
-#include "AssetRegistry/AssetRegistryModule.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Misc/ScopedSlowTask.h"
 #include "Rendering/SkeletalMeshLODImporterData.h"
+#if ENGINE_MAJOR_VERSION == 5
+#include "AssetRegistry/AssetRegistryModule.h"
+#else
+#include "AssetRegistryModule.h"
+
+#define FQuat4f FQuat
+#endif
 
 UObject* UPSAFactory::Import(const FString Filename, UObject* Parent, const FName Name, const EObjectFlags Flags) const
 {
@@ -24,8 +30,9 @@ UObject* UPSAFactory::Import(const FString Filename, UObject* Parent, const FNam
 
 	auto MeshBones = Skeleton->GetReferenceSkeleton().GetRawRefBoneInfo();
 
+	// TODO: Implement animations in UE4
+#if ENGINE_MAJOR_VERSION == 5
 	auto& AnimController = AnimSequence->GetController();
-
 	auto Info = Psa.AnimInfo;
 	AnimController.SetFrameRate(FFrameRate(Info.AnimRate, 1));
 	AnimController.SetPlayLength(Info.NumRawFrames/Info.AnimRate);
@@ -49,14 +56,15 @@ UObject* UPSAFactory::Import(const FString Filename, UObject* Parent, const FNam
 
 			PositionalKeys.Add(FVector3f(AnimKey.Position.X, -AnimKey.Position.Y, AnimKey.Position.Z));
 			RotationalKeys.Add(FQuat4f(AnimKey.Orientation.X, -AnimKey.Orientation.Y, AnimKey.Orientation.Z, AnimKey.Orientation.W).GetNormalized());
-			ScaleKeys.Add(Psa.bHasScaleKeys ? Psa.ScaleKeys[KeyIndex].ScaleVector : FVector3f::OneVector);
+			ScaleKeys.Add(Psa.bHasScaleKeys ? Psa.ScaleKeys[KeyIndex].ScaleVector : FVector3f(1, 1, 1));
 		}
-
+		
 		AnimController.AddBoneTrack(BoneName);
 		AnimController.SetBoneTrackKeys(BoneName, PositionalKeys, RotationalKeys, ScaleKeys);
 	}
 	AnimController.RemoveBoneTracksMissingFromSkeleton(Skeleton);
-
+#endif
+	
 	AnimSequence->Modify(true);
 	AnimSequence->PostEditChange();
 	FAssetRegistryModule::AssetCreated(AnimSequence);
@@ -66,6 +74,5 @@ UObject* UPSAFactory::Import(const FString Filename, UObject* Parent, const FNam
 	{
 		FComponentReregisterContext ReregisterContext(*Iter);
 	}
-
 	return AnimSequence;
 }

@@ -25,7 +25,7 @@ public class UnrealPSKPSA : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core"
+				"Core", "GeometricObjects"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -52,7 +52,20 @@ public class UnrealPSKPSA : ModuleRules
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
-		
+		BuildVersion Version;
+		if (BuildVersion.TryRead(BuildVersion.GetDefaultFileName(), out Version))
+		{
+			if (Version.MajorVersion == 5)
+			{
+				// do ue 5 stuff
+				
+			}
+			else
+			{
+				PrivateDependencyModuleNames.Add("GeometricObjects");
+				// do ue 4 stuff
+			}
+		}
 		
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
