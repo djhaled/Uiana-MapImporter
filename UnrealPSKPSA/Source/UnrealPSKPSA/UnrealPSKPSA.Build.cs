@@ -25,7 +25,7 @@ public class UnrealPSKPSA : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core", "GeometricObjects"
+				"Core"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

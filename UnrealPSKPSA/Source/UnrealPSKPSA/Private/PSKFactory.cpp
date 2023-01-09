@@ -75,7 +75,7 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 			}
 			
 			Face.WedgeIndex[VertexIndex] = SkeletalMeshImportData.Wedges.Add(Wedge);
-			Face.TangentZ[VertexIndex] = Psk.bHasVertexNormals ? Psk.Normals[PskWedge.PointIndex] : FVector(0, 0, 0);
+			Face.TangentZ[VertexIndex] = Psk.bHasVertexNormals ? Psk.Normals[PskWedge.PointIndex] : FVector3f(0, 0, 0);
 			Face.TangentY[VertexIndex] = FVector3f(0, 0, 0);
 			Face.TangentX[VertexIndex] = FVector3f(0, 0, 0);
 
@@ -95,7 +95,7 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 		Bone.ParentIndex = PskBone.ParentIndex == -1 ? INDEX_NONE : PskBone.ParentIndex;
 		
 		auto PskBonePos = PskBone.BonePos;
-		FTransform PskTransform;
+		FTransform3f PskTransform; // Required for BonePos.Transform UE5
 		PskTransform.SetTranslation(FVector3f(PskBonePos.Position.X, -PskBonePos.Position.Y, PskBonePos.Position.Z));
 		PskTransform.SetRotation(FQuat4f(PskBonePos.Orientation.X, -PskBonePos.Orientation.Y, PskBonePos.Orientation.Z, PskBonePos.Orientation.W).GetNormalized());
 
