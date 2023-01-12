@@ -250,7 +250,7 @@ void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir, const FString A
 		AssetList,
 		Settings->UMapJsonPath.Path
 	};
-	const FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key {1} --export-directory \"{2}\" --map-name {3} --file-list {4} --game-umaps \"{5}\""), Args);
+	const FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key \"{1}\" --export-directory \"{2}\" --map-name \"{3}\" --file-list \"{4}\" --game-umaps \"{5}\""), Args);
 	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand);
 	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
 	if (ProcHandle.IsValid())
@@ -269,7 +269,7 @@ void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir) const
 		Settings->Name,
 		Settings->UMapJsonPath.Path
 	};
-	const FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key {1} --export-directory \"{2}\" --map-name {3} --game-umaps \"{4}\""), args);
+	const FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key \"{1}\" --export-directory \"{2}\" --map-name \"{3}\" --game-umaps \"{4}\""), args);
 	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand);
 	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
 	if (ProcHandle.IsValid())
