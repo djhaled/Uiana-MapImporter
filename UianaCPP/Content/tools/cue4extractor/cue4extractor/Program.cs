@@ -29,13 +29,13 @@ namespace cue4extractor
         /// <param name="fileList">An option whose argument is parsed as a FileInfo</param>
         /// <param name="gameUmaps">An option whose argument is parsed as a FileInfo</param>
         private static void Main(
-            string gameDirectory = @"E:\Riot Games\VALORANT\live\ShooterGame\Content\Paks",
+            string gameDirectory = @"D:\ValContentEventLOTUS\ShooterGame\Content\Paks",
             string aesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6",
-            string exportDirectory = @"D:\TEtest",
-            string mapName = "ascent",
+            string exportDirectory = @"D:\TEtestze",
+            string mapName = "lotus",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
             string fileList = "",
-            string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\MyProjectbs\Plugins\Uiana\Content\Python\assets\umaps.json"
+            string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\py_widget_pro\Plugins\Uiana\Content\Python\assets\umaps.json"
             )
         {
             var versions = new VersionContainer(EGame.GAME_Valorant);
@@ -56,6 +56,7 @@ namespace cue4extractor
                 "fracture" => "Canyon",
                 "range" => "Poveglia",
                 "pearl" => "Pitt",
+                "lotus" => "Jam",
                 "character select" => "PregameV2",
                 _ => "",
             };
