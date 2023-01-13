@@ -104,11 +104,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 			MaterialInstance->MarkPackageDirty();
 			FStaticMaterial StaticMaterial;
 			StaticMaterial.MaterialInterface = MaterialInstance;
-#if ENGINE_MAJOR_VERSION == 5
 			StaticMesh->GetStaticMaterials().Add(StaticMaterial);
-#else
-			StaticMesh->StaticMaterials.Add(StaticMaterial);
-#endif
 			StaticMesh->GetSectionInfoMap().Set(0, i, FMeshSectionInfo(i));
 			continue;
 		}
@@ -116,11 +112,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 		MaterialInstance->MarkPackageDirty();
 		FStaticMaterial StaticMaterial;
 		StaticMaterial.MaterialInterface = MaterialInstance;
-#if ENGINE_MAJOR_VERSION == 5
 		StaticMesh->GetStaticMaterials().Add(StaticMaterial);
-#else
-		StaticMesh->StaticMaterials.Add(StaticMaterial);
-#endif
 		StaticMesh->GetSectionInfoMap().Set(0, i, FMeshSectionInfo(i));
 	}
 	

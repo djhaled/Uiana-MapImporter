@@ -15,7 +15,7 @@
 #include "ImportUtils/SkeletalMeshImportUtils.h"
 #else
 #include "AssetRegistryModule.h"
-
+#define FTransform3f FTransform
 #define FQuat4f FQuat
 #endif
 
@@ -157,16 +157,10 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 	SkeletalMesh->PreEditChange(nullptr);
 	SkeletalMesh->InvalidateDeriveDataCacheGUID();
 	SkeletalMesh->UnregisterAllMorphTarget();
-
-#if ENGINE_MAJOR_VERSION == 5
+	
 	SkeletalMesh->GetRefBasesInvMatrix().Empty();
 	SkeletalMesh->GetMaterials().Empty();
 	SkeletalMesh->SetHasVertexColors(true);
-#else
-	SkeletalMesh->RefBasesInvMatrix.Empty();
-	SkeletalMesh->Materials.Empty();
-	SkeletalMesh->bHasVertexColors = true;
-#endif
 
 	FSkeletalMeshModel* ImportedResource = SkeletalMesh->GetImportedModel();
 	auto& SkeletalMeshLODInfos = SkeletalMesh->GetLODInfoArray();
@@ -179,11 +173,7 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 
 	ImportedResource->LODModels.Empty();
 	ImportedResource->LODModels.Add(new FSkeletalMeshLODModel);
-#if ENGINE_MAJOR_VERSION == 5
 	SkeletalMesh->SetRefSkeleton(RefSkeleton);
-#else
-	SkeletalMesh->RefSkeleton = RefSkeleton;
-#endif
 	SkeletalMesh->CalculateInvRefMatrices();
 
 	SkeletalMesh->SaveLODImportedData(0, SkeletalMeshImportData);
@@ -203,34 +193,23 @@ UObject* UPSKFactory::Import(const FString Filename, UObject* Parent, const FNam
 		SkeletalMesh->MarkAsGarbage();
 		return nullptr;
 	}
-
-	for (auto Material : SkeletalMeshImportData.Materials)
-	{
-		SkeletalMesh->GetMaterials().Add(FSkeletalMaterial(Material.Material.Get()));
-	}
 #else
 	SkeletalMesh->SetImportedBounds(FBoxSphereBounds(FBox(SkeletalMeshImportData.Points)));
-
+	const FSkeletalMeshBuildParameters SkeletalMeshBuildParameters(SkeletalMesh, GetTargetPlatformManagerRef().GetRunningTargetPlatform(), 0, false);
 	auto& MeshBuilderModule = IMeshBuilderModule::GetForRunningPlatform();
-	if (!MeshBuilderModule.BuildSkeletalMesh(SkeletalMesh, 0, false))
+	if (!MeshBuilderModule.BuildSkeletalMesh(SkeletalMeshBuildParameters))
 	{
 		SkeletalMesh->MarkPendingKill();
 		return nullptr;
 	}
-
+#endif
 	for (auto Material : SkeletalMeshImportData.Materials)
 	{
-		SkeletalMesh->Materials.Add(FSkeletalMaterial(Material.Material.Get()));
+		SkeletalMesh->GetMaterials().Add(FSkeletalMaterial(Material.Material.Get()));
 	}
-#endif
-
 	SkeletalMesh->PostEditChange();
-
-#if ENGINE_MAJOR_VERSION == 5
+	
 	SkeletalMesh->SetSkeleton(Skeleton);
-#else
-	SkeletalMesh->Skeleton = Skeleton;
-#endif
 	Skeleton->MergeAllBonesToBoneTree(SkeletalMesh);
 	
 	FAssetRegistryModule::AssetCreated(SkeletalMesh);

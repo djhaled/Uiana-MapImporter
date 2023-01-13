@@ -96,11 +96,13 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 					{
 						Class = FindObject<UScriptStruct>(nullptr, *ClassName);
 					}
+#if ENGINE_MAJOR_VERSION == 5
 					else
 					{
 						
 						Class = FindFirstObject<UScriptStruct>(*ClassName, EFindFirstObjectOptions::None, ELogVerbosity::Warning, TEXT("FEditorClassUtils::GetClassFromString"));
 					}
+#endif
 					// TODO: Fix why cannot find UScriptStruct!
 					if(!Class)
 					{

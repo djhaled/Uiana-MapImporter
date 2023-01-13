@@ -10,8 +10,10 @@
 #include "MaterialImporter.h"
 #include "FDecalLightImporter.h"
 #include "UianaSettings.h"
-#include "VectorTypes.h"
 #include "Engine/AssetManager.h"
+#if ENGINE_MAJOR_VERSION == 5
+#include "VectorTypes.h"
+#endif
 
 #include "UianaImporter.generated.h"
 
