@@ -35,9 +35,16 @@ void FDecalLightImporter::ImportLight(const TSharedPtr<FJsonObject> Obj)
 		UE_LOG(LogTemp, Error, TEXT("Uiana: SpawnActorFromClass - Class %s not valid!"), *lightType);
 		return;
 	}
-	AActor* light = GEditor->GetWorld()->SpawnActor(lightClass);
+	if(!GEditor->GetWorld()) UE_LOG(LogTemp, Error, TEXT("Uiana: Null World!"));
+	if (!GEditor->GetEditorWorldContext().World()) UE_LOG(LogTemp, Error, TEXT("Uiana: Null World Context!"));
+	AActor* light = GEditor->GetEditorWorldContext().World()->SpawnActor(lightClass);
 #endif
-	light->SetFolderPath(FName("Lights/" + lightType));
+	if (light == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to spawn light of type %s"), *lightType);
+		return;
+	}
+	light->SetFolderPath(FName(TEXT("Lights/") + lightType));
 	light->SetActorLabel(Obj->GetStringField("Name"));
 	UActorComponent* lightComponent = light->GetRootComponent();
 	if (Cast<UBrushComponent>(lightComponent))

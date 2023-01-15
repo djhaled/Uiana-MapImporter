@@ -228,7 +228,8 @@ void MeshBlueprintImporter::ImportMesh(const TSharedPtr<FJsonObject> Obj, const 
 		MeshActor->SetFolderPath(FName(*FPaths::Combine(TEXT("Meshes"), UmapType)));
 		MeshObject = Cast<UStaticMeshComponent>(MeshActorObjects.Last());
 	}
-	SetSettingsFromJsonProperties(Obj->GetObjectField("Properties"), MeshObject); // TODO: If there are no bugs with this, rename to "SetActorSettings()"!
+	if (!MeshObject) UE_LOG(LogTemp, Error, TEXT("Uiana: Mesh object %s is null!"), *Obj->GetStringField("Outer"));
+	SetSettingsFromJsonProperties(Obj->GetObjectField("Properties"), MeshObject);
 	// MeshActor->PostEditMove(true);
 	// if (Obj->HasField("LODData"))
 	// {
@@ -343,7 +344,7 @@ bool MeshBlueprintImporter::OverrideObjectProp(const FString JsonPropName, const
 		if (JsonPropValue->AsObject()->TryGetStringField("ObjectName", MeshName))
 		{
 			const FString Name = MeshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
-			UStaticMesh* Mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset(TEXT("/Game/ValorantContent/Meshes/") + Name));
+			UStaticMesh* Mesh = Cast<UStaticMesh>(UEditorAssetLibrary::LoadAsset(TEXT("/Game/ValorantContent/Meshes/") + Name));
 			if (Mesh == nullptr) return false;
 			UianaHelpers::SetActorProperty<UStaticMesh*>(BaseObj->GetClass(), BaseObj, JsonPropName, Mesh);
 		}

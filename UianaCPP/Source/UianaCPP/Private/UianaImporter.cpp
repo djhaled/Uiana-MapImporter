@@ -126,116 +126,116 @@ void UUianaImporter::ImportMap()
 		}
 		UE_LOG(LogTemp, Display, TEXT("Uiana: Finished level for umap %s"), *UmapName);
 	}
-	// if (Settings.UseSubLevels)
-	// {
-	// 	UE_LOG(LogTemp, Display, TEXT("Uiana: Adding all levels to world!"));
-	// 	UWorld* World = UEditorLevelLibrary::GetEditorWorld();
-	// 	if (World == nullptr)
-	// 	{
-	// 		UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorld is not valid world, trying GetEditorWorldContext()!"));
-	// 		World = GEditor->GetEditorWorldContext().World();
-	// 	}
-	// 	// if (World == nullptr)
-	// 	// {
-	// 	// 	UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorldContext is not valid world, trying GetEditorSubsystem()!"));
-	// 	// 	World = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->GetWorld();
-	// 	// }
-	// 	if (World == nullptr)
-	// 	{
-	// 		UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorSubsystem is not valid world, trying all GetEditorWorldContext worlds()!"));
-	// 		UWorld* PIE = nullptr;
-	// 		UWorld* GamePreview = nullptr;
-	// 		for (FWorldContext const& Context : GEngine->GetWorldContexts())
-	// 		{
-	// 			switch (Context.WorldType)
-	// 			{
-	// 			case EWorldType::PIE:
-	// 				PIE = Context.World();
-	// 				break;
-	// 			case EWorldType::GamePreview:
-	// 				GamePreview = Context.World();
-	// 				break;
-	// 			}
-	// 		}
-	// 		if (PIE)
-	// 		{
-	// 			World = PIE;
-	// 		}
-	// 		else if (GamePreview)
-	// 		{
-	// 			World = GamePreview;
-	// 		}
-	// 	}
-	// 	
-	// 	if (World == nullptr)
-	// 	{
-	// 		UE_LOG(LogTemp, Error, TEXT("Uiana: World pointer is null!"));
-	// 	}
-	// 	else
-	// 	{
-	// 		UE_LOG(LogTemp, Display, TEXT("Uiana: World pointer not null, saving all levels!"));
-	// 	}
-	// 	for (const FString LevelPath : LevelPaths)
-	// 	{
-	// 		UE_LOG(LogTemp, Display, TEXT("Uiana: Adding level %s to world!"), *LevelPath);
-	// 		UEditorLevelUtils::AddLevelToWorld(World, *LevelPath, ULevelStreamingAlwaysLoaded::StaticClass());
-	// 	}
-	// }
-	// if (Settings.ImportMeshes)
-	// {
-	// 	TArray<FString> ObjPaths;
-	// 	FFileManagerGeneric::Get().FindFiles(ObjPaths, *Settings.ObjectsPath.Path, TEXT(".json"));
-	// 	UianaHelpers::AddPrefixPath(Settings.ObjectsPath, ObjPaths);
-	// 	for (const FString ObjPath : ObjPaths)
-	// 	{
-	// 		TArray<TSharedPtr<FJsonValue>> ObjData;
-	// 		FString ObjStr;
-	// 		FFileHelper::LoadFileToString(ObjStr, *ObjPath);
-	// 		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(ObjStr);
-	// 		if (!FJsonSerializer::Deserialize(JsonReader, ObjData) || !ObjData[0].IsValid())
-	// 		{
-	// 			UE_LOG(LogScript, Warning, TEXT("Uiana: Failed to deserialize obj %s"), *ObjPath);
-	// 			continue;
-	// 		}
-	// 		for (TSharedPtr<FJsonValue> Component : ObjData)
-	// 		{
-	// 			if (Component->IsNull() || !Component.IsValid()) continue;
-	// 			const TSharedPtr<FJsonObject> ComponentObj = Component->AsObject();
-	// 			const TSharedPtr<FJsonObject> ComponentProps = ComponentObj->GetObjectField("Properties");
-	// 			if (ComponentObj->HasTypedField<EJson::String>("Type"))
-	// 			{
-	// 				UStaticMesh* Mesh = Cast<UStaticMesh>(UEditorAssetLibrary::LoadAsset(FPaths::Combine(TEXT("/Game/ValorantContent/Meshes/"), ComponentObj->GetStringField("Name"))));
-	// 				if (Mesh == nullptr)
-	// 				{
-	// 					if (!ComponentObj->GetStringField("Name").Contains("BodySetup")) UE_LOG(LogScript, Warning, TEXT("Uiana: Failed to import mesh to modify: %s"), *ComponentObj->GetStringField("Name"));
-	// 					continue;
-	// 				}
-	// 				if (ComponentObj->GetStringField("Type").Equals("StaticMesh"))
-	// 				{
-	// 					double LightmapRes = round(256 * Settings.LightmapResolutionMultiplier / 4) * 4;
-	// 					int LightmapCoord = 1;
-	// 					if (ComponentProps.IsValid() && ComponentProps->HasTypedField<EJson::Number>("LightMapCoordinateIndex"))
-	// 					{
-	// 						LightmapCoord = ComponentProps->GetIntegerField("LightMapCoordinateIndex");
-	// 					}
-	// 					if (ComponentProps.IsValid() && ComponentProps->HasTypedField<EJson::Number>("LightMapResolution"))
-	// 					{
-	// 						LightmapRes = round(ComponentProps->GetNumberField("LightMapResolution") * Settings.LightmapResolutionMultiplier / 4) * 4;
-	// 					}
-	// 					UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), Mesh, "LightMapResolution", LightmapRes);
-	// 					UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), Mesh, "LightMapCoordinateIndex", LightmapCoord);
-	// 				}
-	// 				if (ComponentObj->GetStringField("Type").Equals("BodySetup") && ComponentProps.IsValid() && ComponentProps->HasField("CollisionTraceFlag"))
-	// 				{
-	// 					// TODO: Verify this works vs setting the editor property!
-	// 					UBodySetup* BodySetup = Mesh->GetBodySetup();
-	// 					BodySetup->CollisionTraceFlag = UianaHelpers::ParseCollisionTrace(ComponentProps->GetStringField("CollisionTraceFlag"));
-	// 					Mesh->SetBodySetup(BodySetup);
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
+	if (Settings.UseSubLevels)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Uiana: Adding all levels to world!"));
+		UWorld* World = UEditorLevelLibrary::GetEditorWorld();
+		if (World == nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorld is not valid world, trying GetEditorWorldContext()!"));
+			World = GEditor->GetEditorWorldContext().World();
+		}
+		// if (World == nullptr)
+		// {
+		// 	UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorWorldContext is not valid world, trying GetEditorSubsystem()!"));
+		// 	World = GEditor->GetEditorSubsystem<ULevelEditorSubsystem>()->GetWorld();
+		// }
+		if (World == nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: GetEditorSubsystem is not valid world, trying all GetEditorWorldContext worlds()!"));
+			UWorld* PIE = nullptr;
+			UWorld* GamePreview = nullptr;
+			for (FWorldContext const& Context : GEngine->GetWorldContexts())
+			{
+				switch (Context.WorldType)
+				{
+				case EWorldType::PIE:
+					PIE = Context.World();
+					break;
+				case EWorldType::GamePreview:
+					GamePreview = Context.World();
+					break;
+				}
+			}
+			if (PIE)
+			{
+				World = PIE;
+			}
+			else if (GamePreview)
+			{
+				World = GamePreview;
+			}
+		}
+		
+		if (World == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Uiana: World pointer is null!"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: World pointer not null, saving all levels!"));
+		}
+		for (const FString LevelPath : LevelPaths)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Adding level %s to world!"), *LevelPath);
+			UEditorLevelUtils::AddLevelToWorld(World, *LevelPath, ULevelStreamingAlwaysLoaded::StaticClass());
+		}
+	}
+	if (Settings.ImportMeshes)
+	{
+		TArray<FString> ObjPaths;
+		FFileManagerGeneric::Get().FindFiles(ObjPaths, *Settings.ObjectsPath.Path, TEXT(".json"));
+		UianaHelpers::AddPrefixPath(Settings.ObjectsPath, ObjPaths);
+		for (const FString ObjPath : ObjPaths)
+		{
+			TArray<TSharedPtr<FJsonValue>> ObjData;
+			FString ObjStr;
+			FFileHelper::LoadFileToString(ObjStr, *ObjPath);
+			const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(ObjStr);
+			if (!FJsonSerializer::Deserialize(JsonReader, ObjData) || !ObjData[0].IsValid())
+			{
+				UE_LOG(LogScript, Warning, TEXT("Uiana: Failed to deserialize obj %s"), *ObjPath);
+				continue;
+			}
+			for (TSharedPtr<FJsonValue> Component : ObjData)
+			{
+				if (Component->IsNull() || !Component.IsValid()) continue;
+				const TSharedPtr<FJsonObject> ComponentObj = Component->AsObject();
+				const TSharedPtr<FJsonObject> ComponentProps = ComponentObj->GetObjectField("Properties");
+				if (ComponentObj->HasTypedField<EJson::String>("Type"))
+				{
+					UStaticMesh* Mesh = Cast<UStaticMesh>(UEditorAssetLibrary::LoadAsset(FPaths::Combine(TEXT("/Game/ValorantContent/Meshes/"), ComponentObj->GetStringField("Name"))));
+					if (Mesh == nullptr)
+					{
+						if (!ComponentObj->GetStringField("Name").Contains("BodySetup")) UE_LOG(LogScript, Warning, TEXT("Uiana: Failed to import mesh to modify: %s"), *ComponentObj->GetStringField("Name"));
+						continue;
+					}
+					if (ComponentObj->GetStringField("Type").Equals("StaticMesh"))
+					{
+						double LightmapRes = round(256 * Settings.LightmapResolutionMultiplier / 4) * 4;
+						int LightmapCoord = 1;
+						if (ComponentProps.IsValid() && ComponentProps->HasTypedField<EJson::Number>("LightMapCoordinateIndex"))
+						{
+							LightmapCoord = ComponentProps->GetIntegerField("LightMapCoordinateIndex");
+						}
+						if (ComponentProps.IsValid() && ComponentProps->HasTypedField<EJson::Number>("LightMapResolution"))
+						{
+							LightmapRes = round(ComponentProps->GetNumberField("LightMapResolution") * Settings.LightmapResolutionMultiplier / 4) * 4;
+						}
+						UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), Mesh, "LightMapResolution", LightmapRes);
+						UianaHelpers::SetActorProperty(UStaticMesh::StaticClass(), Mesh, "LightMapCoordinateIndex", LightmapCoord);
+					}
+					if (ComponentObj->GetStringField("Type").Equals("BodySetup") && ComponentProps.IsValid() && ComponentProps->HasField("CollisionTraceFlag"))
+					{
+						// TODO: Verify this works vs setting the editor property!
+						UBodySetup* BodySetup = Mesh->GetBodySetup();
+						BodySetup->CollisionTraceFlag = UianaHelpers::ParseCollisionTrace(ComponentProps->GetStringField("CollisionTraceFlag"));
+						Mesh->SetBodySetup(BodySetup);
+					}
+				}
+			}
+		}
+	}
 }
 
 FString UUianaImporter::CreateNewLevel(const FString LevelName)
