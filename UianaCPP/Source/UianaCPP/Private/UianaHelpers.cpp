@@ -63,7 +63,7 @@ void UianaHelpers::AddAllAssetPath(TArray<FString> &AllAssets, const TArray<FStr
 		FString firstDir, secondDir, temp, remainingDirs;
 		AssetsToAdd[i].Split("\\", &firstDir, &temp);
 		temp.Split("\\", &secondDir, &remainingDirs);
-		AllAssets.AddUnique(FPaths::Combine(firstDir.Equals("ShooterGame") ? "Game" : firstDir, secondDir.Equals("Content") ? "" : secondDir, remainingDirs));
+		AllAssets.AddUnique(FPaths::Combine(firstDir.Equals("ShooterGame") ? TEXT("Game") : firstDir, secondDir.Equals("Content") ? TEXT("") : secondDir, remainingDirs));
 	}
 }
 
@@ -198,6 +198,11 @@ template <class PropType>
 bool UianaHelpers::SetActorProperty(UClass* ActorClass, UObject* Component, const FString PropName, PropType PropVal)
 {
 	FProperty* relativeLocationProp = PropertyAccessUtil::FindPropertyByName(FName(*PropName), ActorClass);
+	if (relativeLocationProp == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Uiana: Failed to find property %s"), *PropName);
+		return false;
+	}
 	PropType* locationAddr = relativeLocationProp->ContainerPtrToValuePtr<PropType>(Component);
 	if (locationAddr == nullptr)
 	{

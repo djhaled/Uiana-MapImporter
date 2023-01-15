@@ -15,7 +15,7 @@ void FDecalLightImporter::ImportDecal(const TSharedPtr<FJsonObject> Obj)
 	decalActor->SetFolderPath("Decals");
 	decalActor->SetActorLabel(Obj->GetStringField("Name"));
 	FString decalName = FPaths::GetBaseFilename(Obj->GetObjectField("Properties")->GetObjectField("DecalMaterial")->GetStringField("ObjectPath"));
-	UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + decalName + "." + decalName));
+	UMaterialInstanceConstant* decalMat = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/Game/ValorantContent/Materials/") + decalName + TEXT(".") + decalName));
 	decalActor->SetDecalMaterial(decalMat);
 	SetSettingsFromJsonProperties(Obj->GetObjectField("Properties"), Cast<UActorComponent>(decalActor->GetDecal()));
 	decalActor->PostEditMove(true);
@@ -94,7 +94,7 @@ bool FDecalLightImporter::OverrideObjectProp(const FString JsonPropName, const T
 		// Not Meshes, Decals | Lights
 		FString temp, newTextureName;
 		JsonPropValue.Get()->AsObject()->GetStringField("ObjectName").Split("_", &temp, &newTextureName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-		FString assetPath = "/UianaCPP/IESProfiles/" + newTextureName + "." + newTextureName;
+		FString assetPath = TEXT("/UianaCPP/IESProfiles/") + newTextureName + TEXT(".") + newTextureName;
 		UTexture* newTexture = Cast<UTexture>(UEditorAssetLibrary::LoadAsset(assetPath));
 		UianaHelpers::SetActorProperty<UTexture*>(BaseObj->GetClass(), BaseObj, JsonPropName, newTexture);
 	}
@@ -102,7 +102,7 @@ bool FDecalLightImporter::OverrideObjectProp(const FString JsonPropName, const T
 	{
 		// Not Meshes, Decals | Lights
 		FString newCubemapName = JsonPropValue.Get()->AsObject()->GetStringField("ObjectName").Replace(TEXT("TextureCube "), TEXT(""));
-		FString assetPath = "/UianaCPP/CubeMaps/" + newCubemapName + "." + newCubemapName;
+		FString assetPath = TEXT("/UianaCPP/CubeMaps/") + newCubemapName + TEXT(".") + newCubemapName;
 		// TODO: Convert all static_cast with UObjects to Cast<>()
 		UTextureCube* newCube = Cast<UTextureCube>(UEditorAssetLibrary::LoadAsset(assetPath));
 		UianaHelpers::SetActorProperty<UTextureCube*>(BaseObj->GetClass(), BaseObj, JsonPropName, newCube);

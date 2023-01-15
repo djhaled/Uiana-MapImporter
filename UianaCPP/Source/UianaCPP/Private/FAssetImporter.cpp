@@ -34,7 +34,7 @@ TArray<FString> FAssetImporter::GetExtractedUmaps()
 
 bool FAssetImporter::NeedExport()
 {
-	FString ExportCheckPath = FPaths::Combine(Settings->FolderPath.Path, "exported.yo");
+	FString ExportCheckPath = FPaths::Combine(Settings->FolderPath.Path, TEXT("exported.yo"));
 	bool bNeedsExport = true;
 	if(FPaths::FileExists(ExportCheckPath))
 	{
@@ -104,7 +104,7 @@ TArray<FString> FAssetImporter::ExtractAssets()
 	}
 	// Process blueprint actors
 	UE_LOG(LogTemp, Display, TEXT("Uiana: Importing BP Actors!"));
-	const FString ActorPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_actors.txt");
+	const FString ActorPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, TEXT("_assets_actors.txt"));
 	FFileHelper::SaveStringArrayToFile(ActorPaths, *ActorPathsFilepath);
 	Cue4Extract(Settings->ActorsPath, ActorPathsFilepath);
 	ActorPaths.Empty();
@@ -112,7 +112,7 @@ TArray<FString> FAssetImporter::ExtractAssets()
 	for (FString ActorPath : ActorPaths)
 	{
 		FString ActorStr;
-		FFileHelper::LoadFileToString(ActorStr, *(Settings->ActorsPath.Path + "/" + ActorPath));
+		FFileHelper::LoadFileToString(ActorStr, *(Settings->ActorsPath.Path + TEXT("/") + ActorPath));
 		TArray<TSharedPtr<FJsonValue>> ActorObjs;
 		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(ActorStr);
 		if (!FJsonSerializer::Deserialize(JsonReader, ActorObjs) || !ActorObjs[0].IsValid())
@@ -124,8 +124,8 @@ TArray<FString> FAssetImporter::ExtractAssets()
 		GetObjects(Temp, ObjPaths, MatOvrPaths, ActorObjs);
 	}
 	// Save asset lists
-	const FString ObjPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_objects.txt");
-	const FString MatPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_materials_ovr.txt");
+	const FString ObjPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, TEXT("_assets_objects.txt"));
+	const FString MatPathsFilepath = FPaths::Combine(Settings->FolderPath.Path, TEXT("_assets_materials_ovr.txt"));
 	UE_LOG(LogTemp, Display, TEXT("Uiana: Saving asset file with %d assets on path: %s"), ObjPaths.Num(), *ObjPathsFilepath);
 	FFileHelper::SaveStringArrayToFile(ObjPaths, *ObjPathsFilepath);
 	FFileHelper::SaveStringArrayToFile(MatOvrPaths, *MatPathsFilepath);
@@ -177,8 +177,8 @@ TArray<FString> FAssetImporter::ExtractAssets()
 	UianaHelpers::AddAllAssetPath(AllPaths, MatPaths);
 	UianaHelpers::AddAllAssetPath(AllPaths, MatOvrPaths);
 	
-	const FString MatListFilepath = FPaths::Combine(Settings->FolderPath.Path, "_assets_materials.txt");
-	const FString AllListFilepath = FPaths::Combine(Settings->FolderPath.Path, "all_assets.txt");
+	const FString MatListFilepath = FPaths::Combine(Settings->FolderPath.Path, TEXT("_assets_materials.txt"));
+	const FString AllListFilepath = FPaths::Combine(Settings->FolderPath.Path, TEXT("all_assets.txt"));
 	FFileHelper::SaveStringArrayToFile(MatPaths, *MatListFilepath);
 	FFileHelper::SaveStringArrayToFile(AllPaths, *AllListFilepath);
 	Cue4Extract(Settings->MaterialsPath, MatListFilepath);
@@ -187,8 +187,8 @@ TArray<FString> FAssetImporter::ExtractAssets()
 	ExportInfo.version = Settings->ValorantVersion;
 	FString ExportStr;
 	FJsonObjectConverter::UStructToJsonObjectString<FUianaExport>(ExportInfo, ExportStr);
-	FFileHelper::SaveStringToFile(ExportStr, *FPaths::Combine(Settings->FolderPath.Path, "exported.yo"));
-	FFileHelper::SaveStringToFile(ExportStr, *FPaths::Combine(Settings->ExportAssetsPath.Path, "exported.yo"));
+	FFileHelper::SaveStringToFile(ExportStr, *FPaths::Combine(Settings->FolderPath.Path, TEXT("exported.yo")));
+	FFileHelper::SaveStringToFile(ExportStr, *FPaths::Combine(Settings->ExportAssetsPath.Path, TEXT("exported.yo")));
 
 	return UmapPaths;
 }
@@ -251,8 +251,8 @@ void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir, const FString A
 		Settings->UMapJsonPath.Path
 	};
 	const FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key \"{1}\" --export-directory \"{2}\" --map-name \"{3}\" --file-list \"{4}\" --game-umaps \"{5}\""), Args);
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand);
-	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
+	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, TEXT("cue4extractor.exe")), *ConsoleCommand);
+	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, TEXT("cue4extractor.exe")), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
 	if (ProcHandle.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Ran CU4 successfully!"));
@@ -270,8 +270,8 @@ void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir) const
 		Settings->UMapJsonPath.Path
 	};
 	const FString ConsoleCommand = FString::Format(TEXT("--game-directory \"{0}\" --aes-key \"{1}\" --export-directory \"{2}\" --map-name \"{3}\" --game-umaps \"{4}\""), args);
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand);
-	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "cue4extractor.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
+	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, TEXT("cue4extractor.exe")), *ConsoleCommand);
+	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, TEXT("cue4extractor.exe")), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
 	if (ProcHandle.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Ran CU4 successfully!"));
@@ -281,7 +281,7 @@ void FAssetImporter::Cue4Extract(const FDirectoryPath ExportDir) const
 
 void FAssetImporter::UModelExtract() const
 {
-	const FString AllAssetPath = FPaths::Combine(Settings->FolderPath.Path, "all_assets.txt");
+	const FString AllAssetPath = FPaths::Combine(Settings->FolderPath.Path, TEXT("all_assets.txt"));
 	TArray<FStringFormatArg> Args = {
 		Settings->PaksPath.Path,
 		Settings->AesKey,
@@ -290,8 +290,8 @@ void FAssetImporter::UModelExtract() const
 		Settings->ExportAssetsPath.Path
 	};
 	const FString ConsoleCommand = FString::Format(TEXT("-path=\"{0}\" -game=valorant -aes={1} -files=\"{2}\" -export -{3} -out=\"{4}\" *"), Args);
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, "umodel.exe"), *ConsoleCommand);
-	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, "umodel.exe"), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
+	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *FPaths::Combine(Settings->ToolsPath.Path, TEXT("umodel.exe")), *ConsoleCommand);
+	FProcHandle ProcHandle = FPlatformProcess::CreateProc(*FPaths::Combine(Settings->ToolsPath.Path, TEXT("umodel.exe")), *ConsoleCommand, false, false, false, nullptr, 1, nullptr, nullptr);
 	if (ProcHandle.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Ran UModel successfully!"));

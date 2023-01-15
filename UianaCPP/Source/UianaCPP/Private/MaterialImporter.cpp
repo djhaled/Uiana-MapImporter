@@ -103,20 +103,20 @@ void MaterialImporter::CreateMaterials(const TArray<FString> MatPaths)
 		{
 			UMaterialInstanceConstantFactoryNew* MaterialFactory = NewObject<UMaterialInstanceConstantFactoryNew>();
 			IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-			MatInstance = static_cast<UMaterialInstanceConstant*>(AssetTools.CreateAsset(Mat->GetStringField("Name"), "/Game/ValorantContent/Materials/", UMaterialInstanceConstant::StaticClass(), MaterialFactory));
+			MatInstance = static_cast<UMaterialInstanceConstant*>(AssetTools.CreateAsset(Mat->GetStringField("Name"), TEXT("/Game/ValorantContent/Materials/"), UMaterialInstanceConstant::StaticClass(), MaterialFactory));
 			UE_LOG(LogTemp, Warning, TEXT("Uiana: Created missing material %s"), *LocalMatPath);
 		}
 		
-		FString MatParent = "BaseEnv_MAT_V4";
+		FString MatParent = TEXT("BaseEnv_MAT_V4");
 		if (Mat->GetObjectField("Properties")->HasField("Parent") && !Mat->GetObjectField("Properties")->GetObjectField("Parent")->GetStringField("ObjectName").IsEmpty())
 		{
 			FString Temp;
 			Mat->GetObjectField("Properties")->GetObjectField("Parent")->GetStringField("ObjectName").Split(TEXT(" "), &Temp, &MatParent);
 		}
-		UMaterialInstanceConstant* ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/UianaCPP/Materials/" + MatParent));
+		UMaterialInstanceConstant* ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/") + MatParent));
 		if (ParentInstance == nullptr)
 		{
-			ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset("/UianaCPP/Materials/BaseEnv_MAT_V4"));
+			ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/BaseEnv_MAT_V4")));
 		}
 		MatInstance->SetParentEditorOnly(ParentInstance);
 		SetMaterial(Mat, MatInstance);

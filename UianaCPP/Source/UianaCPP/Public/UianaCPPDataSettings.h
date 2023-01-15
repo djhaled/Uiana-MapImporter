@@ -56,5 +56,5 @@ public:
 	UUianaCPPDataSettings(const FObjectInitializer& ObjectInitializer);
 
 private:
-	const FString ValorantMetadataPath = "C:\\ProgramData\\Riot Games\\Metadata\\valorant.live\\valorant.live.ok";
+	const FString ValorantMetadataPath = TEXT("C:\\ProgramData\\Riot Games\\Metadata\\valorant.live\\valorant.live.ok");
 };

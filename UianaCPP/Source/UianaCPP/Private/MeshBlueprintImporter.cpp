@@ -85,12 +85,12 @@ void MeshBlueprintImporter::CreateBlueprints(const TArray<FString> BPPaths)
 
 		// Create BP
 		UE_LOG(LogTemp, Display, TEXT("Uiana: Checking if BP %s exists"), *bpName);
-		UBlueprint* BPActor = Cast<UBlueprint>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Blueprints/" + bpName));
+		UBlueprint* BPActor = Cast<UBlueprint>(UEditorAssetLibrary::LoadAsset(TEXT("/Game/ValorantContent/Blueprints/") + bpName));
 		if (BPActor != nullptr) continue;
 		UE_LOG(LogTemp, Display, TEXT("Uiana: Creating BP %s"), *bpName);
 		UBlueprintFactory* BPFactory = NewObject<UBlueprintFactory>();
 		IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-		BPActor = static_cast<UBlueprint*>(AssetTools.CreateAsset(bpName, "/Game/ValorantContent/Blueprints/", UBlueprint::StaticClass(), BPFactory));
+		BPActor = static_cast<UBlueprint*>(AssetTools.CreateAsset(bpName, TEXT("/Game/ValorantContent/Blueprints/"), UBlueprint::StaticClass(), BPFactory));
 		
 		if (NewJsons.Num() == 0)
 		{
@@ -154,7 +154,7 @@ void MeshBlueprintImporter::ImportBlueprint(const TSharedPtr<FJsonObject> Obj, T
 		Transform = UianaHelpers::GetSceneTransformComponent(Obj->GetObjectField("Properties"));
 	}
 	const FString BPName = Obj->GetStringField("Type");
-	UClass* BPClass = UEditorAssetLibrary::LoadBlueprintClass(FPaths::Combine("/Game/ValorantContent/Blueprints/", BPName + "." + BPName));
+	UClass* BPClass = UEditorAssetLibrary::LoadBlueprintClass(FPaths::Combine(TEXT("/Game/ValorantContent/Blueprints/"), BPName + TEXT(".") + BPName));
 	AActor* BPActor = UEditorLevelLibrary::SpawnActorFromObject(BPClass, Transform.GetTranslation(), Transform.GetRotation().Rotator());
 	if (BPActor == nullptr) return;
 	BPActor->SetActorLabel(Obj->GetStringField("Name"));
@@ -212,7 +212,7 @@ void MeshBlueprintImporter::ImportMesh(const TSharedPtr<FJsonObject> Obj, const 
 	UStaticMeshComponent* MeshObject;
 	if (bIsInstanced)
 	{
-		MeshActor->SetFolderPath("Meshes/Instanced");
+		MeshActor->SetFolderPath(TEXT("Meshes/Instanced"));
 		const TArray<TSharedPtr<FJsonValue>> PerInstanceData = Obj->GetArrayField("PerInstanceSMData");
 		for (const TSharedPtr<FJsonValue> Instance : PerInstanceData)
 		{
@@ -224,55 +224,55 @@ void MeshBlueprintImporter::ImportMesh(const TSharedPtr<FJsonObject> Obj, const 
 	}
 	else
 	{
-		FString UmapType = UmapName.Contains("_VFX") ? "VFX" : "Static";
-		MeshActor->SetFolderPath(FName(*FPaths::Combine("Meshes", UmapType)));
+		FString UmapType = UmapName.Contains("_VFX") ? TEXT("VFX") : TEXT("Static");
+		MeshActor->SetFolderPath(FName(*FPaths::Combine(TEXT("Meshes"), UmapType)));
 		MeshObject = Cast<UStaticMeshComponent>(MeshActorObjects.Last());
 	}
 	SetSettingsFromJsonProperties(Obj->GetObjectField("Properties"), MeshObject); // TODO: If there are no bugs with this, rename to "SetActorSettings()"!
-	MeshActor->PostEditMove(true);
-	if (Obj->HasField("LODData"))
-	{
-		const TArray<TSharedPtr<FJsonValue>> LODData = Obj->GetArrayField("LODData");
-		TArray<FColor> VtxArray = {};
-		for (const TSharedPtr<FJsonValue> LOD : LODData)
-		{
-			const TSharedPtr<FJsonObject> LODObj = LOD->AsObject();
-			if (LODObj->HasField("OverrideVertexColors"))
-			{
-				const TArray<TSharedPtr<FJsonValue>> VertexData = LODObj->GetObjectField("OverrideVertexColors")->GetArrayField("Data");
-				for (const TSharedPtr<FJsonValue> Color : VertexData)
-				{
-					VtxArray.Add(UBPFL::ReturnFromHex(Color->AsString()));
-				}
-			}
-		}
-		FString ModelPath = "NoPath";
-		if (Obj->GetObjectField("Properties")->HasField("StaticMesh"))
-		{
-			ModelPath = FPaths::Combine(
-					Settings->ExportAssetsPath.Path,
-					FPaths::GetBaseFilename(
-						Obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"),
-						false
-						)
-					)
-					.Replace(TEXT("ShooterGame"), TEXT("Game"), ESearchCase::CaseSensitive)
-					.Replace(TEXT("/Content"), TEXT(""), ESearchCase::CaseSensitive) + ".pskx";
-		}
-		if (!VtxArray.Num() == 0)
-		{
-			UE_LOG(LogTemp, Display, TEXT("Uiana: Painting %d SM Vertices for mesh %s with modelPath %s"), VtxArray.Num(), *MeshActor->GetActorLabel(), *ModelPath);
-			UBPFL::PaintSMVertices(MeshObject, VtxArray, ModelPath);
-		}
-	}
-	if (Settings->ImportMaterials && Obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
-	{
-		TArray<UMaterialInterface*> OverrideMats = CreateOverrideMaterials(Obj);
-		if (OverrideMats.Num() != 0)
-		{
-			UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), MeshObject, "OverrideMaterials", OverrideMats);	
-		}
-	}
+	// MeshActor->PostEditMove(true);
+	// if (Obj->HasField("LODData"))
+	// {
+	// 	const TArray<TSharedPtr<FJsonValue>> LODData = Obj->GetArrayField("LODData");
+	// 	TArray<FColor> VtxArray = {};
+	// 	for (const TSharedPtr<FJsonValue> LOD : LODData)
+	// 	{
+	// 		const TSharedPtr<FJsonObject> LODObj = LOD->AsObject();
+	// 		if (LODObj->HasField("OverrideVertexColors"))
+	// 		{
+	// 			const TArray<TSharedPtr<FJsonValue>> VertexData = LODObj->GetObjectField("OverrideVertexColors")->GetArrayField("Data");
+	// 			for (const TSharedPtr<FJsonValue> Color : VertexData)
+	// 			{
+	// 				VtxArray.Add(UBPFL::ReturnFromHex(Color->AsString()));
+	// 			}
+	// 		}
+	// 	}
+	// 	FString ModelPath = TEXT("NoPath");
+	// 	if (Obj->GetObjectField("Properties")->HasField("StaticMesh"))
+	// 	{
+	// 		ModelPath = FPaths::Combine(
+	// 				Settings->ExportAssetsPath.Path,
+	// 				FPaths::GetBaseFilename(
+	// 					Obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"),
+	// 					false
+	// 					)
+	// 				)
+	// 				.Replace(TEXT("ShooterGame"), TEXT("Game"), ESearchCase::CaseSensitive)
+	// 				.Replace(TEXT("/Content"), TEXT(""), ESearchCase::CaseSensitive) + TEXT(".pskx");
+	// 	}
+	// 	if (!VtxArray.Num() == 0)
+	// 	{
+	// 		UE_LOG(LogTemp, Display, TEXT("Uiana: Painting %d SM Vertices for mesh %s with modelPath %s"), VtxArray.Num(), *MeshActor->GetActorLabel(), *ModelPath);
+	// 		UBPFL::PaintSMVertices(MeshObject, VtxArray, ModelPath);
+	// 	}
+	// }
+	// if (Settings->ImportMaterials && Obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
+	// {
+	// 	TArray<UMaterialInterface*> OverrideMats = CreateOverrideMaterials(Obj);
+	// 	if (OverrideMats.Num() != 0)
+	// 	{
+	// 		UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), MeshObject, "OverrideMaterials", OverrideMats);	
+	// 	}
+	// }
 }
 
 void MeshBlueprintImporter::FixActorBP(const TSharedPtr<FJsonObject> BPData, const TMap<FString, AActor*> BPMapping, const bool bImportMaterials) const
@@ -289,7 +289,7 @@ void MeshBlueprintImporter::FixActorBP(const TSharedPtr<FJsonObject> BPData, con
 		if (BPProps->TryGetStringField("ObjectName", MeshName))
 		{
 			const FString Name = MeshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
-			UStaticMesh* Mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + Name));
+			UStaticMesh* Mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset(TEXT("/Game/ValorantContent/Meshes/") + Name));
 			UianaHelpers::SetActorProperty<UStaticMesh*>(UStaticMesh::StaticClass(), BPComponent, "StaticMesh", Mesh);
 		}
 	}
@@ -322,13 +322,13 @@ TArray<UMaterialInterface*> MeshBlueprintImporter::CreateOverrideMaterials(const
 		}
 		FString ObjName, Temp;
 		mat->AsObject()->GetStringField("ObjectName").Split(TEXT(" "), &Temp, &ObjName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-		if (ObjName.Equals("Stone_M2_Steps_MI1")) ObjName = "Stone_M2_Steps_MI";
+		if (ObjName.Equals("Stone_M2_Steps_MI1")) ObjName = TEXT("Stone_M2_Steps_MI");
 		if (ObjName.Contains("MaterialInstanceDynamic"))
 		{
 			mats.Add(nullptr);
 			continue;
 		}
-		mats.Add(Cast<UMaterialInterface>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/Game/ValorantContent/Materials/", ObjName))));
+		mats.Add(Cast<UMaterialInterface>(UEditorAssetLibrary::LoadAsset(FPaths::Combine(TEXT("/Game/ValorantContent/Materials/"), ObjName))));
 	}
 	return mats;
 }
@@ -343,7 +343,7 @@ bool MeshBlueprintImporter::OverrideObjectProp(const FString JsonPropName, const
 		if (JsonPropValue->AsObject()->TryGetStringField("ObjectName", MeshName))
 		{
 			const FString Name = MeshName.Replace(TEXT("StaticMesh "), TEXT(""), ESearchCase::CaseSensitive);
-			UStaticMesh* Mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Meshes/" + Name));
+			UStaticMesh* Mesh = static_cast<UStaticMesh*>(UEditorAssetLibrary::LoadAsset(TEXT("/Game/ValorantContent/Meshes/") + Name));
 			if (Mesh == nullptr) return false;
 			UianaHelpers::SetActorProperty<UStaticMesh*>(BaseObj->GetClass(), BaseObj, JsonPropName, Mesh);
 		}
@@ -371,7 +371,7 @@ bool MeshBlueprintImporter::OverrideArrayProp(const FString JsonPropName, const 
 			}
 			const TSharedPtr<FJsonObject> matData = OverrideMatJson.Get()->AsObject();
 			FString Temp, ObjName;
-			matData->GetStringField("ObjectName").Split(" ", &Temp, &ObjName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
+			matData->GetStringField("ObjectName").Split(TEXT(" "), &Temp, &ObjName, ESearchCase::Type::IgnoreCase, ESearchDir::FromEnd);
 			if (matData->HasTypedField<EJson::Object>("ObjectName")) UE_LOG(LogTemp, Error, TEXT("Uiana: BP Override Material ObjectName is not a string!"));
 			if (ObjName.Contains("MaterialInstanceDynamic"))
 			{
@@ -379,8 +379,8 @@ bool MeshBlueprintImporter::OverrideArrayProp(const FString JsonPropName, const 
 				continue;
 			}
 			UMaterialInstanceConstant* Loaded = nullptr;
-			Loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(FPaths::Combine("/UianaCPP/Materials/", ObjName)));
-			if (Loaded == nullptr) Loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset("/Game/ValorantContent/Materials/" + ObjName));
+			Loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(FPaths::Combine(TEXT("/UianaCPP/Materials/"), ObjName)));
+			if (Loaded == nullptr) Loaded = Cast<UMaterialInstanceConstant>(UEditorAssetLibrary::LoadAsset(TEXT("/Game/ValorantContent/Materials/") + ObjName));
 			OverrideMats.Add(Loaded);
 		}
 		UianaHelpers::SetActorProperty<TArray<UMaterialInstanceConstant*>>(BaseObj->GetClass(), BaseObj, JsonPropName, OverrideMats);
