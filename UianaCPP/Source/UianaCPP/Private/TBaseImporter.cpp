@@ -92,16 +92,17 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 					 * DecalSize					Decals
 					 **/
 					UE_LOG(LogTemp, Display, TEXT("Uiana: Setting Actor property %s of type %s for JSON %s"), *JsonProp.Key, *ClassName, *OutputString);
+#if ENGINE_MAJOR_VERSION == 5
 					if (!FPackageName::IsShortPackageName(ClassName))
 					{
 						Class = FindObject<UScriptStruct>(nullptr, *ClassName);
 					}
-#if ENGINE_MAJOR_VERSION == 5
 					else
 					{
-						
 						Class = FindFirstObject<UScriptStruct>(*ClassName, EFindFirstObjectOptions::None, ELogVerbosity::Warning, TEXT("FEditorClassUtils::GetClassFromString"));
 					}
+#else
+					Class = FindObject<UScriptStruct>(ANY_PACKAGE, *ClassName);
 #endif
 					// TODO: Fix why cannot find UScriptStruct!
 					if(!Class)

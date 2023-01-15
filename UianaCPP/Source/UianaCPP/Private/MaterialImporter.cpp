@@ -239,11 +239,18 @@ bool MaterialImporter::OverrideArrayProp(const FString JsonPropName, const TShar
 			FString ParamName = ParameterValue.Get()->AsObject()->GetObjectField("ParameterInfo")->GetStringField("Name").ToLower();
 			if (FPaths::DirectoryExists(FPaths::GetPath(LocalPath)))
 			{
-				const FString TexturePath = FPaths::Combine("/Game/ValorantContent/Textures/", FPaths::GetBaseFilename(LocalPath));
+				const FString TexturePath = FPaths::Combine(TEXT("/Game/ValorantContent/Textures/"), FPaths::GetBaseFilename(LocalPath));
 				UTexture* LoadedTexture = static_cast<UTexture*>(
 						UEditorAssetLibrary::LoadAsset(TexturePath));
-				if (LoadedTexture == nullptr) continue;
-				UMaterialEditingLibrary::SetMaterialInstanceTextureParameterValue(BaseObj, *ParamName, LoadedTexture);
+				if (LoadedTexture == nullptr)
+				{
+					UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to find texture at path %s"), *TexturePath);
+					continue;
+				}
+				// UMaterialEditingLibrary::SetMaterialInstanceTextureParameterValue(BaseObj, *ParamName, LoadedTexture);
+				FMaterialParameterInfo ParameterInfo;
+				FJsonObjectConverter::JsonObjectToUStruct(ParameterValue.Get()->AsObject()->GetObjectField("ParameterInfo").ToSharedRef(), FMaterialParameterInfo::StaticStruct(), &ParameterInfo);
+				BaseObj->SetTextureParameterValueEditorOnly(ParameterInfo, LoadedTexture);
 			}
 			else UE_LOG(LogTemp, Warning, TEXT("Uiana: Missing texture at expected directory %s"), *FPaths::GetPath(LocalPath));
 		}

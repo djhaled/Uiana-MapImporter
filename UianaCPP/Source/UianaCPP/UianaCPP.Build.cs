@@ -26,12 +26,7 @@ public class UianaCPP : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Json",
-				"JsonUtilities",
-				"EditorScriptingUtilities",
-				"AssetTools",
-				"LevelEditor",
-				"MaterialEditor"
+				"UnrealPSKPSA"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -51,7 +46,12 @@ public class UianaCPP : ModuleRules
 				"RenderCore",
 				"EditorStyle",
 				"SlateCore",
-				"UnrealPSKPSA"
+				"Json",
+				"JsonUtilities",
+				"EditorScriptingUtilities",
+				"AssetTools",
+				"LevelEditor",
+				"MaterialEditor"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
