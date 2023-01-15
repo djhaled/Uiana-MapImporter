@@ -230,50 +230,50 @@ void MeshBlueprintImporter::ImportMesh(const TSharedPtr<FJsonObject> Obj, const 
 	}
 	if (!MeshObject) UE_LOG(LogTemp, Error, TEXT("Uiana: Mesh object %s is null!"), *Obj->GetStringField("Outer"));
 	SetSettingsFromJsonProperties(Obj->GetObjectField("Properties"), MeshObject);
-	// MeshActor->PostEditMove(true);
-	// if (Obj->HasField("LODData"))
-	// {
-	// 	const TArray<TSharedPtr<FJsonValue>> LODData = Obj->GetArrayField("LODData");
-	// 	TArray<FColor> VtxArray = {};
-	// 	for (const TSharedPtr<FJsonValue> LOD : LODData)
-	// 	{
-	// 		const TSharedPtr<FJsonObject> LODObj = LOD->AsObject();
-	// 		if (LODObj->HasField("OverrideVertexColors"))
-	// 		{
-	// 			const TArray<TSharedPtr<FJsonValue>> VertexData = LODObj->GetObjectField("OverrideVertexColors")->GetArrayField("Data");
-	// 			for (const TSharedPtr<FJsonValue> Color : VertexData)
-	// 			{
-	// 				VtxArray.Add(UBPFL::ReturnFromHex(Color->AsString()));
-	// 			}
-	// 		}
-	// 	}
-	// 	FString ModelPath = TEXT("NoPath");
-	// 	if (Obj->GetObjectField("Properties")->HasField("StaticMesh"))
-	// 	{
-	// 		ModelPath = FPaths::Combine(
-	// 				Settings->ExportAssetsPath.Path,
-	// 				FPaths::GetBaseFilename(
-	// 					Obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"),
-	// 					false
-	// 					)
-	// 				)
-	// 				.Replace(TEXT("ShooterGame"), TEXT("Game"), ESearchCase::CaseSensitive)
-	// 				.Replace(TEXT("/Content"), TEXT(""), ESearchCase::CaseSensitive) + TEXT(".pskx");
-	// 	}
-	// 	if (!VtxArray.Num() == 0)
-	// 	{
-	// 		UE_LOG(LogTemp, Display, TEXT("Uiana: Painting %d SM Vertices for mesh %s with modelPath %s"), VtxArray.Num(), *MeshActor->GetActorLabel(), *ModelPath);
-	// 		UBPFL::PaintSMVertices(MeshObject, VtxArray, ModelPath);
-	// 	}
-	// }
-	// if (Settings->ImportMaterials && Obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
-	// {
-	// 	TArray<UMaterialInterface*> OverrideMats = CreateOverrideMaterials(Obj);
-	// 	if (OverrideMats.Num() != 0)
-	// 	{
-	// 		UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), MeshObject, "OverrideMaterials", OverrideMats);	
-	// 	}
-	// }
+	MeshActor->PostEditMove(true);
+	if (Obj->HasField("LODData"))
+	{
+		const TArray<TSharedPtr<FJsonValue>> LODData = Obj->GetArrayField("LODData");
+		TArray<FColor> VtxArray = {};
+		for (const TSharedPtr<FJsonValue> LOD : LODData)
+		{
+			const TSharedPtr<FJsonObject> LODObj = LOD->AsObject();
+			if (LODObj->HasField("OverrideVertexColors"))
+			{
+				const TArray<TSharedPtr<FJsonValue>> VertexData = LODObj->GetObjectField("OverrideVertexColors")->GetArrayField("Data");
+				for (const TSharedPtr<FJsonValue> Color : VertexData)
+				{
+					VtxArray.Add(UBPFL::ReturnFromHex(Color->AsString()));
+				}
+			}
+		}
+		FString ModelPath = TEXT("NoPath");
+		if (Obj->GetObjectField("Properties")->HasField("StaticMesh"))
+		{
+			ModelPath = FPaths::Combine(
+					Settings->ExportAssetsPath.Path,
+					FPaths::GetBaseFilename(
+						Obj->GetObjectField("Properties")->GetObjectField("StaticMesh")->GetStringField("ObjectPath"),
+						false
+						)
+					)
+					.Replace(TEXT("ShooterGame"), TEXT("Game"), ESearchCase::CaseSensitive)
+					.Replace(TEXT("/Content"), TEXT(""), ESearchCase::CaseSensitive) + TEXT(".pskx");
+		}
+		if (!VtxArray.Num() == 0)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Uiana: Painting %d SM Vertices for mesh %s with modelPath %s"), VtxArray.Num(), *MeshActor->GetActorLabel(), *ModelPath);
+			UBPFL::PaintSMVertices(MeshObject, VtxArray, ModelPath);
+		}
+	}
+	if (Settings->ImportMaterials && Obj->GetObjectField("Properties")->HasField("OverrideMaterials"))
+	{
+		TArray<UMaterialInterface*> OverrideMats = CreateOverrideMaterials(Obj);
+		if (OverrideMats.Num() != 0)
+		{
+			UianaHelpers::SetActorProperty(UStaticMeshComponent::StaticClass(), MeshObject, "OverrideMaterials", OverrideMats);	
+		}
+	}
 }
 
 void MeshBlueprintImporter::FixActorBP(const TSharedPtr<FJsonObject> BPData, const TMap<FString, AActor*> BPMapping, const bool bImportMaterials) const

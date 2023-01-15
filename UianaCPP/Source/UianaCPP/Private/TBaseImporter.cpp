@@ -180,20 +180,20 @@ void TBaseImporter<ObjType>::SetSettingsFromJsonProperties(const TSharedPtr<FJso
 			}
 			else if (const FNumericProperty* NumericProp = CastField<FNumericProperty>(ObjectProp))
 			{
+				// Handles DetailMode, Mobility enum values
 				if (NumericProp->IsEnum())
 				{
 					if (const UEnum* Enum = NumericProp->GetIntPropertyEnum())
 					{
 						FString StrValue = PropValue->AsString();
-						int64 EnumValue = Enum->GetValueByName(FName(*StrValue), EGetByNameFlags::CheckAuthoredName);
+						int64 EnumValue = Enum->GetValueByName(FName(*StrValue));
 						if (EnumValue == INDEX_NONE)
 						{
 							UE_LOG(LogTemp, Error, TEXT("Uiana: Failed to set Numeric EnumProperty %s to value %s"), *JsonProp.Key, *PropValue->AsString());
 							continue;
 						}
 						void* StructSettingsAddr = ObjectProp->ContainerPtrToValuePtr<void>(BaseObj);
-						void* PropAddr = NumericProp->ContainerPtrToValuePtr<uint8>(StructSettingsAddr);
-						NumericProp->SetIntPropertyValue(PropAddr, EnumValue);
+						NumericProp->SetIntPropertyValue(StructSettingsAddr, EnumValue);
 					}
 				}
 			}
