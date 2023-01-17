@@ -126,20 +126,7 @@ FString FUianaCPPModule::GetMapName(int EnumValue)
 
 void FUianaCPPModule::PluginButtonClicked()
 {
-#if ENGINE_MAJOR_VERSION == 5
 	FGlobalTabmanager::Get()->TryInvokeTab(UianaCPPTabName);
-#else
-	TSharedPtr<SDockTab> NewTab = FGlobalTabmanager::Get()->InvokeTab(UianaCPPTabName);
-	if (!NewTab.IsValid()) return;
-	TSharedPtr<SWindow> ParentWindowPtr = NewTab->GetParentWindow();
-	if ((NewTab->GetTabRole() == ETabRole::MajorTab || NewTab->GetTabRole() == ETabRole::NomadTab) && ParentWindowPtr.IsValid() && ParentWindowPtr != FGlobalTabmanager::Get()->GetRootWindow())
-	{
-		ParentWindowPtr->SetTitle(NewTab->GetTabLabel());
-	}
-#if PLATFORM_MAC
-	FPlatformApplicationMisc::bChachedMacMenuStateNeedsUpdate = true;
-#endif
-#endif
 }
 
 FReply FUianaCPPModule::ExecuteFunction()

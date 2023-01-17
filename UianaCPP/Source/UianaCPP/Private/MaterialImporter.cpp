@@ -116,12 +116,19 @@ void MaterialImporter::CreateMaterials(const TArray<FString> MatPaths)
 		UMaterialInstanceConstant* ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/") + MatParent));
 		if (ParentInstance == nullptr)
 		{
-			ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/BaseEnv_MAT_V4")));
+			if (MatParent.Contains("Blend"))
+			{
+				// Override for blend mats
+				ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/BaseEnv_Blend_MAT_V4")));
+			}
+			else
+			{
+				ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/BaseEnv_MAT_V4")));
+			}
 		}
 		MatInstance->SetParentEditorOnly(ParentInstance);
 		SetMaterial(Mat, MatInstance);
 		UE_LOG(LogTemp, Warning, TEXT("Uiana: Created material %s at %s"), *MatPath, *LocalMatPath);
-		// TODO: Fix applying textures to materials, bad path for some reason
 	}
 }
 
