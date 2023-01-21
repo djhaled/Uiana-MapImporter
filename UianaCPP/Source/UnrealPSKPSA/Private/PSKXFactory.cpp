@@ -124,7 +124,7 @@ UObject* UPSKXFactory::Import(const FString Filename, UObject* Parent, const FNa
 	SourceModel.BuildSettings.bRecomputeNormals = !bHasNormals;
 	SourceModel.SaveRawMesh(RawMesh);
 
-	StaticMesh->Build();
+	StaticMesh->Build(); // PostEditChange calls Build() internally anyway, no need to double-up
 	StaticMesh->PostEditChange();
 	FAssetRegistryModule::AssetCreated(StaticMesh);
 	StaticMesh->MarkPackageDirty();
