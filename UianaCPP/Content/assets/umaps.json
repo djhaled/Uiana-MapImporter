@@ -207,5 +207,28 @@
   ],
   "menu": [
     "/Game/Maps/Menu/MainMenuV2"
+  ],
+  "lotus": [
+    "/Game/Maps/Jam/Jam_Art_ASite",
+    "/Game/Maps/Jam/Jam_Art_ASiteVista",
+    "/Game/Maps/Jam/Jam_Art_AtkPathA",
+    "/Game/Maps/Jam/Jam_Art_AtkPathB",
+    "/Game/Maps/Jam/Jam_Art_AtkPathC",
+    "/Game/Maps/Jam/Jam_Art_AtkSpawn",
+    "/Game/Maps/Jam/Jam_Art_AtkVista",
+    "/Game/Maps/Jam/Jam_Art_BSite",
+    "/Game/Maps/Jam/Jam_Art_CBConnector",
+    "/Game/Maps/Jam/Jam_Art_CSite",
+    "/Game/Maps/Jam/Jam_Art_DefPathA",
+    "/Game/Maps/Jam/Jam_Art_DefPathB",
+    "/Game/Maps/Jam/Jam_Art_DefPathC",
+    "/Game/Maps/Jam/Jam_Art_DefSpawn",
+    "/Game/Maps/Jam/Jam_Art_DefVista",
+    "/Game/Maps/Jam/Jam_Art_DoorBakeRooms",
+    "/Game/Maps/Jam/Jam_ArtDefPathCExterior",
+    "/Game/Maps/Jam/Jam_Gameplay",
+    "/Game/Maps/Jam/Jam_Lighting",
+    "/Game/Maps/Jam/Jam_KillVolumes",
+    "/Game/Maps/Jam/Jam"
   ]
 }

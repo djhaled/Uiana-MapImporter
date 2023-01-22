@@ -113,11 +113,16 @@ FString FUianaCPPModule::GetMapName(int EnumValue)
 	{
 		return FString("pearl");
 	}
-	if (EnumValue == 9)
+		if (EnumValue == 9)
+	{
+		return FString("lotus");
+	}
+
+	if (EnumValue == 10)
 	{
 		return FString("characterSelect");
 	}
-	if (EnumValue == 10)
+	if (EnumValue == 11)
 	{
 		return FString("menu");
 	}

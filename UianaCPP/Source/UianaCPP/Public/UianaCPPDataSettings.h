@@ -15,6 +15,7 @@ enum WeaponRoleCPP
 	Fracture UMETA(DisplayName = "Fracture"),
 	Range UMETA(DisplayName = "Range"),
 	Pearl UMETA(DisplayName = "Pearl"),
+	Lotus UMETA(DisplayName = "Lotus"),
 	CharacterSelect UMETA(DisplayName = "CharacterSelect"),
 	Menu UMETA(DisplayName = "Menu"),
 };
