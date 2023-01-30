@@ -113,17 +113,22 @@ void MaterialImporter::CreateMaterials(const TArray<FString> MatPaths)
 			FString Temp;
 			Mat->GetObjectField("Properties")->GetObjectField("Parent")->GetStringField("ObjectName").Split(TEXT(" "), &Temp, &MatParent);
 		}
-		UMaterialInstanceConstant* ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/") + MatParent));
+#if ENGINE_MAJOR_VERSION == 5
+		const FString UianaCPPMatPath = TEXT("/UianaCPP/Materials/");
+#else
+		const FString UianaCPPMatPath = TEXT("/UianaCPP/MaterialsUE4/");
+#endif
+		UMaterialInstanceConstant* ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(UianaCPPMatPath + MatParent));
 		if (ParentInstance == nullptr)
 		{
 			if (MatParent.Contains("Blend"))
 			{
 				// Override for blend mats
-				ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/BaseEnv_Blend_MAT_V4")));
+				ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(UianaCPPMatPath + TEXT("BaseEnv_Blend_MAT_V4")));
 			}
 			else
 			{
-				ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(TEXT("/UianaCPP/Materials/BaseEnv_MAT_V4")));
+				ParentInstance = static_cast<UMaterialInstanceConstant*>(UEditorAssetLibrary::LoadAsset(UianaCPPMatPath + TEXT("BaseEnv_MAT_V4")));
 			}
 		}
 		MatInstance->SetParentEditorOnly(ParentInstance);
