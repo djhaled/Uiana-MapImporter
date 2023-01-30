@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "MeshPaintStaticMeshAdapter.h"
 #include "BPFL.generated.h"
 #if ENGINE_MAJOR_VERSION == 5
 #include "VectorTypes.h"

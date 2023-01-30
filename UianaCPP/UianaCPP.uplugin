@@ -3,7 +3,7 @@
   "Version": 1,
   "VersionName": "1.0",
   "FriendlyName": "UianaCPP",
-  "Description": "Uiana C++-only version",
+  "Description": "Uiana C++-only version, supports UE4 and UE5",
   "Category": "Other",
   "CreatedBy": "UsaidM",
   "CreatedByURL": "",
@@ -36,6 +36,10 @@
     },
     {
       "Name": "EditorScriptingUtilities",
+      "Enabled": true
+    },
+    {
+      "Name": "MeshPainting",
       "Enabled": true
     }
   ]

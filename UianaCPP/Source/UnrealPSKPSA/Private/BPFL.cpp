@@ -12,6 +12,7 @@
 #include "json.hpp"
 #include "KismetProceduralMeshLibrary.h"
 #include "AutomatedAssetImportData.h"
+#include "MeshPaintAdapterFactory.h"
 #include "Engine/World.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Misc/FileHelper.h"
@@ -77,25 +78,13 @@ UActorComponent* UBPFL::CreateBPComp(UObject* Object, UClass* ClassToUse, FName 
 }
 void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColorsArray, FString FileName)
 {
-	TArray<FColor> FinalColors;
+	SMComp->SetLODDataCount(1, SMComp->LODData.Num());
+	TSharedPtr<IMeshPaintGeometryAdapter> MeshPainter = FMeshPaintAdapterFactory::CreateAdapterForMesh(SMComp, 0);
 	UStaticMesh* SM = SMComp->GetStaticMesh();
-	/// here is old script everythign works down here so dont bother
-	//Get the static mesh that we're going to paint
-	if (SM)
+	if (MeshPainter.IsValid() && SM)
 	{
-		//Get the vertex buffer from the 1st lod
-		//FPositionVertexBuffer* PositionVertexBuffer = &SM->RenderData->LODResources[0].VertexBuffers.PositionVertexBuffer;
-
-		//Make sure that we have at least 1 LOD
-		SMComp->SetLODDataCount(1, SMComp->LODData.Num());
-		FStaticMeshComponentLODInfo* LODInfo = &SMComp->LODData[0]; //We're going to modify the 1st LOD only
-		FStaticMeshLODResources& LodResources = SM->GetRenderData()->LODResources[0];
-		auto numverts = LodResources.GetNumVertices();
-		//Empty the painted vertices and assign a new color vertex buffer which will contain the new colors for each vertex
-		LODInfo->PaintedVertices.Empty();
-		LODInfo->OverrideVertexColors = new FColorVertexBuffer();
-
 		// get reader positions /////
+		TArray<FColor> FinalColors;
 		const auto Reader = new PSKReader(FileName);
 		Reader->Read();
 		TArray<FVector3f> CurrentVerts = ReturnCurrentVerts(SM);
@@ -108,10 +97,10 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 			auto Hashmap = MakeHashmap(Reader->Vertices, VtxColorsArray);
 			// Shell_3_AtkCourtyardGroundA
 			// Shell_3_AtkPathB
-			for (auto vt : CurrentVerts)
+			for (int vertIndex = 0; vertIndex < CurrentVerts.Num(); vertIndex++)
 			{
-				vt.Y = -vt.Y;
-				auto idaa = FVector3f(vt);
+				CurrentVerts[vertIndex].Y = -CurrentVerts[vertIndex].Y;
+				auto idaa = FVector3f(CurrentVerts[vertIndex]);
 				auto finder = Hashmap.Find(idaa);
 				if (finder)
 				{
@@ -119,8 +108,6 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 				}
 			}
 		}
-		//Since we know beforehand the number of elements we might as well reserve the memory now
-		//Initialize the new vertex colros with the array we created above
 		if (FinalColors.Num() != CurrentVerts.Num())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("This one has wrong FinalColors %s"), *SM->GetName());
@@ -130,12 +117,16 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 			UE_LOG(LogTemp, Warning, TEXT("This one has no FinalColors %s"), *SM->GetName());
 			return;
 		}
-		LODInfo->OverrideVertexColors->InitFromColorArray(FinalColors);
-
-		//Initialize resource and mark render state of object as dirty in order for the engine to re-render it
-		BeginInitResource(LODInfo->OverrideVertexColors);
-		SMComp->MarkRenderStateDirty();
+		for (int colorIndex = 0; colorIndex < FinalColors.Num(); colorIndex++)
+		{
+			MeshPainter->SetVertexColor(colorIndex, FinalColors[colorIndex]);
+		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Provided StaticMesh could not be retrieved! Missing %s"), MeshPainter.IsValid() ? TEXT("StaticMesh!") : TEXT("MeshPainter!"));
+	}
+	MeshPainter.Reset();
 }
 
 FColor UBPFL::ReturnFromHex(FString Beka)
