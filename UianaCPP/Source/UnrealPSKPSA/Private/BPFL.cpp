@@ -80,6 +80,7 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 {
 	SMComp->SetLODDataCount(1, SMComp->LODData.Num());
 	TSharedPtr<IMeshPaintGeometryAdapter> MeshPainter = FMeshPaintAdapterFactory::CreateAdapterForMesh(SMComp, 0);
+	MeshPainter->PreEdit();
 	UStaticMesh* SM = SMComp->GetStaticMesh();
 	if (MeshPainter.IsValid() && SM)
 	{
@@ -117,6 +118,9 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 			UE_LOG(LogTemp, Warning, TEXT("This one has no FinalColors %s"), *SM->GetName());
 			return;
 		}
+		UE_LOG(LogTemp, Display, TEXT("Setting %d vertices' colors with %d color values!"), CurrentVerts.Num(), FinalColors.Num());
+		FColor Temp;
+		MeshPainter->GetVertexColor(0, Temp);  // Just used to initialize color buffer
 		for (int colorIndex = 0; colorIndex < FinalColors.Num(); colorIndex++)
 		{
 			MeshPainter->SetVertexColor(colorIndex, FinalColors[colorIndex]);
@@ -126,6 +130,7 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Provided StaticMesh could not be retrieved! Missing %s"), MeshPainter.IsValid() ? TEXT("StaticMesh!") : TEXT("MeshPainter!"));
 	}
+	MeshPainter->PostEdit();
 	MeshPainter.Reset();
 }
 
