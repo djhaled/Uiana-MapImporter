@@ -102,7 +102,7 @@ void UUianaImporter::ImportMap()
 		FFileHelper::LoadFileToString(UmapStr, *UmapPaths[i]);
 		TArray<TSharedPtr<FJsonValue>> UmapData, UmapFiltered;
 		const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(UmapStr);
-		if (!FJsonSerializer::Deserialize(JsonReader, UmapData) || !UmapData[0].IsValid())
+		if (!FJsonSerializer::Deserialize(JsonReader, UmapData) || UmapData.Num() == 0 || !UmapData[0].IsValid())
 		{
 			UE_LOG(LogScript, Warning, TEXT("UIANA: Failed to deserialize umap %s"), *UmapPaths[i]);
 			continue;

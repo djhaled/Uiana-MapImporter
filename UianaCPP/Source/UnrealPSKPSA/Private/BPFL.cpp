@@ -80,6 +80,11 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 {
 	SMComp->SetLODDataCount(1, SMComp->LODData.Num());
 	TSharedPtr<IMeshPaintGeometryAdapter> MeshPainter = FMeshPaintAdapterFactory::CreateAdapterForMesh(SMComp, 0);
+	if (!MeshPainter.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Uiana: Cannot create Mesh Painter for static mesh!"));
+		return;
+	}
 	MeshPainter->PreEdit();
 	UStaticMesh* SM = SMComp->GetStaticMesh();
 	if (MeshPainter.IsValid() && SM)
@@ -171,6 +176,11 @@ TArray<FColor> UBPFL::FixBrokenMesh(UStaticMesh* SMesh, FString ReaderFile, TArr
 	for (auto vt : CurrentVerticesPosition)
 	{
 		auto finder = Hasher.Find(FVector3f(vt));
+		if (finder == nullptr)
+		{
+			LocalVtxColors.Add(FColor::White);
+			continue;
+		}
 		LocalVtxColors.Add(*finder);
 	}
 	return LocalVtxColors;
