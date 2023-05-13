@@ -11,8 +11,8 @@ UCLASS()
 class UIANA_API AValActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AValActor();
 
@@ -20,10 +20,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	UFUNCTION(BlueprintCallable)
-	void CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp,UStaticMesh* MeshToUSE, FTransform TForm);
-	UFUNCTION(BlueprintCallable)
-	void CreateStaticComponent(UStaticMeshComponent*& NewComp,  UStaticMesh *MeshToUSE, FTransform TForm);
+public:
+	UFUNCTION(BlueprintCallable, Category = "Blueprint")
+		void CreateInstanceComponent(UHierarchicalInstancedStaticMeshComponent*& NewComp, UStaticMesh* MeshToUSE, FTransform TForm);
+	UFUNCTION(BlueprintCallable, Category = "Blueprint")
+		void CreateStaticComponent(UStaticMeshComponent*& NewComp, UStaticMesh* MeshToUSE, FTransform TForm);
 
 };
