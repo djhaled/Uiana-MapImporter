@@ -22,9 +22,8 @@
 #include "PSKReader.h"
 #include "Engine/RendererSettings.h"
 #include "PSKXFactory.h"
-
-
-
+#include "StaticMeshComponentLODInfo.h"
+#include "UObject/SavePackage.h"
 
 
 UActorComponent* UBPFL::GetComponentByName(AActor* Actor, FName CompName)
@@ -128,7 +127,6 @@ void UBPFL::PaintSMVertices(UStaticMeshComponent* SMComp, TArray<FColor> VtxColo
 
 		//Initialize resource and mark render state of object as dirty in order for the engine to re-render it
 		BeginInitResource(LODInfo->OverrideVertexColors);
-		SMComp->MarkRenderStateDirty();
 	}
 }
 
@@ -235,6 +233,7 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		tx.Split(TEXT("\\"), &TexGamePath, &TexName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 		FString PathForTextures = FString::Printf(TEXT("/Game/ValorantContent/Textures/%s"), *TexName.Replace(TEXT(".png"),TEXT("")));
 		auto TexPackage = CreatePackage(nullptr ,*PathForTextures);
+		TexPackage->FullyLoad();
 		auto bCancelled = false;
 		auto NewTxName = TexName.Replace(TEXT(".png"),TEXT(""));
 		auto CreatedTexture = TextureFactory->FactoryCreateFile(UTexture2D::StaticClass(), TexPackage, FName(*NewTxName), RF_Public | RF_Standalone, tx, NULL, GWarn, bCancelled); 
@@ -262,10 +261,14 @@ void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 		}
 		ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Texture : %d of %d: %s"), ActorIdx + 1, AllTexturesPath.Num() + 1, *NewTxName));
 		ImportTask.EnterProgressFrame();
-		Tex->MarkPackageDirty();
+		
+		Tex->UpdateResource();
 		FAssetRegistryModule::AssetCreated(Tex);
-		Tex->PreEditChange(nullptr);
-		Tex->PostEditChange();
+		const FString PackageFileName = FPackageName::LongPackageNameToFilename(TexPackage->GetName(), FPackageName::GetAssetPackageExtension());
+		FSavePackageArgs SaveArgs;
+		UPackage::SavePackage(TexPackage, Tex, *PackageFileName, SaveArgs);
+
+
 	}
 }
 
@@ -295,6 +298,10 @@ void UBPFL::ImportMeshes(TArray<FString> AllMeshesPath, FString ObjectsPath)
 		{
 			continue;
 		}
+		FAssetRegistryModule::AssetCreated(CreatedMesh);
+		FSavePackageArgs SaveArgs;
+		const FString PackageFileName = FPackageName::LongPackageNameToFilename(MeshPackage->GetName(), FPackageName::GetAssetPackageExtension());
+		UPackage::SavePackage(MeshPackage, nullptr, *PackageFileName, SaveArgs);
 		ImportTask.DefaultMessage = FText::FromString(FString::Printf(TEXT("Importing Mesh : %d of %d: %s"), ActorIdx + 1, AllMeshesPath.Num() + 1, *MeshName));
 		ImportTask.EnterProgressFrame();
 		//Msh->Property

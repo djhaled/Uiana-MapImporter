@@ -587,6 +587,8 @@ def create_material(material_data: list, settings: Settings):
     mat_data = material_data[0]
     mat_data = actor_defs(mat_data)
     parent = "BaseEnv_MAT_V4"
+    if "Blend" in mat_data.name and "BaseEnv_Blend_MAT_V4_V3Compatibility" not in mat_data.name:
+        parent = "BaseEnv_Blend_MAT_V4"
     if not mat_data.props:
         return
     loaded_material = unreal.load_asset(f"/Game/ValorantContent/Materials/{mat_data.name}.{mat_data.name}")
