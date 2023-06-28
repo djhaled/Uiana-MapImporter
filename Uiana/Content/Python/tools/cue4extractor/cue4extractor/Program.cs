@@ -8,18 +8,34 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
 using Newtonsoft.Json;
+using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Assets.Exports;
 
 namespace cue4extractor
 {
     class Program
     {
-        private static string[] GetUmapList(string mapName, string jsonPath)
+        private static List<string> GetUmapList(string targetMapName, string jsonFilePath, DefaultFileProvider fileProvider)
         {
-            var jsonContent = File.ReadAllText(jsonPath);
-            var dict = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(jsonContent);
+            var jsonContent = File.ReadAllText(jsonFilePath);
+            var mapDictionary = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(jsonContent);
+            var targetMapPaths = mapDictionary[targetMapName][0];
+            List<string> objectNames = new List<string>();
 
-            return dict[mapName];
+            UWorld targetMap = (UWorld)fileProvider.LoadObject(targetMapPaths);
+            objectNames.Add(targetMap.Owner.Name);
+
+            foreach (var streamingLevel in targetMap.StreamingLevels)
+            {
+                streamingLevel.TryLoad(out var level);
+                UWorld levelWorldAsset = level.Get<UWorld>("WorldAsset");
+                objectNames.Add(levelWorldAsset.Owner.Name);
+            }
+
+            return objectNames;
         }
+
+
 
 
         /// <param name="gameDirectory">An option whose argument is parsed as an int</param>
@@ -29,13 +45,13 @@ namespace cue4extractor
         /// <param name="fileList">An option whose argument is parsed as a FileInfo</param>
         /// <param name="gameUmaps">An option whose argument is parsed as a FileInfo</param>
         private static void Main(
-            string gameDirectory = @"D:\ValContentEventLOTUS\ShooterGame\Content\Paks",
+            string gameDirectory = @"C:\Riot Games\VALORANT\live\ShooterGame\Content\Paks",
             string aesKey = "0x4BE71AF2459CF83899EC9DC2CB60E22AC4B3047E0211034BBABE9D174C069DD6",
             string exportDirectory = @"D:\TEtestze",
-            string mapName = "lotus",
+            string mapName = "kasbah",
             // string fileList = "D:\\__programming\\_github\\valorant-luvi\\export\\_datas\\ascent\\Ascent_Art_A_assets_obj.txt",
             string fileList = "",
-            string gameUmaps = @"C:\Users\BERNA\Documents\Unreal Projects\py_widget_pro\Plugins\Uiana\Content\Python\assets\umaps.json"
+            string gameUmaps = @"E:\Uiana-MapImporter\Uiana\Content\Python\assets\umaps.json"
             )
         {
             var versions = new VersionContainer(EGame.GAME_Valorant);
@@ -44,22 +60,6 @@ namespace cue4extractor
             provider.SubmitKey(new FGuid(), new FAesKey(aesKey));
             // provider.LoadMappings();
             provider.LoadLocalization(ELanguage.English);
-
-            var selectedMap = mapName.ToLower() switch
-            {
-                "bind" => "Duality",
-                "ascent" => "Ascent",
-                "haven" => "Triad",
-                "icebox" => "Port",
-                "split" => "Bonsai",
-                "breeze" => "FoxTrot",
-                "fracture" => "Canyon",
-                "range" => "Poveglia",
-                "pearl" => "Pitt",
-                "lotus" => "Jam",
-                "character select" => "PregameV2",
-                _ => "",
-            };
 
             var folder = Path.Combine(exportDirectory);
             if (!Directory.Exists(folder))
@@ -95,8 +95,8 @@ namespace cue4extractor
                         {
                             objName = line.Split('/')[^1];
                         }
-                            //Console.WriteLine($"INFO - CUE4Parse - Extracting : {objName}");
-                        var objExports = provider.LoadObjectExports(line);
+                        //Console.WriteLine($"INFO - CUE4Parse - Extracting : {objName}");
+                        var objExports = provider.LoadAllObjects(line);
                         var objJSON = JsonConvert.SerializeObject(objExports, Formatting.Indented, settings);
 
                         var objJSONPath = Path.Combine(folder, $"{objName}.json");
@@ -114,23 +114,18 @@ namespace cue4extractor
                 if (gameUmaps == "")
                     return;
 
-                var umapList = GetUmapList(mapName.ToLower(), gameUmaps);
+                var umapList = GetUmapList(mapName.ToLower(), gameUmaps,provider);
 
                 foreach (var umap in umapList)
                 {
                     var sWatch = Stopwatch.StartNew();
-
-                    var umapInternalPath = $"{umap}";
-                    var umapExportFull = provider.LoadObjectExports(umapInternalPath);
-                    var filename = Path.GetFileNameWithoutExtension(umapInternalPath);
-                    var umapJSON = JsonConvert.SerializeObject(umapExportFull, Formatting.Indented, settings);
-
+                    var filename = Path.GetFileNameWithoutExtension($"{umap}");
+                    var umap_Object = provider.LoadAllObjects(umap);
+                    var umapJSON = JsonConvert.SerializeObject(umap_Object, Formatting.Indented, settings);
                     var umapJSONPath = Path.Combine(folder, $"{filename}.json");
-
                     File.WriteAllText(umapJSONPath, umapJSON);
                     sWatch.Stop();
-                    var swms = sWatch.ElapsedMilliseconds;
-                    Console.WriteLine($"INFO - CUE4Parse - Extracted MAP : {filename} / {swms}ms");
+                    Console.WriteLine($"INFO - CUE4Parse - Extracted MAP : {filename} / {sWatch.ElapsedMilliseconds}ms");
                 }
             }
         }

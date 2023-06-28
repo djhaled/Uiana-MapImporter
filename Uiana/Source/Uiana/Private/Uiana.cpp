@@ -69,58 +69,6 @@ void FUianaModule::ShutdownModule()
 
 
 
-FString FUianaModule::GetMapName(int EnumValue)
-{
-	if (EnumValue == 0)
-	{
-		return FString("ascent");
-	}
-	if (EnumValue == 1)
-	{
-		return FString("split");
-	}
-	if (EnumValue == 2)
-	{
-		return FString("bind");
-	}
-	if (EnumValue == 3)
-	{
-		return FString("icebox");
-	}
-	if (EnumValue == 4)
-	{
-		return FString("breeze");
-	}
-	if (EnumValue == 5)
-	{
-		return FString("haven");
-	}
-	if (EnumValue == 6)
-	{
-		return FString("fracture");
-	}
-	if (EnumValue == 7)
-	{
-		return FString("range");
-	}
-	if (EnumValue == 8)
-	{
-		return FString("pearl");
-	}
-	if (EnumValue == 9)
-	{
-		return FString("characterSelect");
-	}
-	if (EnumValue == 10)
-	{
-		return FString("menu");
-	}
-	if (EnumValue == 11)
-	{
-		return FString("lotus");
-	}
-	return FString("NoMap");
-}
 
 void FUianaModule::PluginButtonClicked()
 {
@@ -136,7 +84,8 @@ FReply FUianaModule::ExecuteFunction()
 	bool ImportSubLevels = Stun->UseSubLevels;
 	bool ImportBlueprint = Stun->ImportBlueprints;
 	float ManualLMResMult = Stun->LightmapResolutionMultiplier;
-	FString MapName = GetMapName(Stun->Map.GetValue());
+	FString MapName = UEnum::GetValueAsName(Stun->Map).ToString().ToLower();
+	//FString MapName = GetMapName(Stun->Map.GetValue());
 	FString ExportPath = Stun->ExportFolder.Path;
 	FString PakFolder = Stun->PaksFolder.Path;
 	FString CurrentPath = FPaths::ProjectPluginsDir();

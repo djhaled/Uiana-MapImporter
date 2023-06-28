@@ -16,6 +16,7 @@
 #include "Engine/World.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Misc/FileHelper.h"
+#include "EditorAssetLibrary.h"
 #include "Factories/TextureFactory.h"
 #include "StaticMeshDescription.h"
 #include "Misc/ScopedSlowTask.h"
@@ -216,6 +217,19 @@ void UBPFL::ExecuteConsoleCommand(FString ConsoleCommand) {
 		}
 	}
 }
+UObject* UBPFL::SetMeshReference(FString MeshObjectName, FString MeshType)
+{
+	FString PathToGo = FString::Printf(TEXT("/Game/ValorantContent/%s/%s"), *MeshType, *MeshObjectName);
+	// Remove the single quotation marks from the resulting path
+	PathToGo.RemoveFromEnd("'");
+	PathToGo.RemoveFromStart("'");
+	PathToGo = PathToGo.Replace(TEXT("StaticMesh'"), TEXT(""));
+	//L"/Game/ValorantContent/Meshes/StaticMesh'shared_SkyDomeB'"
+	auto Asset = UEditorAssetLibrary::LoadAsset(PathToGo);
+	return Asset;
+
+}
+
 void UBPFL::ImportTextures(TArray<FString> AllTexturesPath)
 {
 	auto AutomatedData = NewObject<UAutomatedAssetImportData>();

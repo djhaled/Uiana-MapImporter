@@ -19,7 +19,6 @@ public:
 	
 	/** This function will be bound to Command. */
 	UFUNCTION()
-	FString GetMapName(int EnumValue);
 	void PluginButtonClicked();
 	FReply ExecuteFunction();
 	UPROPERTY(Category = MapsAndSets, EditAnywhere)

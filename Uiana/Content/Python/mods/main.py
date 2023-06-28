@@ -300,6 +300,7 @@ def set_all_settings(asset_props: dict, component_reference):
                                 unreal.Vector(value_setting["X"], value_setting["Y"], value_setting["Z"]))
                 continue
             if setting == "StaticMesh":
+                ##mesh_loaded = unreal.BPFL.set_mesh_reference(value_setting["ObjectName"],"Meshes")
                 mesh_loaded = mesh_to_asset(value_setting, "StaticMesh ", "Meshes")
                 set_unreal_prop(component_reference, setting, mesh_loaded)
                 continue
@@ -394,6 +395,7 @@ def fix_actor_bp(actor_data: actor_defs, settings: Settings):
         return
     if has_key("StaticMesh", actor_data.props):
         loaded = mesh_to_asset(actor_data.props["StaticMesh"], "StaticMesh ", "Meshes")
+        #loaded = unreal.BPFL.set_mesh_reference(actor_data.props["StaticMesh"]["Name"],"Meshes")
         component.set_editor_property('static_mesh', loaded)
     if has_key("OverrideMaterials", actor_data.props):
         if settings.import_materials:

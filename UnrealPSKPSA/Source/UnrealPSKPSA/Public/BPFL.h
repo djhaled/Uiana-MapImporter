@@ -47,4 +47,7 @@ public:
 	static ECollisionTraceFlag GetTraceFlag(FString tflag);
 	UFUNCTION(BlueprintCallable, Category = "Unreal Python")
 		static void ExecuteConsoleCommand(FString ConsoleCommand);
+	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
+		static UObject* SetMeshReference(FString MeshObjectName, FString MeshType);
+
 };

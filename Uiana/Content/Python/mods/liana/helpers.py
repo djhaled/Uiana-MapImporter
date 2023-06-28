@@ -182,7 +182,10 @@ def mesh_to_asset(Mesh, Type, ActualType):
     typestring = str(Type)
     NewName = Name.replace(f'{Type}', "")
     PathToGo = f'/Game/ValorantContent/{ActualType}/{NewName}'
-    return unreal.load_asset(PathToGo)
+    print(Mesh)
+    asset = unreal.load_asset(PathToGo)
+    print(asset)
+    return asset
 
 
 def path_convert(path: str) -> str:
