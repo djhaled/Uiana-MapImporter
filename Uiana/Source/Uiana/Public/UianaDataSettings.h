@@ -17,6 +17,7 @@ enum WeaponRole
 	CharacterSelect   UMETA(DisplayName = "CharacterSelect"),
 	Menu   UMETA(DisplayName = "Menu"),
 	Lotus   UMETA(DisplayName = "Lotus"),
+	Sunset      UMETA(DisplayName = "Sunset"),
 	District   UMETA(DisplayName = "District"),
 	Kasbah   UMETA(DisplayName = "Kasbah"),
 	Piazza   UMETA(DisplayName = "Piazza")
