@@ -3,7 +3,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/djhaled/Uiana-MapImporter">
-    <img src="HighresScreenshot00018.png" alt="ScreenShot">
+    <img src="HighresScreenshot00002.png" alt="ScreenShot">
   </a>
   <p align="center">
     <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/djhaled/Uiana-MapImporter?color=green&style=for-the-badge">
