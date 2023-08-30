@@ -1,0 +1,18 @@
+Tools you need to add new cubemaps:
+
+https://danilw.github.io/GLSL-howto/cubemap_to_panorama_js/cubemap_to_panorama.html  converts Side_0,Side_1 ..etc to a panorama image.
+UModel - Exports cubemap in sides 
+
+Order:
+
+Side 0: NegX 
+Side 1: PosX 
+Side 2: PosZ 
+Side 3: NegZ
+Side 4: PosY 
+Side 5: NegY 
+
+Rotations:
+    0
+0  -90 180 90
+    0
