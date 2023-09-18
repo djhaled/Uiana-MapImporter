@@ -59,9 +59,9 @@ Before you download the addon, you must download these first.
 - White vfx's meshes (Working on it, delete them as a temporary fix)
 
 ## Contact 
-* Discord: https://discord.gg/ARFEYZZwMV
-  - bK#6198
-  - Zain#1873
+* Discord: [https://discord.gg/ARFEYZZwMV](https://discord.gg/valorant-3d-and-editing-845075183038627881)
+  - bkhimothy
+  - ka1serm
 
 ## ❤️ Support
 [You can support us on **Paypal**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=bekmassruha1407@gmail.com&lc=US&no_note=0&item_name=Thank+you+for+suppporting+Uiana+Map+Import+Plugin+development+&cn=&curency_code=USD&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted)
