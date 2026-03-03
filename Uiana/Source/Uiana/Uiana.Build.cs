@@ -44,9 +44,19 @@ public class Uiana : ModuleRules
 				"Settings",
 				"Slate",
 				"RenderCore",
-                "WorkspaceMenuStructure",
-				"PythonScriptPlugin",
+				"WorkspaceMenuStructure",
 				"SlateCore",
+				"UEFormat",
+				"ProceduralMeshComponent",
+				"MeshDescription",
+				"RawMesh",
+				"MeshBuilder",
+				"MeshUtilitiesCommon",
+				"EditorScriptingUtilities",
+				"AssetRegistry",
+				"Json",
+				"JsonUtilities",
+				"MaterialEditor",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

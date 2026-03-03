@@ -1,7 +1,7 @@
 Tools you need to add new cubemaps:
 
 https://danilw.github.io/GLSL-howto/cubemap_to_panorama_js/cubemap_to_panorama.html  converts Side_0,Side_1 ..etc to a panorama image.
-UModel - Exports cubemap in sides 
+cue4extractor / FModel / CUE4Parse - Export cubemap in sides 
 
 Order:
 

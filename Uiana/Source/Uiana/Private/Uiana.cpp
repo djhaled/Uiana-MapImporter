@@ -14,6 +14,7 @@
 #include "ToolMenus.h"
 #include "PropertyEditorModule.h"
 #include "UianaDataSettings.h"
+#include "UianaImporter.h"
 #include "Misc/Paths.h"
 #include "ISettingsModule.h"
 static const FName UianaTabName("Uiana");
@@ -77,34 +78,8 @@ void FUianaModule::PluginButtonClicked()
 
 FReply FUianaModule::ExecuteFunction()
 {
-	bool ImportMesh = Stun->ImportMeshes;
-	bool ImportMat = Stun->ImportMaterials;
-	bool ImportDecal = Stun->ImportDecals;
-	bool ImportLights = Stun->ImportLights;
-	bool ImportSubLevels = Stun->UseSubLevels;
-	bool ImportBlueprint = Stun->ImportBlueprints;
-	float ManualLMResMult = Stun->LightmapResolutionMultiplier;
-	FString MapName = UEnum::GetValueAsName(Stun->Map).ToString().ToLower();
-	//FString MapName = GetMapName(Stun->Map.GetValue());
-	FString ExportPath = Stun->ExportFolder.Path;
-	FString PakFolder = Stun->PaksFolder.Path;
-	FString CurrentPath = FPaths::ProjectPluginsDir();
 	Stun->SaveConfig();
-	TArray< FStringFormatArg > args;
-	args.Add(FStringFormatArg(ImportBlueprint));
-	args.Add(FStringFormatArg(ManualLMResMult));
-	args.Add(FStringFormatArg(ImportSubLevels));
-	args.Add(FStringFormatArg(ImportMesh));
-	args.Add(FStringFormatArg(ImportMat));
-	args.Add(FStringFormatArg(ImportDecal));
-	args.Add(FStringFormatArg(ImportLights));
-	args.Add(FStringFormatArg(MapName));
-	args.Add(FStringFormatArg(ExportPath));
-	args.Add(FStringFormatArg(PakFolder));
-	args.Add(FStringFormatArg(CurrentPath));
-	FString FormattedConsoleCommand = FString::Format(TEXT("py mods/__init__.py \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" \"{7}\" \"{8}\" \"{9}\"\"{10}\""), args);
-	const TCHAR* TCharCommand = *FormattedConsoleCommand;
-	GEngine->Exec(NULL, TCharCommand);
+	FUianaImporter::Run(*Stun);
 	return FReply::Handled();
 }
 

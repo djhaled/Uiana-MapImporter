@@ -562,7 +562,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-src/umodel.cfg
 *.xml
 
 # RiderLink

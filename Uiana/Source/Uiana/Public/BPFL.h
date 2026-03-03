@@ -10,12 +10,12 @@
  * 
  */
 class AActor;
-class UPSKXFactory;
+class UUEFModelFactory;
 class USCS_Node;
 class UBrushComponent;
 
 UCLASS()
-class UNREALPSKPSA_API UBPFL : public UBlueprintFunctionLibrary
+class UIANA_API UBPFL : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 	
@@ -45,7 +45,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 	static void ImportMeshes(TArray<FString> AllMeshesPath, FString ObjectsPath);
 	static ECollisionTraceFlag GetTraceFlag(FString tflag);
-	UFUNCTION(BlueprintCallable, Category = "Unreal Python")
+	UFUNCTION(BlueprintCallable, Category = "Console")
 		static void ExecuteConsoleCommand(FString ConsoleCommand);
 	UFUNCTION(BlueprintCallable, Category = ProjectSettings)
 		static UObject* SetMeshReference(FString MeshObjectName, FString MeshType);

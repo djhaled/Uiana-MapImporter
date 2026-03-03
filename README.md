@@ -21,24 +21,26 @@ Unreal Engine plugin for creating VALORANT content. Heavily inspired in Piana by
 Before you download the addon, you must download these first.
 
 * [Download & Install .NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-6.0.5-windows-x64-installer)
-* [Unreal 5.0+](https://www.unrealengine.com/en-US/download) 
+* [Unreal 5.0+](https://www.unrealengine.com/en-US/download)
+* Mesh assets must be in **UEFormat** (`.uemodel`); export e.g. with [FModel](https://github.com/4sval/FModel) or [CUE4Parse](https://github.com/FabianFG/CUE4Parse) which support UEFormat. 
 * [Visual Studio 2019+](https://docs.unrealengine.com/4.26/en-US/ProductionPipelines/DevelopmentSetup/VisualStudioSetup/)
 
 
 ## 1. 🔧 Installation & Usage
 1. **[Download latest](https://github.com/djhaled/Uiana-MapImporter/releases)**
 2. Create a Plugins folder on your **(c++ ready)** project if you don't already have
-3. Drag "UIANA" and "UnrealPSKPSA" from the .zip file and put it in your **project's** "Plugins" folder (NOT IN ENGINE PLUGINS), create the folder if its not there
-4. If asked to, rebuild your Unreal project in Visual Studio
-5. Press Uiana button (Icon) on top of the UI to open the tool
-6. Inside Uiana's UI, go to Settings and fill the inputs as follows.
+3. Install the [UEFormat](https://github.com/h4lfheart/UEFormat) plugin: clone that repo, switch to the **unreal** branch, then copy the inner `UEFormat` folder (the one containing `UEFormat.uplugin`) into your **project's** "Plugins" folder as `UEFormat`. (Or clone this repo with `git clone --recurse-submodules` and copy `UEFormat/UEFormat` from the submodule into your project's Plugins as `UEFormat`.)
+4. Drag "UIANA" from the .zip file into your **project's** "Plugins" folder (NOT IN ENGINE PLUGINS), create the folder if it's not there
+5. If asked to, rebuild your Unreal project in Visual Studio
+6. Press Uiana button (Icon) on top of the UI to open the tool
+7. Inside Uiana's UI, go to Settings and fill the inputs as follows.
    ```js
    Export Folder    = "Path to save your settings & export the maps"
                     // Pick an empty folder with a lot of space.
    PAKs Folder      = "Path to VALORANT's PAK files."
                     // ..Riot Games\VALORANT\live\ShooterGame\Content\Paks\
    ```
-6. Select your preferable settings and hit "Generate Map" on bottom right.
+8. Select your preferable settings and hit "Generate Map" on bottom right.
 
 ## 2. 💾 Saving Import
 1. Make sure to save ValorantContent folder & level after importing successfully
@@ -72,7 +74,7 @@ Before you download the addon, you must download these first.
 - TheyCallMeSpy (Shader and ideas)
 - Patchzy (Shader and ideas)
 - BK
-- Halfuwu (PSKX importer)
+- [UEFormat](https://github.com/h4lfheart/UEFormat) (.uemodel/.ueanim importer)
 
 **Uiana-MapImporter was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games.  Riot Games does not endorse or sponsor this project.**
 
