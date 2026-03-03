@@ -1,0 +1,52 @@
+# Create a GitHub release and attach the Uiana plugin zip when a version tag is pushed.
+# Usage: tag and push, e.g.  git tag v1.05  &&  git push origin v1.05
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create plugin zip
+        run: |
+          # Zip Uiana folder so the archive has "Uiana" as top-level (per README install)
+          zip -r "Uiana-${{ steps.version.outputs.VERSION }}.zip" Uiana \
+            -x "*.git*" \
+            -x "*/.idea/*" \
+            -x "*/.vs/*" \
+            -x "*/Binaries/*" \
+            -x "*/Intermediate/*"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Uiana ${{ steps.version.outputs.VERSION }}
+            Unreal Engine plugin for creating VALORANT content.
+            ### Installation
+            1. [Download & Install .NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-6.0.5-windows-x64-installer) if needed.
+            2. Download **Uiana-${{ steps.version.outputs.VERSION }}.zip** below.
+            3. Extract and drag the **Uiana** folder into your project's **Plugins** folder.
+            4. Install the [UEFormat](https://github.com/h4lfheart/UEFormat) plugin (see [README](https://github.com/djhaled/Uiana-MapImporter#-installation--usage)).
+            5. Rebuild your Unreal project in Visual Studio if prompted.
+          files: "Uiana-${{ steps.version.outputs.VERSION }}.zip"
+          draft: false
+          generate_release_notes: true

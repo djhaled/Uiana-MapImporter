@@ -1,0 +1,4 @@
+[submodule "UEFormat"]
+	path = UEFormat
+	url = https://github.com/h4lfheart/UEFormat.git
+	branch = unreal
